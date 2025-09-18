@@ -11,7 +11,12 @@
 
 #include "Axis1Odom.hpp"
 
-namespace CHASSIS::BIPEDAL {
+#include "IIR.hpp"
+
+#include "RxPacket.hpp"
+#include "PacketImpl.hpp"
+
+namespace CHASSIS {
 union Motors_u {
     struct {
         PINYMOTOR::IMotor *WheelR;
@@ -23,11 +28,19 @@ union Motors_u {
     };
     PINYMOTOR::IMotor *_[6];
 };
-class Bipedal : public Chassis<Bipedal> {
-    static constexpr float LF_HIP_ZERO_ANG = 4416.f;
-    static constexpr float LB_HIP_ZERO_ANG = 14734.f;
-    static constexpr float RF_HIP_ZERO_ANG = 8629.f;
-    static constexpr float RB_HIP_ZERO_ANG = 12029.f;
+
+class ChassisCtrlRxPacket : public COMM::RxPacket<COMM::SamplePacketType, 1> {
+public:
+    // TODO: slightly cumbersome like this or CRTP
+    ChassisCtrlRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
+class Bipedal : public Chassis {
+    static constexpr float LF_HIP_ZERO_ANG = 0.f;
+    static constexpr float LB_HIP_ZERO_ANG = 0.f;
+    static constexpr float RF_HIP_ZERO_ANG = 0.f;
+    static constexpr float RB_HIP_ZERO_ANG = 0.f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // rad
 
@@ -37,6 +50,10 @@ class Bipedal : public Chassis<Bipedal> {
 
 public:
     Bipedal();
+
+    void stop();
+    void enter();
+    void update(void *_param);
 
     void setYawZero(float _yawZero);
 
@@ -72,10 +89,6 @@ public:
     float yaw() const;
 
 private:
-    void stopSelf();
-    void enterSelf();
-    void updateSelf();
-
     Motors_u motors_;
 
     WLController balWLCtrlL_;
@@ -119,8 +132,6 @@ private:
 
     float dt_ = 0.001f;
     uint32_t dtCnt_ = 0;
-
-    friend class Chassis<Bipedal>;
 };
 
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

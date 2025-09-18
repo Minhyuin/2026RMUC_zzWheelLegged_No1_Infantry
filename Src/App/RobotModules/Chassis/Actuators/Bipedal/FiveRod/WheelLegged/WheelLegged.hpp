@@ -5,13 +5,15 @@
 #include "PidBasic.hpp"
 #include "LPF.hpp"
 
-namespace CHASSIS::BIPEDAL {
+namespace CHASSIS {
 
 class WheelLegged {
 public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS_WHEEL = 0.880f + 0.500f;
     static constexpr float MAX_L = 0.3f;
+
+    static constexpr float MAX_HIP_CTRL_TORQ = 3.f;
 
     static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.15f,
                                                 .L2 = 0.25f,
@@ -63,4 +65,4 @@ private:
     float minL(float _phi);
 };
 
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

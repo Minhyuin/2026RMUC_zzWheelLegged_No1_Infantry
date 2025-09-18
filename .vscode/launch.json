@@ -26,15 +26,15 @@
       "request": "launch",
       "showDevDebugOutput": "none",
       "servertype": "jlink",
-      // "device": "stm32h723vg",
-      "device": "stm32f407ig",
+      "device": "stm32h723vg",
+      // "device": "stm32f407ig",
       "liveWatch": {
         "enabled": true,
         "samplesPerSecond": 1
       },
       "preLaunchTask": "build",
       "preLaunchCommands": [
-        "source ${workspaceRoot}/tools/script/.gdbinit", 
+        // "source ${workspaceRoot}/tools/script/.gdbinit", 
         "set p obj on",
         "set p pretty on"
       ],
@@ -72,8 +72,8 @@
         //"${workspaceFolder}/tools/openocd/stlink.cfg",
         "${workspaceFolder}/tools/openocd/dap.cfg",
         // "${workspaceFolder}/tools/openocd/jlink.cfg",
-        // "target/stm32h7x.cfg",
-        "target/stm32f4x.cfg"
+        "target/stm32h7x.cfg",
+        // "target/stm32f4x.cfg"
       ],
       "ToolchainPath": "/usr/bin/",
       // "svdFile": "docs/startup/STM32H723.svd",
@@ -90,7 +90,7 @@
       // ],
       // "postDebugTask": "close-RTT",
       "preLaunchCommands": [
-        "source ${workspaceRoot}/tools/script/.gdbinit", // 手动加载.gdbinit文件
+        // "source ${workspaceRoot}/tools/script/.gdbinit", // 手动加载.gdbinit文件
         "set p obj on",
         "set p pretty on"
       ],

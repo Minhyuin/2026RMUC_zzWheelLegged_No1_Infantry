@@ -3,7 +3,7 @@
 #include <cmath>
 #include "dsp/fast_math_functions.h"
 
-using namespace CHASSIS::BIPEDAL;
+using namespace CHASSIS;
 
 VMC::VMC(const VMCConfig_s &_config)
         : L1_(_config.L1)

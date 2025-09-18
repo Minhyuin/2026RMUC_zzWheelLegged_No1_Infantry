@@ -2,7 +2,7 @@
 
 #include "Matrix.hpp"
 
-namespace CHASSIS::BIPEDAL {
+namespace CHASSIS {
 
 class WBRController {
 public:
@@ -37,4 +37,4 @@ private:
     Matrix<4, 1> u_;
 };
 
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

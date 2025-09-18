@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-using namespace CHASSIS::BIPEDAL;
+using namespace CHASSIS;
 
 WLController::WLController() = default;
 

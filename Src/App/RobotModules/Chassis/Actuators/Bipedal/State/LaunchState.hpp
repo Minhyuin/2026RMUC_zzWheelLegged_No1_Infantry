@@ -3,8 +3,8 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
-namespace CHASSIS::BIPEDAL {
-class LaunchState : public FSMState {
+namespace CHASSIS {
+class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_DPHI = 0.5f * 0.001f; // per ms
     static constexpr float LAUNCH_PHI = -0.3f;
     static constexpr float PHI_THRESHOLD = 0.1f;
@@ -12,9 +12,9 @@ class LaunchState : public FSMState {
     static constexpr float L_THRESHOLD = 0.05f;
 
 public:
-    LaunchState(Bipedal *_chassis) : chassis_(_chassis)
+    LaunchState(Bipedal *_chassis)
+            : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis)
     {
-        setStateName(static_cast<uint8_t>(FSMState_e::LAUNCH));
     }
 
     void enter() final
@@ -41,15 +41,15 @@ public:
     void exit() final { LOG::info("ChassisLaunch", " exit"); }
 
 
-    uint8_t checkChange() final
+    FSMState_e checkChange() final
     {
         if (chassis_->msg.state == FSMState_e::STOP)
-            return static_cast<uint8_t>(FSMState_e::STOP);
+            return FSMState_e::STOP;
         else if (isLaunchFinish_)
-            return static_cast<uint8_t>(FSMState_e::RUN);
+            return FSMState_e::RUN;
         // TODO: the other state
         else
-            return 0;
+            return FSMState_e::LAUNCH;
     }
 
 private:
@@ -57,4 +57,4 @@ private:
     bool isLaunchFinish_ = false;
 };
 
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

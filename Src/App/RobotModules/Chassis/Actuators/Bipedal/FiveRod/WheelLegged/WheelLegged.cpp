@@ -2,7 +2,7 @@
 
 #include "dsp/fast_math_functions.h"
 
-using namespace CHASSIS::BIPEDAL;
+using namespace CHASSIS;
 using namespace PINYMOTOR;
 
 void WheelLegged::init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4,
@@ -18,16 +18,16 @@ void WheelLegged::stop()
     tp_ = fd_ = tw_ = 0.f;
     lengthAngPid_.reset();
     lengthVelPid_.reset();
-    // hip1_->cmd(MotorCmdType_e::OFF);
-    // hip4_->cmd(MotorCmdType_e::OFF);
-    // wheel_->cmd(MotorCmdType_e::OFF);
+    hip1_->cmd(MotorCmdType_e::OFF);
+    hip4_->cmd(MotorCmdType_e::OFF);
+    wheel_->cmd(MotorCmdType_e::OFF);
 }
 
 void WheelLegged::enter()
 {
-    // hip1_->cmd(MotorCmdType_e::ON);
-    // hip4_->cmd(MotorCmdType_e::ON);
-    // wheel_->cmd(MotorCmdType_e::ON);
+    hip1_->cmd(MotorCmdType_e::ON);
+    hip4_->cmd(MotorCmdType_e::ON);
+    wheel_->cmd(MotorCmdType_e::ON);
 }
 
 void WheelLegged::stateUpdate(float _dt)
@@ -65,6 +65,12 @@ void WheelLegged::ctrl()
     fd_ = lengthVelPid_.calc(setVd, legState_.vd);
 
     Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
+
+    u[0][0] = std::fmin(std::fmax(u[0][0], -MAX_HIP_CTRL_TORQ),
+                        MAX_HIP_CTRL_TORQ);
+    u[1][0] = std::fmin(std::fmax(u[1][0], -MAX_HIP_CTRL_TORQ),
+                        MAX_HIP_CTRL_TORQ);
+
     hip1_->cmdTorq(u[0][0]);
     hip4_->cmdTorq(u[1][0]);
     wheel_->cmdTorq(tw_);

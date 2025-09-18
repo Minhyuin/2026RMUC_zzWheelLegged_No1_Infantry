@@ -3,7 +3,7 @@
 #include "Matrix.hpp"
 
 
-namespace CHASSIS::BIPEDAL {
+namespace CHASSIS {
 
 struct LegState_s {
     // basic
@@ -83,4 +83,4 @@ private:
 
     Matrix<2, 2> invFast(Matrix<2, 2> &_mat) const;
 };
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

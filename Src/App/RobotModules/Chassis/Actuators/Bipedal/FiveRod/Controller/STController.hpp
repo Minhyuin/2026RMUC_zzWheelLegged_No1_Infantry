@@ -2,7 +2,7 @@
 
 #include "Matrix.hpp"
 
-namespace CHASSIS::BIPEDAL {
+namespace CHASSIS {
 
 class STController {
 public:
@@ -32,4 +32,4 @@ private:
     Matrix<1, 1> u_;
 };
 
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

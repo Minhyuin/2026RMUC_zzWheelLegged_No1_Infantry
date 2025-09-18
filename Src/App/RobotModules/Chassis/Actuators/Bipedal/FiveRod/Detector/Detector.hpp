@@ -4,7 +4,7 @@
 
 #include "WheelLegged.hpp"
 
-namespace CHASSIS::BIPEDAL {
+namespace CHASSIS {
 class Detector {
     static constexpr float FN_THRESHOLD =
             WheelLegged::MASS_WHEEL * WheelLegged::GRAVITY;
@@ -30,4 +30,4 @@ public:
 private:
     uint16_t freezeTime = 0;
 };
-} // namespace CHASSIS::BIPEDAL
+} // namespace CHASSIS

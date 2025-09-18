@@ -5,7 +5,7 @@
 #include "dsp/fast_math_functions.h"
 #include "sdkconfig.h"
 #include "Bsp_can.hpp"
-#include "Dwt.h"
+#include "Dwt.hpp"
 
 // #include "OSnew.hpp"
 
@@ -15,32 +15,22 @@
 #include "./State/RunState.hpp"
 #include "./State/LaunchState.hpp"
 
-extern canHandle HCAN1; // wheel
-extern canHandle HCAN2; // hip
+extern canHandle HCAN1;
+extern canHandle HCAN2;
 
-using namespace CHASSIS::BIPEDAL;
+#define HIP_HANDLE   HCAN2
+#define WHEEL_HANDLE HCAN1
+
+using namespace CHASSIS;
 using namespace PINYMOTOR;
 
 Bipedal::Bipedal()
         : insSub_(new Subscriber<INS_SYS::INSData_s>(
                   4, &TopicRouter::instance().insTopic, &insData_))
 {
-    InitConfig_s rM3508Config = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
-        .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::QUAD_CURR,
-        .offsetId = 1,
-        .txFreq = 500.f,
-        .posPID = nullptr,
-        .velPID = nullptr,
-        .torqPID = nullptr,
-        .isReverse = false,
-    };
-    motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);
-
     InitConfig_s rfDM8009Config = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
-        .comType = ComType_e::CAN,
+        .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
+        .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,
         .txFreq = 500.f,
@@ -53,8 +43,8 @@ Bipedal::Bipedal()
     motors_.HipRF->setZeroAng(RF_HIP_ZERO_ANG);
 
     InitConfig_s rbDM8009Config = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
-        .comType = ComType_e::CAN,
+        .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
+        .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 2,
         .txFreq = 500.f,
@@ -66,11 +56,40 @@ Bipedal::Bipedal()
     motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config);
     motors_.HipRB->setZeroAng(RB_HIP_ZERO_ANG);
 
+
+    InitConfig_s lfDM8009Config = {
+        .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
+        .comType = ComType_e::FDCAN,
+        .workMode = WorkMode_e::MIT_TT,
+        .offsetId = 3,
+        .txFreq = 500.f,
+        .posPID = nullptr,
+        .velPID = nullptr,
+        .torqPID = nullptr,
+        .isReverse = false,
+    };
+    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config);
+    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
+
+    InitConfig_s lbDM8009Config = {
+        .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
+        .comType = ComType_e::FDCAN,
+        .workMode = WorkMode_e::MIT_TT,
+        .offsetId = 4,
+        .txFreq = 500.f,
+        .posPID = nullptr,
+        .velPID = nullptr,
+        .torqPID = nullptr,
+        .isReverse = false,
+    };
+    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config);
+    motors_.HipLB->setZeroAng(LB_HIP_ZERO_ANG);
+
     InitConfig_s lM3508Config = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::QUAD_CURR,
-        .offsetId = 2,
+        .offsetId = 5,
         .txFreq = 500.f,
         .posPID = nullptr,
         .velPID = nullptr,
@@ -79,48 +98,33 @@ Bipedal::Bipedal()
     };
     motors_.WheelL = new DJIMOTOR::M3508("WheelL", lM3508Config);
 
-    InitConfig_s lfDM8009Config = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
+    InitConfig_s rM3508Config = {
+        .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
         .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::MIT_TT,
-        .offsetId = 3,
+        .workMode = WorkMode_e::QUAD_CURR,
+        .offsetId = 6,
         .txFreq = 500.f,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
-        .isReverse = true,
+        .isReverse = false,
     };
-    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config);
-    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
-
-    InitConfig_s lbDM8009Config = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
-        .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::MIT_TT,
-        .offsetId = 4,
-        .txFreq = 500.f,
-        .posPID = nullptr,
-        .velPID = nullptr,
-        .torqPID = nullptr,
-        .isReverse = true,
-    };
-    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config);
-    motors_.HipLB->setZeroAng(LB_HIP_ZERO_ANG);
+    motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);
 
     legL_.init(motors_.HipLF, motors_.HipLB, motors_.WheelL);
     legR_.init(motors_.HipRF, motors_.HipRB, motors_.WheelR);
 
-    this->stateFactory_.addState(static_cast<uint8_t>(FSMState_e::RUN),
-                                 std::make_unique<RunState>(this));
-    this->stateFactory_.addState(static_cast<uint8_t>(FSMState_e::LAUNCH),
-                                 std::make_unique<LaunchState>(this));
-    this->stateFactory_.addState(static_cast<uint8_t>(FSMState_e::STOP),
+    this->stateFactory_.addState(FSMState_e::STOP,
                                  std::make_unique<StopState>(this));
-    this->stateFactory_.init(this->stateFactory_.getNextState(
-            static_cast<uint8_t>(FSMState_e::STOP)));
+    this->stateFactory_.addState(FSMState_e::LAUNCH,
+                                 std::make_unique<LaunchState>(this));
+    this->stateFactory_.addState(FSMState_e::RUN,
+                                 std::make_unique<RunState>(this));
+    this->stateFactory_.init(
+            this->stateFactory_.getNextState(FSMState_e::STOP));
 }
 
-void Bipedal::stopSelf()
+void Bipedal::stop()
 {
     legL_.stop();
     legR_.stop();
@@ -137,7 +141,7 @@ void Bipedal::stopSelf()
     dsPid_.reset();
 }
 
-void Bipedal::enterSelf()
+void Bipedal::enter()
 {
     legL_.enter();
     legR_.enter();
@@ -146,10 +150,10 @@ void Bipedal::enterSelf()
     setRoll_ = 0;
 }
 
-void Bipedal::updateSelf()
+void Bipedal::update(void *_param)
 {
     // update dt
-    dt_ = dwt_get_dt(&dtCnt_);
+    dt_ = Dwt::instance().getDt(&dtCnt_);
 
     // update insData
     insSub_->receive();

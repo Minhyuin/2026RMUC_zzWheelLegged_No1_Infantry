@@ -2,7 +2,7 @@
 
 #include "dsp/fast_math_functions.h"
 
-using namespace CHASSIS::BIPEDAL;
+using namespace CHASSIS;
 
 bool Detector::isFloating(float _fn) { return _fn < FN_THRESHOLD; }
 
