@@ -37,10 +37,10 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_ZERO_ANG = 0.f;
-    static constexpr float LB_HIP_ZERO_ANG = 0.f;
-    static constexpr float RF_HIP_ZERO_ANG = 0.f;
-    static constexpr float RB_HIP_ZERO_ANG = 0.f;
+    static constexpr float LF_HIP_ZERO_ANG = 0.325223774f;
+    static constexpr float LB_HIP_ZERO_ANG = 5.56600571f;
+    static constexpr float RF_HIP_ZERO_ANG = 5.46360636f;
+    static constexpr float RB_HIP_ZERO_ANG = 5.68297863f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // rad
 

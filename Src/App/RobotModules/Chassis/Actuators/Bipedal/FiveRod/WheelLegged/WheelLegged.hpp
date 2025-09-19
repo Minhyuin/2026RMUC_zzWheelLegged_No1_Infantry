@@ -11,15 +11,15 @@ class WheelLegged {
 public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS_WHEEL = 0.880f + 0.500f;
-    static constexpr float MAX_L = 0.3f;
+    static constexpr float MAX_L = 0.348114768f;
 
     static constexpr float MAX_HIP_CTRL_TORQ = 3.f;
 
-    static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.15f,
-                                                .L2 = 0.25f,
-                                                .L3 = 0.25f,
-                                                .L4 = 0.15f,
-                                                .L5 = 0.12f };
+    static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.215f,
+                                                .L2 = 0.258f,
+                                                .L3 = 0.258f,
+                                                .L4 = 0.215f,
+                                                .L5 = 0.f };
     void init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4,
               PINYMOTOR::IMotor *_wheel);
     void stop();

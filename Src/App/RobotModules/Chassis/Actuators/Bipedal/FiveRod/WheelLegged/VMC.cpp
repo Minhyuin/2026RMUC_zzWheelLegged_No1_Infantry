@@ -33,17 +33,16 @@ void VMC::update(LegState_s &_legState, float _dt)
     xD = xE + L4_ * cos4;
     yD = yE + L4_ * sin4;
 
-    float xDB, yDB, lDB;
-    xDB = xB - xD;
-    yDB = yB - yD;
-    arm_sqrt_f32(((xDB * xDB) + (yDB * yDB)), &lDB); // TODO: optimize sqrt
+    float xBD, yBD, lBD;
+    xBD = xD - xB;
+    yBD = yD - yB;
+    arm_sqrt_f32(((xBD * xBD) + (yBD * yBD)), &lBD); // TODO: optimize sqrt
 
     float cosBeta, beta, alpha;
-    // k = abs((L3_ * L3_) - (L2_ * L2_ + lDB * lDB)) / (2.f * L2_ * lDB);
-    cosBeta = ((L2_ * L2_ + lDB * lDB) - (L3_ * L3_)) / (2.f * L2_ * lDB);
+    cosBeta = ((L2_ * L2_ + lBD * lBD) - (L3_ * L3_)) / (2.f * L2_ * lBD);
     beta = acos(cosBeta);
-    // arm_atan2_f32(yDB, xDB, &addTheta);
-    alpha = atan(yDB / xDB); // TODO: should I use atan2?
+    // arm_atan2_f32(yBD,xBD, &alpha);
+    alpha = atan2(yBD, xBD);
 
     _legState.phi2 = beta + alpha;
     _legState.phi3 = PI - beta + alpha;
@@ -60,7 +59,8 @@ void VMC::update(LegState_s &_legState, float _dt)
     yC = L2_ * sin2 + L1_ * sin1;
 
     arm_atan2_f32(yC, xC, &phiC);
-    _legState.phi0 = phiC - PI / 2.f;
+    float phi0 = phiC - (PI / 2.f);
+    _legState.phi0 = phi0 < 0 ? phi0 + (PI * 2.f) : phi0;
     arm_sqrt_f32(((xC * xC) + (yC * yC)), &_legState.L0);
 
     // assemble J Matrix

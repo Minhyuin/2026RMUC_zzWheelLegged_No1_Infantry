@@ -24,9 +24,19 @@ extern canHandle HCAN2;
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
+void ChassisCtrlRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(
+            &HCAN1, uid(), [this](const uint8_t *_rxBuf) {
+                xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+            });
+    LOG::info("ChassisCtrlRxPacket", " Receive cb registered, uId:0x%hx \n",
+              uid());
+}
+
 Bipedal::Bipedal()
         : insSub_(new Subscriber<INS_SYS::INSData_s>(
-                  4, &TopicRouter::instance().insTopic, &insData_))
+                  2, &TopicRouter::instance().insTopic, &insData_))
 {
     InitConfig_s rfDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -37,12 +47,12 @@ Bipedal::Bipedal()
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
-        .isReverse = false,
+        .isReverse = true,
     };
-    motors_.HipRF = new DMMOTOR::DM8009("HipRF", rfDM8009Config);
+    motors_.HipRF = new DMMOTOR::DM8009("HipRF", rfDM8009Config); // HIP4
     motors_.HipRF->setZeroAng(RF_HIP_ZERO_ANG);
 
-    InitConfig_s rbDM8009Config = {
+    InitConfig_s lfDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
@@ -53,11 +63,10 @@ Bipedal::Bipedal()
         .torqPID = nullptr,
         .isReverse = false,
     };
-    motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config);
-    motors_.HipRB->setZeroAng(RB_HIP_ZERO_ANG);
+    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config); // HIP4
+    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
 
-
-    InitConfig_s lfDM8009Config = {
+    InitConfig_s lbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
@@ -68,10 +77,10 @@ Bipedal::Bipedal()
         .torqPID = nullptr,
         .isReverse = false,
     };
-    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config);
-    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
+    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config); // HIP1
+    motors_.HipLB->setZeroAng(rangeMap(LB_HIP_ZERO_ANG - PI));
 
-    InitConfig_s lbDM8009Config = {
+    InitConfig_s rbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
@@ -80,10 +89,10 @@ Bipedal::Bipedal()
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
-        .isReverse = false,
+        .isReverse = true,
     };
-    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config);
-    motors_.HipLB->setZeroAng(LB_HIP_ZERO_ANG);
+    motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config); // HIP1
+    motors_.HipRB->setZeroAng(rangeMap(RB_HIP_ZERO_ANG - PI));
 
     InitConfig_s lM3508Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
@@ -111,8 +120,8 @@ Bipedal::Bipedal()
     };
     motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);
 
-    legL_.init(motors_.HipLF, motors_.HipLB, motors_.WheelL);
-    legR_.init(motors_.HipRF, motors_.HipRB, motors_.WheelR);
+    legL_.init(motors_.HipLB, motors_.HipLF, motors_.WheelL);
+    legR_.init(motors_.HipRB, motors_.HipRF, motors_.WheelR);
 
     this->stateFactory_.addState(FSMState_e::STOP,
                                  std::make_unique<StopState>(this));

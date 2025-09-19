@@ -55,8 +55,12 @@ float WheelLegged::calcFn(float _az)
                     (2.f * legState_.vd * -legState_.dphi0 * -sinPhi0) +
                     (legState_.L0 * -legState_.ap * -sinPhi0) +
                     (legState_.L0 * powf(legState_.dphi0, 2) * cosPhi0);
-    float fn = ((azWheel + GRAVITY) * MASS_WHEEL) + fp;
-    return fn_ = fnLPF_.process(fn);
+    float rawFn = ((azWheel + GRAVITY) * MASS_WHEEL) + fp;
+    if (isnan(rawFn)) {
+        return fn_;
+    } else {
+        return fn_ = fnLPF_.process(rawFn);
+    }
 }
 
 void WheelLegged::ctrl()
