@@ -46,10 +46,27 @@ void RcMsgHandler::handle()
     rcMsg_.yMove = rcData.mouse.y;
     rcMsg_.zRoller = rcData.mouse.z;
 
-    masterHandle();
+    chassisHandle();
 }
 
-void RcMsgHandler::chassisHandle() {}
+void RcMsgHandler::chassisHandle()
+{
+    if (rcMsg_.rSwitch == RC_SW_DOWN) {
+        // chassis
+        cmsg_.state = CHASSIS::FSMState_e::STOP;
+        cmsg_.vx = cmsg_.vy = cmsg_.dl = cmsg_.dphi = 0.f;
+    } else if (rcMsg_.rSwitch == RC_SW_MID) {
+        // chassis
+        cmsg_.state = CHASSIS::FSMState_e::RUN;
+        cmsg_.vx = s_curve(ROCKER_VX_GAIN, rcMsg_.ry);
+        cmsg_.vy = -s_curve(ROCKER_VY_GAIN, rcMsg_.rx);
+        cmsg_.dl = s_curve(ROCKER_FDL_GAIN, rcMsg_.ly);
+        cmsg_.dphi = s_curve(ROCKER_FDPHI_GAIN, rcMsg_.lx);
+    } else {
+        return;
+    }
+    notify(&cmsg_, msgBus_->chassisQueue);
+}
 
 void RcMsgHandler::masterHandle() {}
 
