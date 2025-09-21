@@ -15,7 +15,7 @@ void WheelLegged::init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4,
 
 void WheelLegged::stop()
 {
-    tp_ = fd_ = tw_ = 0.f;
+    tp_ = fd_ = fdForward_ = tw_ = 0.f;
     lengthAngPid_.reset();
     lengthVelPid_.reset();
     hip1_->cmd(MotorCmdType_e::OFF);
@@ -66,7 +66,7 @@ float WheelLegged::calcFn(float _az)
 void WheelLegged::ctrl()
 {
     float setVd = lengthAngPid_.calc(setL_, legState_.L0);
-    fd_ = lengthVelPid_.calc(setVd, legState_.vd);
+    fd_ = lengthVelPid_.calc(setVd, legState_.vd) + fdForward_;
 
     Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
 
@@ -92,6 +92,6 @@ void WheelLegged::setL(float _l)
 }
 
 
-void WheelLegged::setFd(float _fd) { fd_ = _fd; }
+void WheelLegged::setFdForward(float _fd) { fdForward_ = _fd; }
 void WheelLegged::setTp(float _tp) { tp_ = _tp; }
 void WheelLegged::setTw(float _tw) { tw_ = _tw; }

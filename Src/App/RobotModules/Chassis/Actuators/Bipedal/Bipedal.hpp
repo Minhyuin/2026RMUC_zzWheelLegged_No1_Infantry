@@ -62,8 +62,8 @@ public:
     void setL(float _l);
     void setL(float _lL, float _lR);
 
-    void setFd(float _fd);
-    void setFd(float _fdL, float _fdR);
+    void setFdForward(float _fd);
+    void setFdForward(float _fdL, float _fdR);
 
     void ctrlBal(const WLController::States_u &_ref, float _wz);
     void ctrlBal(const WLController::States_u &_refL,
@@ -77,6 +77,12 @@ public:
 
     void ctrlHip(float _phi);
     void ctrlHip(float _phiL, float _phiR);
+
+    void ctrlHipTp(float _tp);
+    void ctrlHipTp(float _tpL, float _tpR);
+
+    void ctrlHipFd(float _fd);
+    void ctrlHipFd(float _fdL, float _fdR);
 
     void ctrlHipRot(float _dphi);
     void ctrlHipRot(float _dphiL, float _dphiR);
@@ -99,8 +105,16 @@ private:
     WheelLegged legL_;
     WheelLegged legR_;
 
-    INS_SYS::INSData_s insData_ = {};
     Subscriber<INS_SYS::INSData_s> *insSub_;
+    INS_SYS::INSData_s insData_ = {};
+
+#if !APP_USE_COMM
+    GimbalYawMsg_s gimbalYawMsg_;
+    Subscriber<GimbalYawMsg_s> *gimbalYawSub_;
+#endif
+#ifdef APP_CHASSIS_SLAVE
+    ChassisCtrlRxPacket chassisCtrlRxPacket_;
+#endif
 
     Axis1Odom odom_;
 
@@ -109,8 +123,8 @@ private:
     PositonalPid rollAngPid_{ 0, 0, 0, 0, 0, 0, 0 };
     PositonalPid rollVelPid_{ 0, 0, 0, 0, 0, 0, 0 };
 
-    PositonalPid hipAngPidL_{ 0, 0, 0, 0, 0, 0, 0 };
-    PositonalPid hipVelPidL_{ 0, 0, 0, 0, 0, 0, 0 };
+    PositonalPid hipAngPidL_{ 15.f, 3.f, 0, 0.001f, 5.f, 40, 0 };
+    PositonalPid hipVelPidL_{ 2.3f, 0, 0, 0.001f, 0, 40, 0 };
 
     PositonalPid hipAngPidR_{ hipAngPidL_ };
     PositonalPid hipVelPidR_{ hipVelPidL_ };

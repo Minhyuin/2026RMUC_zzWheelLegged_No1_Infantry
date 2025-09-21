@@ -13,7 +13,7 @@ public:
     static constexpr float MASS_WHEEL = 0.880f + 0.500f;
     static constexpr float MAX_L = 0.348114768f;
 
-    static constexpr float MAX_HIP_CTRL_TORQ = 3.f;
+    static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
 
     static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.215f,
                                                 .L2 = 0.258f,
@@ -29,7 +29,7 @@ public:
 
     void setL(float _l);
 
-    void setFd(float _fd);
+    void setFdForward(float _fd);
     void setTp(float _tp);
     void setTw(float _tw);
 
@@ -46,6 +46,7 @@ private:
 
     float tp_ = 0.f;
     float fd_ = 0.f;
+    float fdForward_ = 0.f;
     float tw_ = 0.f;
 
     float fn_ = 0.f;

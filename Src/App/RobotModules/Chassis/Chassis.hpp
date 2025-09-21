@@ -2,9 +2,8 @@
 
 #include "FSMState.hpp"
 #include "TopicRouter.hpp"
-
 namespace CHASSIS {
-enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN };
+enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN, TEST };
 }
 class Chassis {
 public:
