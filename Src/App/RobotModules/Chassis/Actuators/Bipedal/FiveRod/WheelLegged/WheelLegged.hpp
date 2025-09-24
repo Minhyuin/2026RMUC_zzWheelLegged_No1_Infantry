@@ -56,8 +56,8 @@ private:
 
     float setL_;
 
-    PositonalPid lengthAngPid_{ 100.f, 50, 0, 0.001f, 5, 20, 0 };
-    PositonalPid lengthVelPid_{ 3.f, 0, 0, 0.001f, 0, 40, 0 };
+    PositionalPid lengthAngPid_{ 100.f, 50, 0, 0.001f, 5, 20, 0 };
+    PositionalPid lengthVelPid_{ 3.f, 0, 0, 0.001f, 0, 40, 0 };
 
     PINYMOTOR::IMotor *hip1_;
     PINYMOTOR::IMotor *hip4_;

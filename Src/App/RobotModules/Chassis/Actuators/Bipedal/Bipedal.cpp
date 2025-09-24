@@ -111,6 +111,7 @@ Bipedal::Bipedal()
         .isReverse = true,
     };
     motors_.WheelL = new DJIMOTOR::M3508("WheelL", lM3508Config);
+    motors_.WheelL->overrideReductionRatio(DJIMOTOR::M3508::XROLL_GEARBOX_RR);
 
     InitConfig_s rM3508Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
@@ -124,6 +125,7 @@ Bipedal::Bipedal()
         .isReverse = false,
     };
     motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);
+    motors_.WheelR->overrideReductionRatio(DJIMOTOR::M3508::XROLL_GEARBOX_RR);
 
     legL_.init(motors_.HipLF, motors_.HipLB, motors_.WheelL);
     legR_.init(motors_.HipRF, motors_.HipRB, motors_.WheelR);

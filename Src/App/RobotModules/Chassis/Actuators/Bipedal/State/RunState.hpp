@@ -59,7 +59,7 @@ public:
 
 private:
     Bipedal *chassis_;
-    PositonalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
+    PositionalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
 };
 
 } // namespace CHASSIS

@@ -143,14 +143,14 @@ private:
 
     Detector detector_;
 
-    PositonalPid rollAngPid_{ 0, 0, 0, 0, 0, 0, 0 };
-    PositonalPid rollVelPid_{ 0, 0, 0, 0, 0, 0, 0 };
+    PositionalPid rollAngPid_{ 0, 0, 0, 0, 0, 0, 0 };
+    PositionalPid rollVelPid_{ 0, 0, 0, 0, 0, 0, 0 };
 
-    PositonalPid hipAngPidL_{ 250.f, 1400.f, 0, 0.001f, 10.f, 40, 0 };
-    PositonalPid hipVelPidL_{ 1.5f, 0, 0, 0.001f, 0, 40.f, 0 };
+    PositionalPid hipAngPidL_{ 250.f, 1400.f, 0, 0.001f, 10.f, 40, 0 };
+    PositionalPid hipVelPidL_{ 1.5f, 0, 0, 0.001f, 0, 40.f, 0 };
 
-    PositonalPid hipAngPidR_{ hipAngPidL_ };
-    PositonalPid hipVelPidR_{ hipVelPidL_ };
+    PositionalPid hipAngPidR_{ hipAngPidL_ };
+    PositionalPid hipVelPidR_{ hipVelPidL_ };
 
     IncrementalPid wzVelPid_{ 1, 0, 0, 3.f, 0 };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.0035f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
