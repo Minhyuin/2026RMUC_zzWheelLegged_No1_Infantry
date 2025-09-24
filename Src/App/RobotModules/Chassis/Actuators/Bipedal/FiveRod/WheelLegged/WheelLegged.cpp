@@ -66,6 +66,7 @@ float WheelLegged::calcFn(float _az)
 void WheelLegged::ctrl()
 {
     float setVd = lengthAngPid_.calc(setL_, legState_.L0);
+    // float setVd = lengthAngPid_.calc(legState_.L0, setL_);
     fd_ = lengthVelPid_.calc(setVd, legState_.vd) + fdForward_;
 
     Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
@@ -80,7 +81,7 @@ void WheelLegged::ctrl()
     wheel_->cmdTorq(tw_);
 }
 
-float WheelLegged::minL(float _phi)
+float WheelLegged::minL(float _phi) const
 {
     // TODO: a fitted polynomial : minL = f(phi)
     return 0.2f;

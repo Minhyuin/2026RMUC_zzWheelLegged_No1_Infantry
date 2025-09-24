@@ -60,7 +60,7 @@ void VMC::update(LegState_s &_legState, float _dt)
 
     arm_atan2_f32(yC, xC, &phiC);
     float phi0 = phiC - (PI / 2.f);
-    _legState.phi0 = phi0 < 0 ? phi0 + (PI * 2.f) : phi0;
+    _legState.phi0 = phi0 < -PI ? phi0 + (PI * 2.f) : phi0;
     arm_sqrt_f32(((xC * xC) + (yC * yC)), &_legState.L0);
 
     // assemble J Matrix

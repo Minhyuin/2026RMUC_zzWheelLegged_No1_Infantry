@@ -56,14 +56,14 @@ private:
 
     float setL_;
 
-    PositonalPid lengthAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
-    PositonalPid lengthVelPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
+    PositonalPid lengthAngPid_{ 100.f, 50, 0, 0.001f, 5, 20, 0 };
+    PositonalPid lengthVelPid_{ 3.f, 0, 0, 0.001f, 0, 40, 0 };
 
     PINYMOTOR::IMotor *hip1_;
     PINYMOTOR::IMotor *hip4_;
     PINYMOTOR::IMotor *wheel_;
 
-    float minL(float _phi);
+    float minL(float _phi) const;
 };
 
 } // namespace CHASSIS

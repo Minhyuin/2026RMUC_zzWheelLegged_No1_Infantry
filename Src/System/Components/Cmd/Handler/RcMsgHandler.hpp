@@ -7,8 +7,8 @@ class RcMsgHandler : public Handler {
     static constexpr float ROCKER_VY_GAIN = 2.f;
     static constexpr float ROCKER_WZ_GAIN = 0.06f;
 
-    static constexpr float ROCKER_FDL_GAIN = 25.f;
-    static constexpr float ROCKER_FDPHI_GAIN = 2.f;
+    static constexpr float ROCKER_FDL_GAIN = 2.f / 3000.f;
+    static constexpr float ROCKER_FDPHI_GAIN = 2.f / 500.f;
 
     static constexpr float ROCKER_PITCH_GAIN = 0.1f;
     static constexpr float ROCKER_YAW_GAIN = 0.1f;

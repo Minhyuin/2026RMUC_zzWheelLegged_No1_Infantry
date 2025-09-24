@@ -19,15 +19,18 @@ public:
     {
         chassis_->enter();
         LOG::info("ChassisTest", " enter");
-        phi_ = PI;
+        phi_ = chassis_->phiL();
+        l0_ = 0.25f;
     }
 
     void run() final
     {
-        phi_ += chassis_->msg.vx / 500.f;
-        phi_ = PINYMOTOR::rangeMap(phi_);
-        chassis_->setFdForward(chassis_->msg.dl);
-        chassis_->ctrlHip(phi_, phi_);
+        phi_ += chassis_->msg.dphi;
+        l0_ += chassis_->msg.dl;
+        chassis_->setLength(l0_);
+        chassis_->setHipPhi(phi_);
+        chassis_->noBal(chassis_->msg.vx, -chassis_->msg.vy);
+        chassis_->ctrl();
     }
 
     void exit() final { LOG::info("ChassisTest", " exit"); }
@@ -47,6 +50,7 @@ public:
 private:
     Bipedal *chassis_;
     float phi_;
+    float l0_;
 };
 
 } // namespace CHASSIS

@@ -37,16 +37,18 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_ZERO_ANG = 0.325223774f;
-    static constexpr float LB_HIP_ZERO_ANG = 5.56600571f;
-    static constexpr float RF_HIP_ZERO_ANG = 5.46360636f;
-    static constexpr float RB_HIP_ZERO_ANG = 5.68297863f;
+    static constexpr float LF_HIP_ZERO_ANG = 1.93523502f;
+    static constexpr float LB_HIP_ZERO_ANG = 4.08178854f;
+    static constexpr float RF_HIP_ZERO_ANG = 0.617081642f;
+    static constexpr float RB_HIP_ZERO_ANG = 4.168846371f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // rad
 
-    static constexpr float W_RADIUS = 0.07625f; // m
+    static constexpr float W_RADIUS = 0.1153f / 2.f; // m
     static constexpr float W_DIAMETER = W_RADIUS * 2.f;
     static constexpr float W_CIRCUMFERENCE = (PI * W_DIAMETER);
+
+    static constexpr float B_RADIUS = 0.5695f / 2.f;
 
 public:
     Bipedal();
@@ -59,40 +61,61 @@ public:
 
     void setRoll(float _roll);
 
-    void setL(float _l);
-    void setL(float _lL, float _lR);
+    void setLength(float _l);
+    void setLength(float _lL, float _lR);
+    void setLengthL(float _l);
+    void setLengthR(float _l);
 
     void setFdForward(float _fd);
     void setFdForward(float _fdL, float _fdR);
 
-    void ctrlBal(const WLController::States_u &_ref, float _wz);
-    void ctrlBal(const WLController::States_u &_refL,
-                 const WLController::States_u &_refR, float _wz);
+    void setHipPhiRot(float _dphi);
+    void setHipPhiRot(float _dphiL, float _dphiR);
+    void setHipPhiRotL(float _dphi);
+    void setHipPhiRotR(float _dphi);
 
-    void ctrlBal(const WBRController::States_u &_ref);
+    void setHipPhiSmooth(float _phi, float _step);
+    void setHipPhiSmooth(float _phiL, float _phiR, float _step);
+    void setHipPhiSmoothL(float _phi, float _step);
+    void setHipPhiSmoothR(float _phi, float _step);
 
-    void ctrlBal(const STController::States_u &_ref, float _wz);
+    void setHipPhi(float _phi);
+    void setHipPhi(float _phiL, float _phiR);
+    void setHipPhiL(float _phi);
+    void setHipPhiR(float _phi);
 
-    void ctrlNoBal(float _vx, float _wz);
+    void setHipTp(float _tp);
+    void setHipTp(float _tpL, float _tpR);
 
-    void ctrlHip(float _phi);
-    void ctrlHip(float _phiL, float _phiR);
+    void setHipFd(float _fd);
+    void setHipFd(float _fdL, float _fdR);
 
-    void ctrlHipTp(float _tp);
-    void ctrlHipTp(float _tpL, float _tpR);
+    void bal(const WLController::States_u &_ref, float _wz);
+    void bal(const WLController::States_u &_refL,
+             const WLController::States_u &_refR, float _wz);
 
-    void ctrlHipFd(float _fd);
-    void ctrlHipFd(float _fdL, float _fdR);
+    void bal(const WBRController::States_u &_ref);
 
-    void ctrlHipRot(float _dphi);
-    void ctrlHipRot(float _dphiL, float _dphiR);
+    void bal(const STController::States_u &_ref, float _wz);
+
+    void noBal(float _vx, float _wz);
+
+
+    void ctrl();
 
     bool isTumble();
     bool isFreeze();
     bool isOverturn();
     bool isLaunched(float _setPhi, float _phiTh, float _setL, float _lTh);
+    bool detectPhiL(float _ang1, float _ang2);
+    bool detectPhiR(float _ang1, float _ang2);
 
     float yaw() const;
+
+    float phiL() const;
+    float phiR() const;
+    float lengthL() const;
+    float lengthR() const;
 
 private:
     Motors_u motors_;
@@ -123,14 +146,14 @@ private:
     PositonalPid rollAngPid_{ 0, 0, 0, 0, 0, 0, 0 };
     PositonalPid rollVelPid_{ 0, 0, 0, 0, 0, 0, 0 };
 
-    PositonalPid hipAngPidL_{ 15.f, 3.f, 0, 0.001f, 5.f, 40, 0 };
-    PositonalPid hipVelPidL_{ 2.3f, 0, 0, 0.001f, 0, 40, 0 };
+    PositonalPid hipAngPidL_{ 250.f, 1400.f, 0, 0.001f, 10.f, 40, 0 };
+    PositonalPid hipVelPidL_{ 1.5f, 0, 0, 0.001f, 0, 40.f, 0 };
 
     PositonalPid hipAngPidR_{ hipAngPidL_ };
     PositonalPid hipVelPidR_{ hipVelPidL_ };
 
-    IncrementalPid wzVelPid_{ 0, 0, 0, 0, 0 };
-    IncrementalPid dsPid_{ 0, 0, 0, 0, 0 };
+    IncrementalPid wzVelPid_{ 1, 0, 0, 3.f, 0 };
+    IncrementalPid dsPid_[2]{ { 0.6f, 0.0035f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     float setRoll_ = 0.f;
 

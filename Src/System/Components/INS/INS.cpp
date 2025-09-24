@@ -88,7 +88,7 @@ void INS::task(void *_param)
                    .z = -cali.getOutput().az },
             .g = { .x = -cali.getOutput().gx,
                    .y = -cali.getOutput().gy,
-                   .z = -cali.getOutput().gz },
+                   .z = cali.getOutput().gz },
         };
         data.a.x = data.a.x - (data.g.y * data.g.z * IMU_OFFSET_Y -
                                data.g.z * data.g.z * IMU_OFFSET_X);

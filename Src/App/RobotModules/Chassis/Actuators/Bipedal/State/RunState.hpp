@@ -26,7 +26,7 @@ public:
         // WL
         // WLController::States_u ref{};
         // ref.ds = chassis_->msg.vx;
-        // chassis_->ctrlBal(ref, minorArc(chassis_->msg.yaw,
+        // chassis_->bal(ref, minorArc(chassis_->msg.yaw,
         //                                           chassis_->yaw()) /
         //                                0.001f);
 
@@ -36,7 +36,7 @@ public:
         // ref.yaw = chassis_->msg.yaw;
         // ref.dyaw = wzAngPid_.calc(0, PINYMOTOR::getMinorArc(chassis_->msg.yaw,
         //                                                     chassis_->yaw()));
-        // chassis_->ctrlBal(ref);
+        // chassis_->bal(ref);
     }
 
     void exit() final

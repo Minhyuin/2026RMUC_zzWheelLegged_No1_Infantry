@@ -50,8 +50,9 @@ Bipedal::Bipedal()
         .torqPID = nullptr,
         .isReverse = true,
     };
-    motors_.HipRF = new DMMOTOR::DM8009("HipRF", rfDM8009Config); // HIP4
-    motors_.HipRF->setZeroAng(RF_HIP_ZERO_ANG);
+    motors_.HipRF =
+            new DMMOTOR::DM8009("HipRF", rfDM8009Config); // HIP1控制电机
+    motors_.HipRF->setZeroAng(rangeMap(RF_HIP_ZERO_ANG - PI));
 
     InitConfig_s lfDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -64,8 +65,9 @@ Bipedal::Bipedal()
         .torqPID = nullptr,
         .isReverse = false,
     };
-    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config); // HIP4
-    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
+    motors_.HipLF =
+            new DMMOTOR::DM8009("HipLF", lfDM8009Config); // HIP1控制电机
+    motors_.HipLF->setZeroAng(rangeMap(LF_HIP_ZERO_ANG - PI));
 
     InitConfig_s lbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -78,8 +80,9 @@ Bipedal::Bipedal()
         .torqPID = nullptr,
         .isReverse = false,
     };
-    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config); // HIP1
-    motors_.HipLB->setZeroAng(rangeMap(LB_HIP_ZERO_ANG - PI));
+    motors_.HipLB =
+            new DMMOTOR::DM8009("HipLB", lbDM8009Config); // HIP4控制电机
+    motors_.HipLB->setZeroAng(LB_HIP_ZERO_ANG);
 
     InitConfig_s rbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -92,8 +95,9 @@ Bipedal::Bipedal()
         .torqPID = nullptr,
         .isReverse = true,
     };
-    motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config); // HIP1
-    motors_.HipRB->setZeroAng(rangeMap(RB_HIP_ZERO_ANG - PI));
+    motors_.HipRB =
+            new DMMOTOR::DM8009("HipRB", rbDM8009Config); // HIP4控制电机
+    motors_.HipRB->setZeroAng(RB_HIP_ZERO_ANG);
 
     InitConfig_s lM3508Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
@@ -121,8 +125,8 @@ Bipedal::Bipedal()
     };
     motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);
 
-    legL_.init(motors_.HipLB, motors_.HipLF, motors_.WheelL);
-    legR_.init(motors_.HipRB, motors_.HipRF, motors_.WheelR);
+    legL_.init(motors_.HipLF, motors_.HipLB, motors_.WheelL);
+    legR_.init(motors_.HipRF, motors_.HipRB, motors_.WheelR);
 
     this->stateFactory_.addState(FSMState_e::STOP,
                                  std::make_unique<StopState>(this));
@@ -150,7 +154,8 @@ void Bipedal::stop()
     hipVelPidR_.reset();
 
     wzVelPid_.reset();
-    dsPid_.reset();
+    dsPid_[0].reset();
+    dsPid_[1].reset();
 }
 
 void Bipedal::enter()
@@ -203,10 +208,12 @@ void Bipedal::update(void *_param)
     legR_.isFloating = detector_.isFloating(legR_.calcFn(az_));
 
     // update odom
-    float vxFromWheel =
-            (motors_.WheelL->vel() + motors_.WheelR->vel()) * W_RADIUS / 2.f;
+    float vxFromWheel = (motors_.WheelL->vel() * W_RADIUS +
+                         motors_.WheelR->vel() * W_RADIUS) *
+                        W_RADIUS / 2.f;
     odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
-    ds_ = odom_.normVel();
+    // ds_ = odom_.normVel();
+    ds_ = vxFromWheel;
     s_ = (detector_.isStop(this->msg.vx, ds_)) ? s_ + (ds_ * dt_) : 0;
     as_ = odom_.normAcc();
 
@@ -222,6 +229,12 @@ void Bipedal::update(void *_param)
     this->stateFactory_.update();
 }
 
+void Bipedal::ctrl()
+{
+    legL_.ctrl();
+    legR_.ctrl();
+}
+
 void Bipedal::setYawZero(float _yawZero) { yawZero_ = _yawZero; }
 
 void Bipedal::setRoll(float _roll)
@@ -229,16 +242,20 @@ void Bipedal::setRoll(float _roll)
     setRoll_ = _roll;
     float dRoll = rollAngPid_.calc(setRoll_, insData_.roll);
     float delta = rollVelPid_.calc(dRoll, wx_);
-    setL(legL_.state().L0 + delta, legR_.state().L0 - delta);
+    setLength(legL_.state().L0 + delta, legR_.state().L0 - delta);
 }
 
-void Bipedal::setL(float _l) { setL(_l, _l); }
+void Bipedal::setLength(float _l) { setLength(_l, _l); }
 
-void Bipedal::setL(float _lL, float _lR)
+void Bipedal::setLength(float _lL, float _lR)
 {
-    legL_.setL(_lL);
-    legR_.setL(_lR);
+    setLengthL(_lL);
+    setLengthR(_lR);
 }
+
+void Bipedal::setLengthL(float _l) { legL_.setL(_l); }
+
+void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
 
 void Bipedal::setFdForward(float _fd) { setFdForward(_fd, _fd); }
 
@@ -248,18 +265,20 @@ void Bipedal::setFdForward(float _fdL, float _fdR)
     legR_.setFdForward(_fdR);
 }
 
-void Bipedal::ctrlBal(const WBRController::States_u &_ref)
+void Bipedal::bal(const WBRController::States_u &_ref)
 {
-    WBRController ::States_u cur = { .s = s_,
-                                     .ds = ds_,
-                                     .yaw = yaw_,
-                                     .dyaw = wz_,
-                                     .phil = legL_.state().phi0,
-                                     .dphil = legL_.state().dphi0,
-                                     .phir = legR_.state().phi0,
-                                     .dphir = legR_.state().dphi0,
-                                     .q = insData_.pitch,
-                                     .dq = insData_.body.gy };
+    WBRController ::States_u cur = {
+        .s = s_,
+        .ds = ds_,
+        .yaw = yaw_,
+        .dyaw = wz_,
+        .phil = getMinorArc(legL_.state().phi0, _ref.phil),
+        .dphil = legL_.state().dphi0,
+        .phir = getMinorArc(legR_.state().phi0, _ref.phir),
+        .dphir = legR_.state().dphi0,
+        .q = getMinorArc(insData_.pitch, _ref.q),
+        .dq = insData_.body.gy
+    };
     balWBRCtrl_.load(_ref, cur);
     Matrix<4, 1> u = balWBRCtrl_.solve(legL_.state().L0, legR_.state().L0,
                                        legL_.isFloating, legR_.isFloating);
@@ -267,34 +286,31 @@ void Bipedal::ctrlBal(const WBRController::States_u &_ref)
     legL_.setTp(u[1][0]);
     legR_.setTw(u[2][0]);
     legR_.setTp(u[3][0]);
-
-    legL_.ctrl();
-    legR_.ctrl();
 }
 
-void Bipedal::ctrlBal(const WLController::States_u &_ref, float _wz)
+void Bipedal::bal(const WLController::States_u &_ref, float _wz)
 {
-    ctrlBal(_ref, _ref, _wz);
+    bal(_ref, _ref, _wz);
 }
 
-void Bipedal::ctrlBal(const WLController::States_u &_refL,
-                      const WLController::States_u &_refR, float _wz)
+void Bipedal::bal(const WLController::States_u &_refL,
+                  const WLController::States_u &_refR, float _wz)
 {
     WLController::States_u curL = {
-        .phi = legL_.state().phi0,
+        .phi = getMinorArc(legL_.state().phi0, _refL.phi),
         .dphi = legL_.state().dphi0,
         .s = s_,
         .ds = ds_,
-        .q = insData_.pitch,
+        .q = getMinorArc(insData_.pitch, _refL.q),
         .dq = insData_.body.gy,
     };
 
     WLController::States_u curR = {
-        .phi = legR_.state().phi0,
+        .phi = getMinorArc(legR_.state().phi0, _refR.phi),
         .dphi = legR_.state().dphi0,
         .s = s_,
         .ds = ds_,
-        .q = insData_.pitch,
+        .q = getMinorArc(insData_.pitch, _refR.q),
         .dq = insData_.body.gy,
     };
     balWLCtrlL_.load(_refL, curL);
@@ -306,17 +322,14 @@ void Bipedal::ctrlBal(const WLController::States_u &_refL,
     legL_.setTp(uL[1][0]);
     legR_.setTw(uR[0][0] - tw2);
     legR_.setTp(uR[1][0]);
-
-    legL_.ctrl();
-    legR_.ctrl();
 }
 
-void Bipedal::ctrlBal(const STController::States_u &_ref, float _wz)
+void Bipedal::bal(const STController::States_u &_ref, float _wz)
 {
     STController::States_u cur = {
         .s = s_,
         .ds = ds_,
-        .q = insData_.pitch,
+        .q = getMinorArc(insData_.pitch, _ref.q),
         .dq = insData_.body.gy,
     };
     balSTCtrl_.load(_ref, cur);
@@ -326,64 +339,97 @@ void Bipedal::ctrlBal(const STController::States_u &_ref, float _wz)
     float tw2 = wzVelPid_.calc(_wz, wz_);
     legL_.setTw(uDiv[0][0] + tw2);
     legR_.setTw(uDiv[0][0] - tw2);
-
-    legL_.ctrl();
-    legR_.ctrl();
 }
 
-void Bipedal::ctrlNoBal(float _vx, float _wz)
+void Bipedal::noBal(float _vx, float _wz)
 {
-    float tw1 = dsPid_.calc(_vx, ds_);
-    float tw2 = wzVelPid_.calc(_wz, wz_);
-    legL_.setTw(tw1 + tw2);
-    legR_.setTw(tw1 - tw2);
-
-    legL_.ctrl();
-    legR_.ctrl();
+    float twL = dsPid_[0].calc(_vx + (_wz * B_RADIUS),
+                               motors_.WheelL->vel() * W_RADIUS);
+    float twR = dsPid_[1].calc(_vx - (_wz * B_RADIUS),
+                               motors_.WheelR->vel() * W_RADIUS);
+    legL_.setTw(twL);
+    legR_.setTw(twR);
 }
 
-void Bipedal::ctrlHip(float _phi) { ctrlHip(_phi, _phi); }
-
-void Bipedal::ctrlHip(float _phiL, float _phiR)
+void Bipedal::setHipPhiRot(float _dphi) { setHipPhiRot(_dphi, _dphi); }
+void Bipedal::setHipPhiRot(float _dphiL, float _dphiR)
 {
-    float hipVelL = hipAngPidL_.calc(getMinorArc(_phiL, legL_.state().phi0), 0);
+    setHipPhiRotL(_dphiL);
+    setHipPhiRotR(_dphiR);
+}
+
+void Bipedal::setHipPhiRotL(float _dphi)
+{
+    if (_dphi == 0)
+        hipAngPidL_.reset();
+    setHipPhiL(legL_.state().phi0 + _dphi);
+}
+void Bipedal::setHipPhiRotR(float _dphi)
+{
+    if (_dphi == 0)
+        hipAngPidR_.reset();
+    setHipPhiR(legR_.state().phi0 + _dphi);
+}
+
+void Bipedal::setHipPhiSmooth(float _phi, float _step)
+{
+    setHipPhiSmooth(_phi, _phi, _step);
+}
+void Bipedal::setHipPhiSmooth(float _phiL, float _phiR, float _step)
+{
+    setHipPhiSmoothL(_phiL, _step);
+    setHipPhiSmoothR(_phiR, _step);
+}
+
+void Bipedal::setHipPhiSmoothL(float _phi, float _step)
+{
+    float deltaL = getMinorArc(_phi, legL_.state().phi0);
+    deltaL = clamp(deltaL, -_step, _step);
+    setHipPhiL(legL_.state().phi0 + deltaL);
+}
+void Bipedal::setHipPhiSmoothR(float _phi, float _step)
+{
+    float deltaR = getMinorArc(_phi, legR_.state().phi0);
+    deltaR = clamp(deltaR, -_step, _step);
+    setHipPhiR(legR_.state().phi0 + deltaR);
+}
+
+void Bipedal::setHipPhi(float _phi) { setHipPhi(_phi, _phi); }
+
+void Bipedal::setHipPhi(float _phiL, float _phiR)
+{
+    setHipPhiL(_phiL);
+    setHipPhiR(_phiR);
+}
+
+void Bipedal::setHipPhiL(float _phi)
+{
+    float hipVelL = hipAngPidL_.calc(getMinorArc(_phi, legL_.state().phi0), 0);
     float tpL = hipVelPidL_.calc(hipVelL, legL_.state().dphi0);
     legL_.setTp(tpL);
-
-    float hipVelR = hipAngPidR_.calc(getMinorArc(_phiR, legR_.state().phi0), 0);
-    float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0);
-    legR_.setTp(tpR);
-
-    legL_.ctrl();
-    legR_.ctrl();
 }
 
-void Bipedal::ctrlHipTp(float _tp) { ctrlHipTp(_tp, _tp); }
+void Bipedal::setHipPhiR(float _phi)
+{
+    float hipVelR = hipAngPidR_.calc(getMinorArc(_phi, legR_.state().phi0), 0);
+    float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0);
+    legR_.setTp(tpR);
+}
 
-void Bipedal::ctrlHipTp(float _tpL, float _tpR)
+void Bipedal::setHipTp(float _tp) { setHipTp(_tp, _tp); }
+
+void Bipedal::setHipTp(float _tpL, float _tpR)
 {
     legL_.setTp(_tpL);
     legR_.setTp(_tpR);
-
-    legL_.ctrl();
-    legR_.ctrl();
 }
 
-void Bipedal::ctrlHipFd(float _fd) { ctrlHipFd(_fd, _fd); }
+void Bipedal::setHipFd(float _fd) { setHipFd(_fd, _fd); }
 
-void Bipedal::ctrlHipFd(float _fdL, float _fdR)
+void Bipedal::setHipFd(float _fdL, float _fdR)
 {
     legL_.setFdForward(_fdL);
     legR_.setFdForward(_fdR);
-
-    legL_.ctrl();
-    legR_.ctrl();
-}
-
-void Bipedal::ctrlHipRot(float _dphi) { ctrlHipRot(_dphi, _dphi); }
-void Bipedal::ctrlHipRot(float _dphiL, float _dphiR)
-{
-    ctrlHip(legL_.state().phi0 + _dphiL, legR_.state().phi0 + _dphiR);
 }
 
 bool Bipedal::isTumble()
@@ -406,4 +452,32 @@ bool Bipedal::isLaunched(float _setPhi, float _phiTh, float _setL, float _lTh)
            fabs(rightState.L0 - _setL) < _lTh;
 }
 
+/**
+ * @brief detect if the leg is in the swing phase
+ * 
+ * @param _ang1 clockwise leading phase
+ * @param _ang2 clockwise lag phase
+ * @return true if the leg is in the swing phase
+ * @return false if the leg is in the stance phase
+ */
+bool Bipedal::detectPhiL(float _ang1, float _ang2)
+{
+    return getMinorArc(_ang1, legL_.state().phi0) > 0 &&
+           getMinorArc(_ang2, legL_.state().phi0) < 0;
+}
+
+bool Bipedal::detectPhiR(float _ang1, float _ang2)
+{
+    return getMinorArc(_ang1, legR_.state().phi0) > 0 &&
+           getMinorArc(_ang2, legR_.state().phi0) < 0;
+}
+
 float Bipedal::yaw() const { return yaw_; }
+
+float Bipedal::phiL() const { return legL_.state().phi0; }
+
+float Bipedal::phiR() const { return legR_.state().phi0; }
+
+float Bipedal::lengthL() const { return legL_.state().L0; }
+
+float Bipedal::lengthR() const { return legR_.state().L0; }

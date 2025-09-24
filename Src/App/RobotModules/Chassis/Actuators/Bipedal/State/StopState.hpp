@@ -28,8 +28,8 @@ public:
             return FSMState_e::STOP;
         else if (chassis_->msg.state != FSMState_e::STOP &&
                  chassis_->isFreeze())
-            // return FSMState_e::LAUNCH;
-            return FSMState_e::TEST;
+            return FSMState_e::LAUNCH;
+        // return FSMState_e::TEST;
 
         else
             return FSMState_e::STOP;
