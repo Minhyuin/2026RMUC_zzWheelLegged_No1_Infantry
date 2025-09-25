@@ -32,8 +32,8 @@ static constexpr GyroCaliParams_s GYRO_CALI = {
     .gzTcoB0 = 0.f
 };
 
-static constexpr float IMU_OFFSET_X = 0;
-static constexpr float IMU_OFFSET_Y = 0;
+static constexpr float IMU_OFFSET_X = (187.027922f * 0.001f);
+static constexpr float IMU_OFFSET_Y = (32.450801f * 0.001f);
 
 INS::INS()
         : insPub_(new Publisher<INSData_s>(&TopicRouter::instance().insTopic,
