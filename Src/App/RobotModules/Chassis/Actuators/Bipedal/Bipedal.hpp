@@ -120,11 +120,6 @@ public:
 private:
     Motors_u motors_;
 
-    WLController balWLCtrlL_;
-    WLController balWLCtrlR_;
-    STController balSTCtrl_;
-    WBRController balWBRCtrl_;
-
     WheelLegged legL_;
     WheelLegged legR_;
 

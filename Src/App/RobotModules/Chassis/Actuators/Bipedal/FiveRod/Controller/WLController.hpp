@@ -25,13 +25,8 @@ public:
 
     WLController();
 
-    void load(const States_u &_refX, const States_u &_curX);
-    const Matrix<2, 1> &solve(float _l, bool _isFloating);
-
-private:
-    Matrix<6, 1> refX_;
-    Matrix<6, 1> curX_;
-    Matrix<2, 1> u_;
+    static Matrix<2, 1> solve(const Matrix<6, 1> &_errX, float _l,
+                              bool _isFloating);
 };
 
 } // namespace CHASSIS

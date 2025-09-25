@@ -23,13 +23,8 @@ public:
 
     STController();
 
-    void load(const States_u &_refX, const States_u &_curX);
-    const Matrix<1, 1> &solve(float _l, bool _isFloating);
-
-private:
-    Matrix<4, 1> refX_;
-    Matrix<4, 1> curX_;
-    Matrix<1, 1> u_;
+    static Matrix<1, 1> solve(const Matrix<4, 1> &_errX, float _l,
+                              bool _isFloating);
 };
 
 } // namespace CHASSIS

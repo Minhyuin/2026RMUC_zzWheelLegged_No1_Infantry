@@ -6,15 +6,8 @@ using namespace CHASSIS;
 
 WLController::WLController() = default;
 
-void WLController::load(const States_u &_refX, const States_u &_curX)
-{
-    for (uint8_t i = 0; i < 6; i++) {
-        refX_[i][0] = _refX._[i];
-        curX_[i][0] = _curX._[i];
-    }
-}
-
-const Matrix<2, 1> &WLController::solve(float _l, bool _isFloating)
+Matrix<2, 1> WLController::solve(const Matrix<6, 1> &_errX, float _l,
+                                 bool _isFloating)
 {
     const float &x = _l;
     float pow2f = x * x;
@@ -44,15 +37,14 @@ const Matrix<2, 1> &WLController::solve(float _l, bool _isFloating)
                             (17.04418146f * x) - (48.94129366f * pow2f) +
                                     (56.14127059f * pow3f) + (1.603078041f) };
 
-    Matrix<6, 1> err = refX_ - curX_;
     Matrix<2, 6> k(arrayK);
-
+    Matrix<2, 1> u;
     if (_isFloating) {
-        u_[0][0] = 0;
-        u_[1][0] = err[0][0] * k[1][0] + err[0][1] * k[1][1];
+        u[0][0] = 0;
+        u[1][0] = _errX[0][0] * k[1][0] + _errX[0][1] * k[1][1];
     } else {
-        u_ = k * err; // err = ref - cur
+        u = k * _errX; // err = ref - cur
     }
 
-    return u_;
+    return u;
 }

@@ -27,7 +27,7 @@ public:
 
     WBRController();
 
-    Matrix<4, 1> solve(const Matrix<10, 1> &_errX, float _lL, float _lR,
+    static Matrix<4, 1> solve(const Matrix<10, 1> &_errX, float _lL, float _lR,
                               bool _isFloatingL, bool _isFloatingR);
 };
 
