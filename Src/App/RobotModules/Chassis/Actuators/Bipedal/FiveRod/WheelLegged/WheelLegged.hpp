@@ -14,6 +14,7 @@ public:
     static constexpr float MAX_L = 0.348114768f;
 
     static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
+    static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
     static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.215f,
                                                 .L2 = 0.258f,
@@ -51,6 +52,10 @@ private:
 
     float fn_ = 0.f;
     FILTER::LPF fnLPF_{ 1000.f, 5.f };
+    float rawFn_ = 0.f;
+
+    FILTER::LPF dphiLPF_{ 1000.f, 5.f };
+    float dphi_ = 0.f;
 
     VMC vmc_ = VMC(VMC_CONFIG);
 

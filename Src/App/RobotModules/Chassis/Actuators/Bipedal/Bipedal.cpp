@@ -210,9 +210,8 @@ void Bipedal::update(void *_param)
     legR_.isFloating = detector_.isFloating(legR_.calcFn(az_));
 
     // update odom
-    float vxFromWheel = (motors_.WheelL->vel() * W_RADIUS +
-                         motors_.WheelR->vel() * W_RADIUS) *
-                        W_RADIUS / 2.f;
+    float vxFromWheel =
+            (motors_.WheelL->vel() + motors_.WheelR->vel()) * W_RADIUS / 2.f;
     odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
     // ds_ = odom_.normVel();
     ds_ = vxFromWheel;
@@ -269,25 +268,27 @@ void Bipedal::setFdForward(float _fdL, float _fdR)
 
 void Bipedal::bal(const WBRController::States_u &_ref)
 {
-    WBRController ::States_u cur = {
-        .s = s_,
-        .ds = ds_,
-        .yaw = yaw_,
-        .dyaw = wz_,
-        .phil = getMinorArc(legL_.state().phi0, _ref.phil),
-        .dphil = legL_.state().dphi0,
-        .phir = getMinorArc(legR_.state().phi0, _ref.phir),
-        .dphir = legR_.state().dphi0,
-        .q = getMinorArc(insData_.pitch, _ref.q),
-        .dq = insData_.body.gy
+    WBRController ::States_u errData = {
+        .s = _ref.s - s_,
+        .ds = _ref.ds - ds_,
+        .yaw = getMinorArc(_ref.yaw, insData_.yaw),
+        .dyaw = _ref.dyaw - insData_.body.gz,
+        .phil = getMinorArc(_ref.phil, legL_.state().phi0),
+        .dphil = _ref.dphil - legL_.state().dphi0,
+        .phir = getMinorArc(_ref.phir, legR_.state().phi0),
+        .dphir = _ref.dphir - legR_.state().dphi0,
+        .q = getMinorArc(_ref.q, insData_.pitch),
+        .dq = _ref.dq - insData_.body.gy
     };
-    balWBRCtrl_.load(_ref, cur);
-    Matrix<4, 1> u = balWBRCtrl_.solve(legL_.state().L0, legR_.state().L0,
+    Matrix<10, 1> err{ errData._ };
+    Matrix<4, 1> u = balWBRCtrl_.solve(err, legL_.state().L0, legR_.state().L0,
                                        legL_.isFloating, legR_.isFloating);
     legL_.setTw(u[0][0]);
-    legL_.setTp(u[1][0]);
-    legR_.setTw(u[2][0]);
+    legR_.setTw(u[1][0]);
+    legL_.setTp(u[2][0]);
     legR_.setTp(u[3][0]);
+
+    LOG::info("l", "%f,%f", u[0][0], u[2][0]);
 }
 
 void Bipedal::bal(const WLController::States_u &_ref, float _wz)

@@ -5,17 +5,17 @@
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_DPHI = -0.002f; // per ms
-    static constexpr float LAUNCH_L = 0.2f;
+    static constexpr float LAUNCH_L = 0.25586f;
 
-    static constexpr float LAUNCH_ROT_TO_PHI1 = (PI / 4.f);
-    static constexpr float LAUNCH_ROT_TO_PHI2 = (PI / 4.f) - 0.2f;
+    static constexpr float LAUNCH_ROT_TO_PHI1 = (PI / 4.f) - 0.25f;
+    static constexpr float LAUNCH_ROT_TO_PHI2 = (PI / 4.f) - 0.4f;
 
-    static constexpr float PRE_RUN_DPHI = 0.01f;
-    static constexpr float PRE_RUN_PHI = (PI / 4.f) - 0.2f;
-    static constexpr float PRE_RUN_L = 0.2f;
+    static constexpr float PRE_RUN_DPHI = 0.1f;
+    static constexpr float PRE_RUN_PHI = LAUNCH_ROT_TO_PHI1;
+    static constexpr float PRE_RUN_L = 0.25586f;
 
-    static constexpr float L_THRESHOLD = 0.05f;
-    static constexpr float PHI_THRESHOLD = 0.1f;
+    // static constexpr float L_THRESHOLD = 0.05f;
+    // static constexpr float PHI_THRESHOLD = 0.1f;
 
 public:
     LaunchState(Bipedal *_chassis)
@@ -38,13 +38,6 @@ public:
         if (chassis_->isOverturn()) {
             // chassis_->setHipPhi(LAUNCH_DPHI);
         } else {
-            if (chassis_->detectPhiL(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2) &&
-                chassis_->detectPhiR(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
-                LOG::info(" ", "ok");
-            } else {
-                LOG::info(" ", "need rot");
-            }
-
             // 定方向旋到指定角度再复位
             if (chassis_->detectPhiL(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
                 chassis_->setHipPhiSmoothL(PRE_RUN_PHI, PRE_RUN_DPHI);
@@ -67,6 +60,7 @@ public:
             }
         }
         chassis_->ctrl();
+        // isLaunchFinish_ = true; // debug
     }
 
     void exit() final { LOG::info("ChassisLaunch", " exit"); }

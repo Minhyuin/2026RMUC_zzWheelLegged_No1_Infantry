@@ -153,7 +153,7 @@ private:
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
     IncrementalPid wzVelPid_{ 1, 0, 0, 3.f, 0 };
-    IncrementalPid dsPid_[2]{ { 0.6f, 0.0035f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
+    IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     float setRoll_ = 0.f;
 

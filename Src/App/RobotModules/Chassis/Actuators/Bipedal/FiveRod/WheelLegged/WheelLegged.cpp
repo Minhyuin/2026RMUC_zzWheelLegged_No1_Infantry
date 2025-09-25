@@ -16,8 +16,16 @@ void WheelLegged::init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4,
 void WheelLegged::stop()
 {
     tp_ = fd_ = fdForward_ = tw_ = 0.f;
+
     lengthAngPid_.reset();
     lengthVelPid_.reset();
+
+    // fnLPF_.reset();
+    // dphiLPF_.reset();
+
+    // hip1_->disable();
+    // hip4_->disable();
+    // wheel_->disable();
     hip1_->cmd(MotorCmdType_e::OFF);
     hip4_->cmd(MotorCmdType_e::OFF);
     wheel_->cmd(MotorCmdType_e::OFF);
@@ -25,6 +33,9 @@ void WheelLegged::stop()
 
 void WheelLegged::enter()
 {
+    // hip1_->enable();
+    // hip4_->enable();
+    // wheel_->enable();
     hip1_->cmd(MotorCmdType_e::ON);
     hip4_->cmd(MotorCmdType_e::ON);
     wheel_->cmd(MotorCmdType_e::ON);
@@ -43,6 +54,11 @@ void WheelLegged::stateUpdate(float _dt)
     legState_.tau4 = hip4_->torq();
 
     vmc_.update(legState_, _dt);
+
+    if (isnan(legState_.dphi0))
+        legState_.dphi0 = legState_.dphi0; // redundant
+    else
+        legState_.dphi0 = dphiLPF_.process(legState_.dphi0);
 }
 
 float WheelLegged::calcFn(float _az)
@@ -55,11 +71,11 @@ float WheelLegged::calcFn(float _az)
                     (2.f * legState_.vd * -legState_.dphi0 * -sinPhi0) +
                     (legState_.L0 * -legState_.ap * -sinPhi0) +
                     (legState_.L0 * powf(legState_.dphi0, 2) * cosPhi0);
-    float rawFn = ((azWheel + GRAVITY) * MASS_WHEEL) + fp;
-    if (isnan(rawFn)) {
+    rawFn_ = ((azWheel + GRAVITY) * MASS_WHEEL) + fp;
+    if (isnan(rawFn_)) {
         return fn_;
     } else {
-        return fn_ = fnLPF_.process(rawFn);
+        return fn_ = fnLPF_.process(rawFn_);
     }
 }
 
@@ -78,6 +94,8 @@ void WheelLegged::ctrl()
 
     hip1_->cmdTorq(u[0][0]);
     hip4_->cmdTorq(u[1][0]);
+
+    tw_ = std::fmin(std::fmax(tw_, -MAX_WHEEL_CTRL_TORQ), MAX_WHEEL_CTRL_TORQ);
     wheel_->cmdTorq(tw_);
 }
 

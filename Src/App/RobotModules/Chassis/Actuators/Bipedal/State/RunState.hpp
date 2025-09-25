@@ -23,6 +23,8 @@ public:
 
     void run() final
     {
+        chassis_->setLength(0.25586f);
+
         // WL
         // WLController::States_u ref{};
         // ref.ds = chassis_->msg.vx;
@@ -31,12 +33,20 @@ public:
         //                                0.001f);
 
         // WBR
-        // WBRController::States_u ref{};
-        // ref.ds = chassis_->msg.vx;
+        WBRController::States_u ref{};
+        ref.ds = chassis_->msg.vx;
         // ref.yaw = chassis_->msg.yaw;
         // ref.dyaw = wzAngPid_.calc(0, PINYMOTOR::getMinorArc(chassis_->msg.yaw,
         //                                                     chassis_->yaw()));
-        // chassis_->bal(ref);
+        ref.yaw = 0;
+        ref.dyaw = 0;
+        chassis_->bal(ref);
+
+        // TestRun
+        // chassis_->setHipPhiSmooth((PI / 4.f) - 0.25f, 0.05f);
+        // chassis_->noBal(chassis_->msg.vx, chassis_->msg.wz);
+
+        chassis_->ctrl();
     }
 
     void exit() final

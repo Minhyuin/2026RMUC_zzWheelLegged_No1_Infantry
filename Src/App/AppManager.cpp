@@ -105,7 +105,7 @@ void AppManager::schedule(std::function<void()> _callback)
 void AppManager::createApp()
 {
     // Robot-Ctrl Continuous Task
-    xTaskCreate(AppManager::ctrlTask, "ctrl_task", 256, this,
+    xTaskCreate(AppManager::ctrlTask, "ctrl_task", 512, this,
                 osPriorityRealtime, nullptr);
 
     // Test-Module Continuous Task
