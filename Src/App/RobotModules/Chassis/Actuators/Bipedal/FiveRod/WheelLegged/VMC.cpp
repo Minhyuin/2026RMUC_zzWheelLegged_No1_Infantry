@@ -101,8 +101,10 @@ void VMC::update(LegState_s &_legState, float _dt)
     _legState.fd = curTqFd[1][0];
 
     Matrix<2, 1> curVqVd = inverseVel(_legState.dphi1, _legState.dphi4);
-    _legState.vp = curVqVd[0][0];
-    _legState.vd = curVqVd[1][0];
+    _legState.vp = isnan(curVqVd[0][0]) ? curVqVd[0][0] :
+                                          vpLPF_.process(curVqVd[0][0]);
+    _legState.vd = isnan(curVqVd[1][0]) ? curVqVd[1][0] :
+                                          vdLPF_.process(curVqVd[1][0]);
 
     _legState.dphi0 = _legState.vp / _legState.L0;
 

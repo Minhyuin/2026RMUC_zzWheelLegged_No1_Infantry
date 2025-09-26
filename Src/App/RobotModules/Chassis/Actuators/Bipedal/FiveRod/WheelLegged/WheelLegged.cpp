@@ -20,9 +20,6 @@ void WheelLegged::stop()
     lengthAngPid_.reset();
     lengthVelPid_.reset();
 
-    // fnLPF_.reset();
-    // dphiLPF_.reset();
-
     // hip1_->disable();
     // hip4_->disable();
     // wheel_->disable();
@@ -54,11 +51,6 @@ void WheelLegged::stateUpdate(float _dt)
     legState_.tau4 = hip4_->torq();
 
     vmc_.update(legState_, _dt);
-
-    if (isnan(legState_.dphi0))
-        legState_.dphi0 = legState_.dphi0; // redundant
-    else
-        legState_.dphi0 = dphiLPF_.process(legState_.dphi0);
 }
 
 float WheelLegged::calcFn(float _az)

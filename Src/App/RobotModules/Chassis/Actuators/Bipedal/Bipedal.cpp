@@ -158,6 +158,12 @@ void Bipedal::stop()
     wzVelPid_.reset();
     dsPid_[0].reset();
     dsPid_[1].reset();
+
+    twLPF_[0].reset();
+    twLPF_[1].reset();
+
+    tpLPF_[0].reset();
+    tpLPF_[1].reset();
 }
 
 void Bipedal::enter()
@@ -215,12 +221,15 @@ void Bipedal::update(void *_param)
     odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
     // ds_ = odom_.normVel();
     ds_ = vxFromWheel;
-    s_ = (detector_.isStop(this->msg.vx, ds_)) ? s_ + (ds_ * dt_) : 0;
+    s_ = clamp((detector_.isStop(this->msg.vx, ds_)) ? s_ + (ds_ * dt_) : 0,
+               -MAX_S, MAX_S);
+    if (isFloating())
+        s_ = 0;
+
     as_ = odom_.normAcc();
 
     // update other state
-    float del = insData_.yaw + PI - yawZero_;       // map to [0,2PI]
-    yaw_ = (del < 0 ? del + (2.f * PI) : del) - PI; // map back to [-PI,PI]
+    yaw_ = insData_.yaw;
 
     wz_ = insData_.body.gz; // TODO: earth.gz
     wx_ = insData_.body.gx; // TODO: earth.gx
@@ -244,6 +253,31 @@ void Bipedal::setRoll(float _roll)
     float dRoll = rollAngPid_.calc(setRoll_, insData_.roll);
     float delta = rollVelPid_.calc(dRoll, wx_);
     setLength(legL_.state().L0 + delta, legR_.state().L0 - delta);
+}
+
+void Bipedal::setLengthSmooth(float _l, float _step)
+{
+    setLengthSmooth(_l, _l, _step);
+}
+void Bipedal::setLengthSmooth(float _lL, float _lR, float _step)
+{
+    float deltaL = _lL - legL_.state().L0;
+    deltaL = clamp(deltaL, -_step, _step);
+    float deltaR = _lR - legR_.state().L0;
+    deltaR = clamp(deltaR, -_step, _step);
+    setLength(legL_.state().L0 + deltaL, legR_.state().L0 + deltaR);
+}
+void Bipedal::setLengthSmoothL(float _l, float _step)
+{
+    float delta = _l - legL_.state().L0;
+    delta = clamp(delta, -_step, _step);
+    setLengthL(legL_.state().L0 + delta);
+}
+void Bipedal::setLengthSmoothR(float _l, float _step)
+{
+    float delta = _l - legR_.state().L0;
+    delta = clamp(delta, -_step, _step);
+    setLengthR(legR_.state().L0 + delta);
 }
 
 void Bipedal::setLength(float _l) { setLength(_l, _l); }
@@ -284,12 +318,18 @@ void Bipedal::bal(const WBRController::States_u &_ref)
     Matrix<4, 1> u = WBRController::solve(err, legL_.state().L0,
                                           legR_.state().L0, legL_.isFloating,
                                           legR_.isFloating);
+
+    // u[0][0] = isnan(u[0][0]) ? u[0][0] : twLPF_[0].process(u[0][0]);
+    // u[1][0] = isnan(u[1][0]) ? u[1][0] : twLPF_[1].process(u[1][0]);
+    // u[2][0] = isnan(u[2][0]) ? u[2][0] : tpLPF_[0].process(u[2][0]);
+    // u[3][0] = isnan(u[3][0]) ? u[3][0] : tpLPF_[1].process(u[3][0]);
+
     legL_.setTw(u[0][0]);
     legR_.setTw(u[1][0]);
     legL_.setTp(u[2][0]);
     legR_.setTp(u[3][0]);
 
-    LOG::info("l", "%f,%f", u[0][0], u[2][0]);
+    LOG::info("y", "%f", getMinorArc(_ref.yaw, insData_.yaw));
 }
 
 void Bipedal::bal(const WLController::States_u &_ref, float _wz)
@@ -478,6 +518,11 @@ bool Bipedal::detectPhiR(float _ang1, float _ang2)
 }
 
 float Bipedal::yaw() const { return yaw_; }
+
+bool Bipedal::isFloating() const
+{
+    return legL_.isFloating && legR_.isFloating;
+}
 
 float Bipedal::phiL() const { return legL_.state().phi0; }
 

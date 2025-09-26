@@ -10,7 +10,7 @@ namespace CHASSIS {
 class WheelLegged {
 public:
     static constexpr float GRAVITY = 9.7833f;
-    static constexpr float MASS_WHEEL = 0.880f + 0.500f;
+    static constexpr float MASS_WHEEL = 0.521f;
     static constexpr float MAX_L = 0.348114768f;
 
     static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
@@ -53,9 +53,6 @@ private:
     float fn_ = 0.f;
     FILTER::LPF fnLPF_{ 1000.f, 5.f };
     float rawFn_ = 0.f;
-
-    FILTER::LPF dphiLPF_{ 1000.f, 5.f };
-    float dphi_ = 0.f;
 
     VMC vmc_ = VMC(VMC_CONFIG);
 

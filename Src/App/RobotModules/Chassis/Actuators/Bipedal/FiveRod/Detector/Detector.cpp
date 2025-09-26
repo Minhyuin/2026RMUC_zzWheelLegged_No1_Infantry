@@ -8,7 +8,7 @@ bool Detector::isFloating(float _fn) { return _fn < FN_THRESHOLD; }
 
 bool Detector::isStop(float _expVel, float _curVel)
 {
-    return _expVel == 0.f && fabs(_curVel) < STOP_THRESHOLD;
+    return _expVel == 0.f || fabs(_curVel) < STOP_THRESHOLD;
 }
 
 bool Detector::detectTumble(const LegState_s &_legL, const LegState_s &_legR,

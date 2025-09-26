@@ -9,6 +9,8 @@
 
 namespace CHASSIS {
 class RunState : public FSMState<FSMState_e> {
+    static constexpr float DEFAULT_L = 0.25586f;
+
 public:
     RunState(Bipedal *_chassis)
             : FSMState<FSMState_e>(FSMState_e::RUN), chassis_(_chassis)
@@ -18,12 +20,15 @@ public:
     void enter() final
     {
         chassis_->enter();
+        refYaw_ = chassis_->yaw();
+        refLength_ = DEFAULT_L;
         LOG::info("ChassisRun", " enter");
     }
 
     void run() final
     {
-        chassis_->setLength(0.25586f);
+        refLength_ += chassis_->msg.dl * 0.001f;
+        chassis_->setLength(refLength_);
 
         // WL
         // WLController::States_u ref{};
@@ -34,12 +39,14 @@ public:
 
         // WBR
         WBRController::States_u ref{};
+        refYaw_ = chassis_->isFloating() ?
+                          chassis_->yaw() :
+                          (PINYMOTOR::rangeMap(
+                                  refYaw_ + (chassis_->msg.wz * 0.001f), -PI,
+                                  PI));
         ref.ds = chassis_->msg.vx;
-        // ref.yaw = chassis_->msg.yaw;
-        // ref.dyaw = wzAngPid_.calc(0, PINYMOTOR::getMinorArc(chassis_->msg.yaw,
-        //                                                     chassis_->yaw()));
-        ref.yaw = 0;
-        ref.dyaw = 0;
+        ref.yaw = refYaw_;
+        ref.dyaw = chassis_->msg.wz;
         chassis_->bal(ref);
 
         // TestRun
@@ -70,6 +77,8 @@ public:
 private:
     Bipedal *chassis_;
     PositionalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
+    float refYaw_ = 0;
+    float refLength_ = DEFAULT_L;
 };
 
 } // namespace CHASSIS

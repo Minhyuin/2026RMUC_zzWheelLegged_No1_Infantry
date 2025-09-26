@@ -33,7 +33,7 @@ public:
 
     void run() final
     {
-        chassis_->setLength(LAUNCH_L);
+        chassis_->setLengthSmooth(LAUNCH_L, 0.05f);
         bool rotFinish[2] = { false, false };
         if (chassis_->isOverturn()) {
             // chassis_->setHipPhi(LAUNCH_DPHI);

@@ -9,7 +9,7 @@ class Detector {
     static constexpr float FN_THRESHOLD =
             WheelLegged::MASS_WHEEL * WheelLegged::GRAVITY;
 
-    static constexpr float STOP_THRESHOLD = 0.3f;
+    static constexpr float STOP_THRESHOLD = 0.03f;
 
     static constexpr float DANG_FREEZE_THRESHOLD = 0.1f;
 

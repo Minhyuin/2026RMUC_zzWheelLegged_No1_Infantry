@@ -11,7 +11,7 @@
 
 #include "Axis1Odom.hpp"
 
-#include "IIR.hpp"
+#include "LPF.hpp"
 
 #include "RxPacket.hpp"
 #include "PacketImpl.hpp"
@@ -50,6 +50,8 @@ class Bipedal : public Chassis {
 
     static constexpr float B_RADIUS = 0.5695f / 2.f;
 
+    static constexpr float MAX_S = 0.5f;
+
 public:
     Bipedal();
 
@@ -60,6 +62,12 @@ public:
     void setYawZero(float _yawZero);
 
     void setRoll(float _roll);
+
+
+    void setLengthSmooth(float _l, float _step);
+    void setLengthSmooth(float _lL, float _lR, float _step);
+    void setLengthSmoothL(float _l, float _step);
+    void setLengthSmoothR(float _l, float _step);
 
     void setLength(float _l);
     void setLength(float _lL, float _lR);
@@ -111,6 +119,7 @@ public:
     bool detectPhiR(float _ang1, float _ang2);
 
     float yaw() const;
+    bool isFloating() const;
 
     float phiL() const;
     float phiR() const;
@@ -149,6 +158,9 @@ private:
 
     IncrementalPid wzVelPid_{ 1, 0, 0, 3.f, 0 };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
+
+    FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };
+    FILTER::LPF twLPF_[2]{ { 1000.f, 10.f }, { twLPF_[0] } };
 
     float setRoll_ = 0.f;
 

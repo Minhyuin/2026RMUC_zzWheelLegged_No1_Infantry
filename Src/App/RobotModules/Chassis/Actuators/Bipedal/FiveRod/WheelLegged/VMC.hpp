@@ -2,6 +2,7 @@
 
 #include "Matrix.hpp"
 
+#include "LPF.hpp"
 
 namespace CHASSIS {
 
@@ -82,5 +83,9 @@ private:
     Matrix<2, 2> M_inv_;   // Inverse of M
 
     Matrix<2, 2> invFast(Matrix<2, 2> &_mat) const;
+
+    // AUX
+    FILTER::LPF vpLPF_{ 1000.f, 5.f };
+    FILTER::LPF vdLPF_{ 1000.f, 5.f };
 };
 } // namespace CHASSIS
