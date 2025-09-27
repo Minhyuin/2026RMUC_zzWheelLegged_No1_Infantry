@@ -42,6 +42,8 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_ZERO_ANG = 0.617081642f;
     static constexpr float RB_HIP_ZERO_ANG = 4.168846371f;
 
+    static constexpr float MASS_BODY = 2.f;
+
     static constexpr float MAX_ABS_ROLL = 0.3f; // rad
 
     static constexpr float W_RADIUS = 0.1153f / 2.f; // m
@@ -126,6 +128,9 @@ public:
     float lengthL() const;
     float lengthR() const;
 
+    float calcFdForwardL();
+    float calcFdForwardR();
+
 private:
     Motors_u motors_;
 
@@ -150,7 +155,7 @@ private:
     PositionalPid rollAngPid_{ 0, 0, 0, 0, 0, 0, 0 };
     PositionalPid rollVelPid_{ 0, 0, 0, 0, 0, 0, 0 };
 
-    PositionalPid hipAngPidL_{ 250.f, 1400.f, 0, 0.001f, 10.f, 40, 0 };
+    PositionalPid hipAngPidL_{ 300.f, 1400.f, 0, 0.001f, 10.f, 40, 0 };
     PositionalPid hipVelPidL_{ 1.5f, 0, 0, 0.001f, 0, 40.f, 0 };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
@@ -161,6 +166,8 @@ private:
 
     FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };
     FILTER::LPF twLPF_[2]{ { 1000.f, 10.f }, { twLPF_[0] } };
+
+    float FdForward_ = MASS_BODY * WheelLegged::GRAVITY;
 
     float setRoll_ = 0.f;
 
