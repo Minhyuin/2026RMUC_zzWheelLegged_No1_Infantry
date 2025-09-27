@@ -12,6 +12,7 @@
 #include "Axis1Odom.hpp"
 
 #include "LPF.hpp"
+#include "IIR.hpp"
 
 #include "RxPacket.hpp"
 #include "PacketImpl.hpp"
@@ -169,6 +170,8 @@ private:
 
     FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };
     FILTER::LPF twLPF_[2]{ { 1000.f, 10.f }, { twLPF_[0] } };
+
+    FILTER::IIR3 wheelFltr[2];
 
     float FdForward_ = MASS_BODY * WheelLegged::GRAVITY;
 

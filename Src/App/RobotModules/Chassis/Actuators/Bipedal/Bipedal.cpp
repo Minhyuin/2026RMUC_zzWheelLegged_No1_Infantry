@@ -216,8 +216,9 @@ void Bipedal::update(void *_param)
     legR_.isFloating = detector_.isFloating(legR_.calcFn(az_));
 
     // update odom
-    float vxFromWheel =
-            (motors_.WheelL->vel() + motors_.WheelR->vel()) * W_RADIUS / 2.f;
+    float vxFromWheel = (wheelFltr[0].process(motors_.WheelL->vel()) +
+                         wheelFltr[1].process(motors_.WheelR->vel())) *
+                        W_RADIUS / 2.f;
     odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
     // ds_ = odom_.normVel();
     ds_ = vxFromWheel;
