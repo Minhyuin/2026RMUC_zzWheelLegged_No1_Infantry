@@ -54,6 +54,8 @@ class Bipedal : public Chassis {
 
     static constexpr float MAX_S = 0.5f;
 
+    static constexpr float CTRL_FREQ = 1000.f;
+
 public:
     Bipedal();
 
@@ -127,6 +129,7 @@ public:
     float phiR() const;
     float lengthL() const;
     float lengthR() const;
+    float vel() const; // m/s
 
     float calcFdForwardL();
     float calcFdForwardR();

@@ -44,7 +44,7 @@ Bipedal::Bipedal()
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,
-        .txFreq = 500.f,
+        .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
@@ -59,7 +59,7 @@ Bipedal::Bipedal()
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 2,
-        .txFreq = 500.f,
+        .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
@@ -74,7 +74,7 @@ Bipedal::Bipedal()
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 3,
-        .txFreq = 500.f,
+        .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
@@ -89,7 +89,7 @@ Bipedal::Bipedal()
         .comType = ComType_e::FDCAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 4,
-        .txFreq = 500.f,
+        .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
@@ -104,7 +104,7 @@ Bipedal::Bipedal()
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::QUAD_CURR,
         .offsetId = 5,
-        .txFreq = 500.f,
+        .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
@@ -118,7 +118,7 @@ Bipedal::Bipedal()
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::QUAD_CURR,
         .offsetId = 6,
-        .txFreq = 500.f,
+        .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .torqPID = nullptr,
@@ -435,6 +435,8 @@ float Bipedal::phiR() const { return legR_.state().phi0; }
 float Bipedal::lengthL() const { return legL_.state().L0; }
 
 float Bipedal::lengthR() const { return legR_.state().L0; }
+
+float Bipedal::vel() const { return ds_; }
 
 float Bipedal::calcFdForwardL()
 {

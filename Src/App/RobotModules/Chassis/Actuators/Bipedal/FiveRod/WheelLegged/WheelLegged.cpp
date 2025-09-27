@@ -89,6 +89,10 @@ void WheelLegged::ctrl()
 
     tw_ = std::fmin(std::fmax(tw_, -MAX_WHEEL_CTRL_TORQ), MAX_WHEEL_CTRL_TORQ);
     wheel_->cmdTorq(tw_);
+
+    // hip1_->cmdTorq(0);
+    // hip4_->cmdTorq(0);
+    // wheel_->cmdTorq(0);
 }
 
 float WheelLegged::minL(float _phi) const
