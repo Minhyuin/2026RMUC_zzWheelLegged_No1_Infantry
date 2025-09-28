@@ -20,6 +20,8 @@ void WheelLegged::stop()
     lengthAngPid_.reset();
     lengthVelPid_.reset();
 
+    fdLPF_.reset();
+
     // hip1_->disable();
     // hip4_->disable();
     // wheel_->disable();
@@ -58,10 +60,10 @@ float WheelLegged::calcFn(float _az)
     float cosPhi0 = arm_cos_f32(legState_.phi0);
     float sinPhi0 = arm_sin_f32(legState_.phi0);
     float fp =
-            (legState_.fd * cosPhi0) + (legState_.tp * -sinPhi0 / legState_.L0);
+            (legState_.fd * cosPhi0) + (legState_.tp * sinPhi0 / legState_.L0);
     float azWheel = _az - (legState_.ad * cosPhi0) +
-                    (2.f * legState_.vd * -legState_.dphi0 * -sinPhi0) +
-                    (legState_.L0 * -legState_.ap * -sinPhi0) +
+                    (2.f * legState_.vd * legState_.dphi0 * sinPhi0) +
+                    (legState_.L0 * legState_.ap * sinPhi0) +
                     (legState_.L0 * powf(legState_.dphi0, 2) * cosPhi0);
     rawFn_ = ((azWheel + GRAVITY) * MASS_WHEEL) + fp;
     if (isnan(rawFn_)) {
@@ -77,7 +79,7 @@ void WheelLegged::ctrl()
     // float setVd = lengthAngPid_.calc(legState_.L0, setL_);
     fd_ = lengthVelPid_.calc(setVd, legState_.vd) + fdForward_;
 
-    Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
+    Matrix<2, 1> u = vmc_.forwardTorq(tp_, fdLPF_.process(fd_));
 
     u[0][0] = std::fmin(std::fmax(u[0][0], -MAX_HIP_CTRL_TORQ),
                         MAX_HIP_CTRL_TORQ);

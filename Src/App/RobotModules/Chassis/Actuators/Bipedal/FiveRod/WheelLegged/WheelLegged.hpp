@@ -50,6 +50,8 @@ private:
     float fdForward_ = 0.f;
     float tw_ = 0.f;
 
+    FILTER::LPF fdLPF_{ 1000.f, 100.f };
+
     float fn_ = 0.f;
     FILTER::LPF fnLPF_{ 1000.f, 5.f };
     float rawFn_ = 0.f;
@@ -58,8 +60,8 @@ private:
 
     float setL_;
 
-    PositionalPid lengthAngPid_{ 100.f, 50, 0, 0.001f, 5, 20, 0 };
-    PositionalPid lengthVelPid_{ 3.f, 0, 0, 0.001f, 0, 40, 0 };
+    PositionalPid lengthAngPid_{ 30.f, 10.f, 1.f, 0.001f, 1.f, 3.f, 0.f };
+    PositionalPid lengthVelPid_{ 50.f, 0.f, 0.f, 0.001f, 0.f, 120.f, 0.f };
 
     PINYMOTOR::IMotor *hip1_;
     PINYMOTOR::IMotor *hip4_;

@@ -15,6 +15,7 @@ public:
 
     float process(float _input)
     {
+        updateAlpha();
         return outputPrev_ =
                        (alpha_ * _input) + ((1.0f - alpha_) * outputPrev_);
     }

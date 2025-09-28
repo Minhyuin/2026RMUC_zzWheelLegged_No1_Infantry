@@ -6,10 +6,11 @@
 #include "MotorCommonMacros.hpp"
 
 #include "PidBasic.hpp"
-
+float q = 0.0f;
 namespace CHASSIS {
 class RunState : public FSMState<FSMState_e> {
-    static constexpr float DEFAULT_L = 0.25586f;
+    static constexpr float DEFAULT_L = 0.2f;
+    static constexpr float MAX_ACC = 1.0f;
 
 public:
     RunState(Bipedal *_chassis)
@@ -30,6 +31,11 @@ public:
         refLength_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(refLength_);
 
+        // limit acc
+        // float vx = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC,
+        //                       chassis_->vel() + MAX_ACC);
+        float vx = chassis_->msg.vx;
+
         // WL
         // WLController::States_u ref{};
         // ref.ds = chassis_->msg.vx;
@@ -44,13 +50,17 @@ public:
                           (PINYMOTOR::rangeMap(
                                   refYaw_ + (chassis_->msg.wz * 0.001f), -PI,
                                   PI));
-        ref.ds = chassis_->msg.vx;
+        ref.ds = vx;
         ref.yaw = refYaw_;
         ref.dyaw = chassis_->msg.wz;
+        ref.q = q;
         chassis_->bal(ref);
 
+        chassis_->setFdForward(chassis_->calcFdForwardL(),
+                               chassis_->calcFdForwardR());
+
         // TestRun
-        // chassis_->setHipPhiSmooth((PI / 4.f) - 0.25f, 0.05f);
+        // chassis_->setHipPhi((PI / 4.f) - 0.25f);
         // chassis_->noBal(chassis_->msg.vx, chassis_->msg.wz);
 
         chassis_->ctrl();

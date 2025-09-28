@@ -13,6 +13,7 @@
 
 #include "./State/StopState.hpp"
 #include "./State/RunState.hpp"
+#include "./State/RescueState.hpp"
 #include "./State/LaunchState.hpp"
 #include "./State/TestState.hpp"
 
@@ -134,6 +135,8 @@ Bipedal::Bipedal()
                                  std::make_unique<StopState>(this));
     this->stateFactory_.addState(FSMState_e::LAUNCH,
                                  std::make_unique<LaunchState>(this));
+    this->stateFactory_.addState(FSMState_e::RESCUE,
+                                 std::make_unique<RescueState>(this));
     this->stateFactory_.addState(FSMState_e::RUN,
                                  std::make_unique<RunState>(this));
     this->stateFactory_.addState(FSMState_e::TEST,
@@ -197,15 +200,18 @@ void Bipedal::update(void *_param)
     float cosPitch = arm_cos_f32(insData_.pitch);
     float cosRoll = arm_cos_f32(insData_.roll);
 
-    float g = WheelLegged::GRAVITY;
-    float axFromX = (insData_.body.ax - (g * -sinPitch)) * cosPitch;
+    float axFromX =
+            (insData_.body.ax - (WheelLegged::GRAVITY * -sinPitch)) * cosPitch;
     float axFromZ =
-            (insData_.body.az - (g * cosPitch * cosRoll)) * sinPitch * cosRoll;
+            (-insData_.body.az - (WheelLegged::GRAVITY * cosPitch * cosRoll)) *
+            sinPitch * cosRoll;
     float axFromINS = axFromX + axFromZ;
 
-    float azFromX = (insData_.body.ax - (g * -sinPitch)) * -sinPitch;
-    float azFromZ =
-            (insData_.body.az - (g * cosPitch * cosRoll)) * cosPitch * cosRoll;
+    float azFromX =
+            (insData_.body.ax - (WheelLegged::GRAVITY * -sinPitch)) * -sinPitch;
+    float azFromZ = -insData_.body.az - (WheelLegged::GRAVITY * cosPitch);
+    // (-insData_.body.az - (WheelLegged::GRAVITY * cosPitch * cosRoll)) *
+    // cosPitch * cosRoll;
     float azFromINS = azFromX + azFromZ;
 
     // update leg

@@ -41,8 +41,8 @@ void VMC::update(LegState_s &_legState, float _dt)
     float cosBeta, beta, alpha;
     cosBeta = ((L2_ * L2_ + lBD * lBD) - (L3_ * L3_)) / (2.f * L2_ * lBD);
     beta = acos(cosBeta);
-    // arm_atan2_f32(yBD,xBD, &alpha);
-    alpha = atan2(yBD, xBD);
+    arm_atan2_f32(yBD, xBD, &alpha);
+    // alpha = atan2(yBD, xBD);
 
     _legState.phi2 = beta + alpha;
     _legState.phi3 = PI - beta + alpha;
@@ -71,26 +71,30 @@ void VMC::update(LegState_s &_legState, float _dt)
     J_[0][1] = +L4_ * sin2 * sin43 / sin32;
     J_[1][0] = -L1_ * cos3 * sin21 / sin32;
     J_[1][1] = -L4_ * cos2 * sin43 / sin32;
-    J_inv_ = J_.inv();
-    J_T_[0][0] = +L1_ * sin3 * sin21 / sin32;
-    J_T_[0][1] = -L1_ * cos3 * sin21 / sin32;
-    J_T_[1][0] = +L4_ * sin2 * sin43 / sin32;
-    J_T_[1][1] = -L4_ * cos2 * sin43 / sin32;
-    J_T_inv_ = J_T_.inv();
+    Matrix<2, 2> j(J_);
+    J_inv_ = j.inv();
+    J_T_[0][0] = J_[0][0];
+    J_T_[0][1] = J_[1][0];
+    J_T_[1][0] = J_[0][1];
+    J_T_[1][1] = J_[1][1];
+    Matrix<2, 2> jt(J_T_);
+    J_T_inv_ = jt.inv();
 
     // assemble R Matrix
     R_[0][0] = -arm_sin_f32(phiC);
     R_[0][1] = +arm_cos_f32(phiC);
     R_[1][0] = +arm_cos_f32(phiC);
     R_[1][1] = +arm_sin_f32(phiC);
-    R_inv_ = R_.inv();
+    Matrix<2, 2> r(R_);
+    R_inv_ = r.inv();
 
     // assemble M Matrix
     M_[0][0] = 1.f / _legState.L0;
     M_[0][1] = 0.f;
     M_[1][0] = 0.f;
     M_[1][1] = 1.f;
-    M_inv_ = M_.inv();
+    Matrix<2, 2> m(M_);
+    M_inv_ = m.inv();
 
     // update derivatives
     _legState.vpPrev = _legState.vp;

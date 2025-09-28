@@ -14,6 +14,7 @@ public:
     void enter() final
     {
         chassis_->stop();
+        chassis_->setFdForward(0, 0);
         LOG::info("ChassisStop", " enter");
     }
 

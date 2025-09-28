@@ -20,17 +20,18 @@ public:
         chassis_->enter();
         LOG::info("ChassisTest", " enter");
         phi_ = chassis_->phiL();
-        l0_ = 0.25f;
+        l0_ = chassis_->lengthL();
     }
 
     void run() final
     {
-        phi_ += chassis_->msg.dphi;
-        l0_ += chassis_->msg.dl;
+        phi_ += chassis_->msg.dphi * 0.001f;
+        l0_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(l0_);
         chassis_->setHipPhi(phi_);
         chassis_->noBal(chassis_->msg.vx, -chassis_->msg.vy);
         chassis_->ctrl();
+        LOG::info("", "%f", chassis_->phiL());
     }
 
     void exit() final { LOG::info("ChassisTest", " exit"); }

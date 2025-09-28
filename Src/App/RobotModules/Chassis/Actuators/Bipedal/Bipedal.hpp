@@ -43,7 +43,7 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_ZERO_ANG = 0.617081642f;
     static constexpr float RB_HIP_ZERO_ANG = 4.168846371f;
 
-    static constexpr float MASS_BODY = 2.f;
+    static constexpr float MASS_BODY = 15.329f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // rad
 
@@ -156,16 +156,16 @@ private:
 
     Detector detector_;
 
-    PositionalPid rollAngPid_{ 0, 0, 0, 0, 0, 0, 0 };
-    PositionalPid rollVelPid_{ 0, 0, 0, 0, 0, 0, 0 };
+    PositionalPid rollAngPid_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
+    PositionalPid rollVelPid_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
 
-    PositionalPid hipAngPidL_{ 300.f, 1400.f, 0, 0.001f, 10.f, 40, 0 };
-    PositionalPid hipVelPidL_{ 1.5f, 0, 0, 0.001f, 0, 40.f, 0 };
+    PositionalPid hipAngPidL_{ 20.f, 5.f, 1.f, 0.001f, 5.f, 40.f, 0.f };
+    PositionalPid hipVelPidL_{ 13.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
-    IncrementalPid wzVelPid_{ 1, 0, 0, 3.f, 0 };
+    IncrementalPid wzVelPid_{ 1.f, 0.f, 0.f, 3.f, 0.f };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };
