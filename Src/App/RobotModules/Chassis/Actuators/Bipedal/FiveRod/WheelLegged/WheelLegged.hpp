@@ -34,7 +34,7 @@ public:
     void setTp(float _tp);
     void setTw(float _tw);
 
-    float calcFn(float _az);
+    float calcFn(float _az, float _q);
 
     void ctrl();
 
@@ -55,8 +55,11 @@ private:
     float fn_ = 0.f;
     FILTER::LPF fnLPF_{ 1000.f, 5.f };
     float rawFn_ = 0.f;
+    float fp_;
+    float nWheel_;
 
     VMC vmc_ = VMC(VMC_CONFIG);
+    // VMCTest vmcTest_;
 
     float setL_;
 

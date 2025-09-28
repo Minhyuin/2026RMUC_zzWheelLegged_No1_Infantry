@@ -129,7 +129,7 @@ Matrix<2, 1> VMC::inverseTorq(float _tau1, float _tau4)
 {
     float input[2] = { _tau1, _tau4 };
     Matrix<2, 1> inputVector(input);
-    return J_T_inv_ * R_inv_ * M_inv_ * inputVector; // get tp and fd
+    return M_inv_ * R_inv_ * J_T_inv_ * inputVector; // get tp and fd
 }
 
 Matrix<2, 1> VMC::forwardVel(float _vp, float _vd)
@@ -143,7 +143,7 @@ Matrix<2, 1> VMC::inverseVel(float _dphi1, float _dphi4)
 {
     float input[2] = { _dphi1, _dphi4 };
     Matrix<2, 1> inputVector(input);
-    return J_ * R_ * inputVector; // get vp and vd
+    return R_ * J_ * inputVector; // get vp and vd
 }
 
 Matrix<2, 2> VMC::invFast(Matrix<2, 2> &_mat) const
