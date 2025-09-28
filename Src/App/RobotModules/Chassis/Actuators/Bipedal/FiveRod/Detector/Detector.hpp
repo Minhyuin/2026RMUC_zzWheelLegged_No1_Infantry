@@ -7,7 +7,7 @@
 namespace CHASSIS {
 class Detector {
     static constexpr float FN_THRESHOLD =
-            0; // WheelLegged::MASS_WHEEL * WheelLegged::GRAVITY;
+            2.f * WheelLegged::MASS_WHEEL * WheelLegged::GRAVITY;
 
     static constexpr float STOP_THRESHOLD = 0.03f;
 
