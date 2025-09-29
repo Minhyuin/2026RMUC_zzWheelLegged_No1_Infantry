@@ -53,7 +53,7 @@ class Bipedal : public Chassis {
 
     static constexpr float B_RADIUS = 0.5695f / 2.f;
 
-    static constexpr float MAX_S = 0.5f;
+    static constexpr float MAX_S = 2.f;
 
     static constexpr float CTRL_FREQ = 1000.f;
 
@@ -103,13 +103,13 @@ public:
     void setHipFd(float _fd);
     void setHipFd(float _fdL, float _fdR);
 
-    void bal(const WLController::States_u &_ref, float _wz);
+    void bal(const WLController::States_u &_ref, float _yaw);
     void bal(const WLController::States_u &_refL,
-             const WLController::States_u &_refR, float _wz);
+             const WLController::States_u &_refR, float _yaw);
 
     void bal(const WBRController::States_u &_ref);
 
-    void bal(const STController::States_u &_ref, float _wz);
+    void bal(const STController::States_u &_ref, float _yaw);
 
     void noBal(float _vx, float _wz);
 
@@ -165,7 +165,8 @@ private:
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
-    IncrementalPid wzVelPid_{ 1.f, 0.f, 0.f, 3.f, 0.f };
+    IncrementalPid wzVelPid_[2]{ { 0.f, 0.f, 0.f, 0.f, 0.f },
+                                 { 0.f, 0.f, 0.f, 0.f, 0.f } };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };
@@ -180,8 +181,11 @@ private:
     float yawZero_ = 0.f; // used to sync with gimbal
 
     float yaw_ = 0.f;
+
     float ds_ = 0.f;
     float s_ = 0.f;
+    float sForward_ = -0.2009f;
+
     float wz_ = 0.f;
     float wx_ = 0.f;
     float az_ = 0.f;
@@ -189,6 +193,8 @@ private:
 
     float dt_ = 0.001f;
     uint32_t dtCnt_ = 0;
+
+    void updateVel();
 };
 
 } // namespace CHASSIS

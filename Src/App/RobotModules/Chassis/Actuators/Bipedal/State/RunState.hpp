@@ -6,7 +6,9 @@
 #include "MotorCommonMacros.hpp"
 
 #include "PidBasic.hpp"
+
 float q = 0.0f;
+
 namespace CHASSIS {
 class RunState : public FSMState<FSMState_e> {
     static constexpr float DEFAULT_L = 0.2f;
@@ -22,7 +24,7 @@ public:
     {
         chassis_->enter();
         refYaw_ = chassis_->yaw();
-        refLength_ = DEFAULT_L;
+        refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
         LOG::info("ChassisRun", " enter");
     }
 

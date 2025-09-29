@@ -158,7 +158,9 @@ void Bipedal::stop()
     hipAngPidR_.reset();
     hipVelPidR_.reset();
 
-    wzVelPid_.reset();
+    wzVelPid_[0].reset();
+    wzVelPid_[1].reset();
+
     dsPid_[0].reset();
     dsPid_[1].reset();
 
@@ -195,6 +197,27 @@ void Bipedal::update(void *_param)
     // update insData
     insSub_->receive();
 
+    // update leg
+    legL_.stateUpdate(dt_);
+    legR_.stateUpdate(dt_);
+
+    legL_.isFloating = detector_.isFloating(legL_.calcFn(az_, insData_.pitch));
+    legR_.isFloating = detector_.isFloating(legR_.calcFn(az_, insData_.pitch));
+
+    updateVel();
+
+    // update other state
+    yaw_ = insData_.yaw;
+
+    wz_ = insData_.body.gz; // TODO: earth.gz
+    wx_ = insData_.body.gx; // TODO: earth.gx
+
+    // update state
+    this->stateFactory_.update();
+}
+
+void Bipedal::updateVel()
+{
     // update ax az
     float sinPitch = arm_sin_f32(insData_.pitch);
     float cosPitch = arm_cos_f32(insData_.pitch);
@@ -214,36 +237,51 @@ void Bipedal::update(void *_param)
     // cosPitch * cosRoll;
     float azFromINS = azFromX + azFromZ;
 
-    // update leg
-    legL_.stateUpdate(dt_);
-    legR_.stateUpdate(dt_);
-
-    legL_.isFloating = detector_.isFloating(legL_.calcFn(az_, insData_.pitch));
-    legR_.isFloating = detector_.isFloating(legR_.calcFn(az_, insData_.pitch));
-
-    // update odom
-    float vxFromWheel = (wheelFltr[0].process(motors_.WheelL->vel()) +
-                         wheelFltr[1].process(motors_.WheelR->vel())) *
-                        W_RADIUS / 2.f;
-    odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
-    // ds_ = odom_.normVel();
-    ds_ = vxFromWheel;
-    s_ = clamp((detector_.isStop(this->msg.vx, ds_)) ? s_ + (ds_ * dt_) : 0,
-               -MAX_S, MAX_S);
-    if (isFloating())
-        s_ = 0;
-
-    as_ = odom_.normAcc();
-
-    // update other state
-    yaw_ = insData_.yaw;
-
-    wz_ = insData_.body.gz; // TODO: earth.gz
-    wx_ = insData_.body.gx; // TODO: earth.gx
     az_ = azFromINS;
 
-    // update state
-    this->stateFactory_.update();
+    // update odom
+    // w = w_eb + dq + w_ecd
+    float wheelOmega[2]{};
+    wheelOmega[0] = wheelFltr[0].process(motors_.WheelL->vel()) +
+                    insData_.body.gy + legL_.state().dphi0;
+    wheelOmega[1] = wheelFltr[1].process(motors_.WheelR->vel()) -
+                    insData_.body.gy + legR_.state().dphi0;
+
+    // x_dot = w * r + L * phi_dot * cos(phi) + L_dot * sin(phi)
+    float wheelVel[2]{};
+    wheelVel[0] = wheelOmega[0] * W_RADIUS +
+                  legL_.state().L0 * legL_.state().dphi0 *
+                          arm_cos_f32(legL_.state().phi0) +
+                  legL_.state().vd * arm_sin_f32(legL_.state().phi0);
+    wheelVel[1] = wheelOmega[1] * W_RADIUS +
+                  legR_.state().L0 * legR_.state().dphi0 *
+                          arm_cos_f32(legR_.state().phi0) +
+                  legR_.state().vd * arm_sin_f32(legR_.state().phi0);
+    float vxFromWheel = (wheelVel[0] + wheelVel[1]) / 2.f;
+
+    odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
+
+    // ds_ = odom_.normVel();
+    ds_ = vxFromWheel;
+    as_ = odom_.normAcc();
+
+    // stop detect
+    bool slowSpeedFlag = false;
+    if (detector_.isStop(this->msg.vx, ds_)) {
+        s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
+        if (fabs(axFromINS) < 0.0025f && !slowSpeedFlag) {
+            LOG::info("sForward", "%f", s_);
+        }
+        if (ds_ < 0.1f && !slowSpeedFlag) {
+            slowSpeedFlag = true;
+            s_ = sForward_;
+        }
+    } else {
+        s_ = 0;
+        slowSpeedFlag = false;
+    }
+    if (isFloating())
+        s_ = 0;
 }
 
 void Bipedal::ctrl()
