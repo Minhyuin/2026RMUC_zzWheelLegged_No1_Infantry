@@ -57,7 +57,7 @@ void RcMsgHandler::chassisHandle()
         cmsg_.vx = cmsg_.vy = cmsg_.wz = cmsg_.dl = cmsg_.dphi = 0.f;
     } else if (rcMsg_.rSwitch == RC_SW_MID) {
         // chassis
-        cmsg_.state = CHASSIS::FSMState_e::RUN;
+        cmsg_.state = CHASSIS::FSMState_e::IDLE;
         cmsg_.vx = s_curve(ROCKER_VX_GAIN, rcMsg_.ry);
         cmsg_.wz = -s_curve(ROCKER_WZ_GAIN, rcMsg_.lx);
 

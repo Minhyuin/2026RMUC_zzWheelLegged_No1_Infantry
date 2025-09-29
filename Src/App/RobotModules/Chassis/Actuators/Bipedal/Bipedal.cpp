@@ -12,7 +12,7 @@
 #include "MotorCommonMacros.hpp"
 
 #include "./State/StopState.hpp"
-#include "./State/RunState.hpp"
+#include "./State/IdleState.hpp"
 #include "./State/RescueState.hpp"
 #include "./State/LaunchState.hpp"
 #include "./State/TestState.hpp"
@@ -137,8 +137,8 @@ Bipedal::Bipedal()
                                  std::make_unique<LaunchState>(this));
     this->stateFactory_.addState(FSMState_e::RESCUE,
                                  std::make_unique<RescueState>(this));
-    this->stateFactory_.addState(FSMState_e::RUN,
-                                 std::make_unique<RunState>(this));
+    this->stateFactory_.addState(FSMState_e::IDLE,
+                                 std::make_unique<IdleState>(this));
     this->stateFactory_.addState(FSMState_e::TEST,
                                  std::make_unique<TestState>(this));
     this->stateFactory_.init(

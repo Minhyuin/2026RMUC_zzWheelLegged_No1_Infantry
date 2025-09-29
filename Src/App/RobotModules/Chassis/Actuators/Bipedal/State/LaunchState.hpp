@@ -72,7 +72,7 @@ public:
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
         else if (isLaunchFinish_)
-            return FSMState_e::RUN;
+            return FSMState_e::IDLE;
         // TODO: the other state
         else
             return FSMState_e::LAUNCH;

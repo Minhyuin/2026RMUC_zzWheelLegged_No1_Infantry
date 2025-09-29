@@ -41,7 +41,7 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (chassis_->msg.state == FSMState_e::RUN)
+        else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::TEST;
         // TODO: the other state
         else

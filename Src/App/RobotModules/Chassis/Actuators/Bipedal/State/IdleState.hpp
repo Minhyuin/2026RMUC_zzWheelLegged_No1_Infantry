@@ -10,13 +10,13 @@
 float q = 0.0f;
 
 namespace CHASSIS {
-class RunState : public FSMState<FSMState_e> {
+class IdleState : public FSMState<FSMState_e> {
     static constexpr float DEFAULT_L = 0.2f;
     static constexpr float MAX_ACC = 1.0f;
 
 public:
-    RunState(Bipedal *_chassis)
-            : FSMState<FSMState_e>(FSMState_e::RUN), chassis_(_chassis)
+    IdleState(Bipedal *_chassis)
+            : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis)
     {
     }
 
@@ -25,7 +25,7 @@ public:
         chassis_->enter();
         refYaw_ = chassis_->yaw();
         refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
-        LOG::info("ChassisRun", " enter");
+        LOG::info("ChassisIdle", " enter");
     }
 
     void run() final
@@ -71,7 +71,7 @@ public:
     void exit() final
     {
         wzAngPid_.reset();
-        LOG::info("ChassisRun", " exit");
+        LOG::info("ChassisIdle", " exit");
     }
 
 
@@ -79,11 +79,11 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP || chassis_->isTumble())
             return FSMState_e::STOP;
-        else if (chassis_->msg.state == FSMState_e::RUN)
-            return FSMState_e::RUN;
+        else if (chassis_->msg.state == FSMState_e::IDLE)
+            return FSMState_e::IDLE;
         // TODO: the other state
         else
-            return FSMState_e::RUN;
+            return FSMState_e::IDLE;
     }
 
 private:
