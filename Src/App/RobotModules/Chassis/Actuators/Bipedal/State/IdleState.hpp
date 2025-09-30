@@ -38,13 +38,6 @@ public:
         //                       chassis_->vel() + MAX_ACC);
         float vx = chassis_->msg.vx;
 
-        // WL
-        // WLController::States_u ref{};
-        // ref.ds = chassis_->msg.vx;
-        // chassis_->bal(ref, minorArc(chassis_->msg.yaw,
-        //                                           chassis_->yaw()) /
-        //                                0.001f);
-
         // WBR
         WBRController::States_u ref{};
         refYaw_ = chassis_->isFloating() ?

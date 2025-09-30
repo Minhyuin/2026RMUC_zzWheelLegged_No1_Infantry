@@ -24,7 +24,7 @@ Matrix<1, 1> STController::solve(const Matrix<4, 1> &_errX, float _l,
     };
     Matrix<1, 4> k(arrayK);
     Matrix<1, 1> u;
-    if (_isFloating)
+    if (!_isFloating)
         u = k * _errX;
     else
         u[0][0] = 0;

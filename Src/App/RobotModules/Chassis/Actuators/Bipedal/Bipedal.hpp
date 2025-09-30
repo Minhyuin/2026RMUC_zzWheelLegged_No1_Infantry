@@ -38,8 +38,8 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_ZERO_ANG = 1.93523502f;
-    static constexpr float LB_HIP_ZERO_ANG = 4.08178854f;
+    static constexpr float LF_HIP_ZERO_ANG = 4.73760557f;
+    static constexpr float LB_HIP_ZERO_ANG = 5.68604708f;
     static constexpr float RF_HIP_ZERO_ANG = 0.617081642f;
     static constexpr float RB_HIP_ZERO_ANG = 4.168846371f;
 
@@ -119,7 +119,7 @@ public:
     bool isTumble();
     bool isFreeze();
     bool isOverturn();
-    bool isLaunched(float _setPhi, float _phiTh, float _setL, float _lTh);
+    bool detectPitch(float _ang1, float _ang2);
     bool detectPhiL(float _ang1, float _ang2);
     bool detectPhiR(float _ang1, float _ang2);
 

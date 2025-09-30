@@ -8,8 +8,8 @@ class STController {
 public:
     union States_u {
         struct {
-            float s, ds;
-            float q, dq;
+            float s, q;
+            float ds, dq;
         };
         float _[4];
     };

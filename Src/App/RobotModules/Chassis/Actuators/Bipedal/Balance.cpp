@@ -78,13 +78,13 @@ void Bipedal::bal(const STController::States_u &_ref, float _yaw)
 {
     STController::States_u errData = {
         .s = _ref.s - s_,
+        .q = -(getMinorArc(_ref.q, insData_.pitch)),
         .ds = _ref.ds - ds_,
-        .q = getMinorArc(_ref.q, insData_.pitch),
-        .dq = _ref.dq - insData_.body.gy,
+        .dq = -(_ref.dq - insData_.body.gy),
     };
     Matrix<4, 1> err{ errData._ };
     float lAvg = (legL_.state().L0 + legR_.state().L0) / 2.f;
-    bool isf = legL_.isFloating & legR_.isFloating;
+    bool isf = isFloating();
     Matrix<1, 1> uDiv = STController::solve(err, lAvg, isf) / 2.f;
     float tw2 = wzVelPid_[1].calc(wzVelPid_[0].calc(_yaw, insData_.yaw), wz_);
     legL_.setTw(uDiv[0][0] + tw2);

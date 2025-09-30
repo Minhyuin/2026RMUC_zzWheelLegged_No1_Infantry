@@ -12,9 +12,10 @@
 #include "MotorCommonMacros.hpp"
 
 #include "./State/StopState.hpp"
-#include "./State/IdleState.hpp"
 #include "./State/RescueState.hpp"
 #include "./State/LaunchState.hpp"
+#include "./State/StandState.hpp"
+#include "./State/IdleState.hpp"
 #include "./State/TestState.hpp"
 
 extern canHandle HCAN1;
@@ -135,6 +136,8 @@ Bipedal::Bipedal()
                                  std::make_unique<StopState>(this));
     this->stateFactory_.addState(FSMState_e::LAUNCH,
                                  std::make_unique<LaunchState>(this));
+    this->stateFactory_.addState(FSMState_e::STAND,
+                                 std::make_unique<StandState>(this));
     this->stateFactory_.addState(FSMState_e::RESCUE,
                                  std::make_unique<RescueState>(this));
     this->stateFactory_.addState(FSMState_e::IDLE,
@@ -435,15 +438,10 @@ bool Bipedal::isFreeze() { return detector_.detectFreeze(insData_); }
 
 bool Bipedal::isOverturn() { return insData_.body.az > 0.1f; }
 
-bool Bipedal::isLaunched(float _setPhi, float _phiTh, float _setL, float _lTh)
+bool Bipedal::detectPitch(float _ang1, float _ang2)
 {
-    const auto &leftState = legL_.state();
-    const auto &rightState = legR_.state();
-
-    return fabs(getMinorArc(_setPhi, leftState.phi0)) < _phiTh &&
-           fabs(getMinorArc(_setPhi, rightState.phi0)) < _phiTh &&
-           fabs(leftState.L0 - _setL) < _lTh &&
-           fabs(rightState.L0 - _setL) < _lTh;
+    return getMinorArc(_ang1, insData_.pitch) > 0 &&
+           getMinorArc(_ang2, insData_.pitch) < 0;
 }
 
 /**
