@@ -165,8 +165,8 @@ private:
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
-    IncrementalPid wzVelPid_[2]{ { 0.f, 0.f, 0.f, 0.f, 0.f },
-                                 { 0.f, 0.f, 0.f, 0.f, 0.f } };
+    PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f },
+                                { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };

@@ -67,7 +67,7 @@ void Bipedal::bal(const WLController::States_u &_refL,
             WLController::solve(errL, legL_.state().L0, legL_.isFloating);
     Matrix<2, 1> uR =
             WLController::solve(errR, legR_.state().L0, legR_.isFloating);
-    float tw2 = wzVelPid_[1].calc(wzVelPid_[0].calc(_yaw, insData_.yaw), wz_);
+    float tw2 = yawPid_[1].calc(yawPid_[0].calc(_yaw, insData_.yaw), wz_);
     legL_.setTw(uL[0][0] + tw2);
     legL_.setTp(uL[1][0]);
     legR_.setTw(uR[0][0] - tw2);
@@ -86,9 +86,9 @@ void Bipedal::bal(const STController::States_u &_ref, float _yaw)
     float lAvg = (legL_.state().L0 + legR_.state().L0) / 2.f;
     bool isf = isFloating();
     Matrix<1, 1> uDiv = STController::solve(err, lAvg, isf) / 2.f;
-    float tw2 = wzVelPid_[1].calc(wzVelPid_[0].calc(_yaw, insData_.yaw), wz_);
-    legL_.setTw(uDiv[0][0] + tw2);
-    legR_.setTw(uDiv[0][0] - tw2);
+    float tw2 = yawPid_[1].calc(yawPid_[0].calc(_yaw, insData_.yaw), wz_);
+    legL_.setTw((uDiv[0][0] * W_RADIUS) + tw2);
+    legR_.setTw((uDiv[0][0] * W_RADIUS) - tw2);
 }
 
 void Bipedal::noBal(float _vx, float _wz)

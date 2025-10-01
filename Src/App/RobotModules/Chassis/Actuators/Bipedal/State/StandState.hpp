@@ -6,7 +6,7 @@
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
-public:
+    static constexpr float BALANCE_Q = 0.1f;
     static constexpr float STAND_PHI = 0.f;
 
 public:
@@ -18,6 +18,7 @@ public:
     void enter() final
     {
         isBalance_ = false;
+        balanceCnt_ = 0;
         chassis_->enter();
         startLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
         startYaw_ = chassis_->yaw();
@@ -31,10 +32,17 @@ public:
 
         STController::States_u ref{};
         float vx = chassis_->msg.vx;
+        ref.q = BALANCE_Q;
         ref.ds = vx;
         chassis_->bal(ref, startYaw_);
 
-        isBalance_ = chassis_->detectPitch(0.1f, -0.1f);
+        if (chassis_->detectPitch(+0.2f, -0.2f)) {
+            balanceCnt_++;
+        }
+        if (balanceCnt_ > 300) {
+            isBalance_ = true;
+            LOG::info("ChassisStand", "balance");
+        }
 
         chassis_->ctrl();
     }
@@ -45,8 +53,8 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        // else if (isBalance_)
-        //     return FSMState_e::IDLE;
+        else if (isBalance_)
+            return FSMState_e::IDLE;
         // TODO: the other state
         else
             return FSMState_e::STAND;
@@ -54,6 +62,7 @@ public:
 
 private:
     Bipedal *chassis_;
+    uint16_t balanceCnt_ = 0;
     bool isBalance_ = false;
     float startLength_ = 0;
     float startYaw_ = 0;

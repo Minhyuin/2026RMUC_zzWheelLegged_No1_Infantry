@@ -4,11 +4,11 @@
 #include "StmLog.hpp"
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr float LAUNCH_DPHI = -0.8 * 0.001f; // per ms
+    static constexpr float LAUNCH_DPHI = 1.2 * 0.001f; // per ms
     static constexpr float LAUNCH_L = 0.2f;
 
-    static constexpr float LAUNCH_ROT_TO_PHI1 = (PI / 4.f) - 0.25f;
-    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.7f;
+    static constexpr float LAUNCH_ROT_TO_PHI1 = 0.1f;
+    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.1f;
 
     static constexpr float PRE_RUN_PHI_STEP = 0.1 * 0.001f;
     static constexpr float PRE_RUN_PHI = LAUNCH_ROT_TO_PHI1;
@@ -42,7 +42,11 @@ public:
             chassis_->setHipPhiSmoothL(PRE_RUN_PHI, PRE_RUN_PHI_STEP);
             rotFinish[0] = true;
         } else {
-            refPhiL_ += LAUNCH_DPHI;
+            if (chassis_->phiL() > 0) {
+                refPhiL_ -= LAUNCH_DPHI;
+            } else {
+                refPhiL_ += LAUNCH_DPHI;
+            }
             chassis_->setHipPhiL(refPhiL_);
             rotFinish[0] = false;
         }
@@ -50,7 +54,11 @@ public:
             chassis_->setHipPhiSmoothR(PRE_RUN_PHI, PRE_RUN_PHI_STEP);
             rotFinish[1] = true;
         } else {
-            refPhiR_ += LAUNCH_DPHI;
+            if (chassis_->phiR() > 0) {
+                refPhiR_ -= LAUNCH_DPHI;
+            } else {
+                refPhiR_ += LAUNCH_DPHI;
+            }
             chassis_->setHipPhiR(refPhiR_);
             rotFinish[1] = false;
         }
@@ -72,7 +80,7 @@ public:
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
         else if (isLaunchFinish_)
-            return FSMState_e::IDLE;
+            return FSMState_e::STAND;
         // TODO: the other state
         else
             return FSMState_e::LAUNCH;

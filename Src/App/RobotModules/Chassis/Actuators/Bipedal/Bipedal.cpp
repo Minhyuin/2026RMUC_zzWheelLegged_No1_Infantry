@@ -161,8 +161,8 @@ void Bipedal::stop()
     hipAngPidR_.reset();
     hipVelPidR_.reset();
 
-    wzVelPid_[0].reset();
-    wzVelPid_[1].reset();
+    yawPid_[0].reset();
+    yawPid_[1].reset();
 
     dsPid_[0].reset();
     dsPid_[1].reset();
@@ -273,7 +273,7 @@ void Bipedal::updateVel()
     if (detector_.isStop(this->msg.vx, ds_)) {
         s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
         if (fabs(axFromINS) < 0.0025f && !slowSpeedFlag) {
-            LOG::info("sForward", "%f", s_);
+            // LOG::info("sForward", "%f", s_);
         }
         if (ds_ < 0.1f && !slowSpeedFlag) {
             slowSpeedFlag = true;

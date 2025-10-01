@@ -6,11 +6,9 @@
 #include "MotorCommonMacros.hpp"
 
 #include "PidBasic.hpp"
-
-float q = 0.0f;
-
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
+    static constexpr float OFFSET_Q = 0.0f;
     static constexpr float DEFAULT_L = 0.2f;
     static constexpr float MAX_ACC = 1.0f;
 
@@ -48,7 +46,7 @@ public:
         ref.ds = vx;
         ref.yaw = refYaw_;
         ref.dyaw = chassis_->msg.wz;
-        ref.q = q;
+        ref.q = OFFSET_Q;
         chassis_->bal(ref);
 
         chassis_->setFdForward(chassis_->calcFdForwardL(),
