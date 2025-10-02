@@ -156,8 +156,8 @@ private:
 
     Detector detector_;
 
-    PositionalPid rollAngPid_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
-    PositionalPid rollVelPid_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
+    PositionalPid rollAngPid_{ 0.1f, 0.f, 0.f, 0.001f, 0.f, 1.f, 0.f };
+    PositionalPid rollVelPid_{ 0.001f, 0.f, 0.f, 0.001f, 0.1f, 0.05f, 0.f };
 
     PositionalPid hipAngPidL_{ 20.f, 5.f, 1.f, 0.001f, 5.f, 40.f, 0.f };
     PositionalPid hipVelPidL_{ 13.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
@@ -166,17 +166,15 @@ private:
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f },
-                                { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
+                              { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
-
-    FILTER::LPF tpLPF_[2]{ { 1000.f, 10.f }, { tpLPF_[0] } };
-    FILTER::LPF twLPF_[2]{ { 1000.f, 10.f }, { twLPF_[0] } };
 
     FILTER::IIR3 wheelFltr[2];
 
     float FdForward_ = MASS_BODY * WheelLegged::GRAVITY;
 
     float setRoll_ = 0.f;
+    float lengthOffset_ = 0.f;
 
     float yawZero_ = 0.f; // used to sync with gimbal
 

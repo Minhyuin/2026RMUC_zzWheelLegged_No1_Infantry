@@ -48,7 +48,7 @@ void Bipedal::bal(const WLController::States_u &_refL,
         .dphi = _refL.dphi - (legL_.state().dphi0 + insData_.body.gy),
         .s = s_,
         .ds = ds_,
-        .q = getMinorArc(insData_.pitch, _refL.q),
+        .q = getMinorArc(_refL.q, insData_.pitch),
         .dq = insData_.body.gy,
     };
     Matrix<6, 1> errL{ errDataL._ };

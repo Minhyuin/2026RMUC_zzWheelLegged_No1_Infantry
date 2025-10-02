@@ -4,11 +4,19 @@
 
 using namespace CHASSIS;
 
-bool Detector::isFloating(float _fn) { return _fn < FN_THRESHOLD; }
+bool Detector::isFloating(float _fn, float _l)
+{
+    constexpr float OFFSET_THRESHOLD = 50.f;
+    float defaultFn =
+            FN_THRESHOLD +
+            ((_l - WheelLegged::MIN_L) /
+             (WheelLegged::MAX_L - WheelLegged::MIN_L) * OFFSET_THRESHOLD);
+    return _fn < defaultFn;
+}
 
 bool Detector::isStop(float _expVel, float _curVel)
 {
-    return _expVel == 0.f || fabs(_curVel) < STOP_THRESHOLD;
+    return _expVel == 0.f /*|| fabs(_curVel) < STOP_THRESHOLD*/;
 }
 
 bool Detector::detectTumble(const LegState_s &_legL, const LegState_s &_legR,

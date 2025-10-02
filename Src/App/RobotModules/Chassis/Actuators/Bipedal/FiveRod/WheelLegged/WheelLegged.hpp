@@ -11,7 +11,8 @@ class WheelLegged {
 public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS_WHEEL = 0.521f;
-    static constexpr float MAX_L = 0.348114768f;
+    static constexpr float MAX_L = 0.33f;
+    static constexpr float MIN_L = 0.2f;
 
     static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
@@ -63,7 +64,8 @@ private:
 
     float setL_;
 
-    PositionalPid lengthAngPid_{ 30.f, 10.f, 1.f, 0.001f, 1.f, 3.f, 0.f };
+    // TODO: 位置环积分饱和会影响离地检测
+    PositionalPid lengthAngPid_{ 30.f, 30.f, 1.f, 0.001f, 0.3f, 3.f, 0.f };
     PositionalPid lengthVelPid_{ 50.f, 0.f, 0.f, 0.001f, 0.f, 120.f, 0.f };
 
     PINYMOTOR::IMotor *hip1_;

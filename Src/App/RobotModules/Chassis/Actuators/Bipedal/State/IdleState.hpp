@@ -10,7 +10,7 @@ namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.0f;
     static constexpr float DEFAULT_L = 0.2f;
-    static constexpr float MAX_ACC = 1.0f;
+    static constexpr float MAX_ACC = 0.05f;
 
 public:
     IdleState(Bipedal *_chassis)
@@ -32,9 +32,9 @@ public:
         chassis_->setLength(refLength_);
 
         // limit acc
-        // float vx = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC,
-        //                       chassis_->vel() + MAX_ACC);
-        float vx = chassis_->msg.vx;
+        float vx = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC,
+                              chassis_->vel() + MAX_ACC);
+        vx = chassis_->msg.vx;
 
         // WBR
         WBRController::States_u ref{};

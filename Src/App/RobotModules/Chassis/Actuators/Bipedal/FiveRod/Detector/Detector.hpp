@@ -18,7 +18,7 @@ class Detector {
 public:
     Detector() = default;
 
-    bool isFloating(float _fn);
+    bool isFloating(float _fn, float _l);
 
     bool isStop(float _expVel, float _curVel);
 
