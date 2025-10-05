@@ -6,6 +6,8 @@ using namespace INS_SYS;
 
 // static INSData_s ansINS;
 
+#if !APP_USE_COMM || APP_CHASSIS_SLAVE
+
 // default accelerometer calibration
 static constexpr AccCaliParams_s ACC_CALI = {
 
@@ -30,6 +32,37 @@ static constexpr GyroCaliParams_s GYRO_CALI = {
 
 static constexpr float IMU_OFFSET_X = (187.027922f * 0.001f);
 static constexpr float IMU_OFFSET_Y = (32.450801f * 0.001f);
+
+#endif
+
+#if APP_GIMBAL_MASTER
+
+// default accelerometer calibration
+static constexpr AccCaliParams_s ACC_CALI = {
+
+    .accelT = { { 1.00378931f, -0.00643978501f, 0.00929921027f },
+                { 0.0178677756f, 1.00453115f, -0.000616421574f },
+                { -0.0180354994f, -0.0277505852f, 1.00323439f } },
+    .accelOffs = { 0.0724740028f, -0.0040230751f, -0.0407223701f }
+};
+// default gyroscope calibration
+static constexpr GyroCaliParams_s GYRO_CALI = {
+
+    .gxBias = 2.47140145f,
+    .gyBias = 2.10108852f,
+    .gzBias = 0.326060504f,
+    .gxTcoK = 0.f,
+    .gxTcoB0 = 0.f,
+    .gyTcoK = 0.f,
+    .gyTcoB0 = 0.f,
+    .gzTcoK = 0.f,
+    .gzTcoB0 = 0.f
+};
+
+static constexpr float IMU_OFFSET_X = (-18.049199f * 0.001f);
+static constexpr float IMU_OFFSET_Y = (-17.027922f * 0.001f);
+
+#endif
 
 INS::INS(SPI_HandleTypeDef *_spi)
         : insPub_(new Publisher<INSData_s>(&TopicRouter::instance().insTopic,
@@ -96,6 +129,7 @@ void INS::task(void *_param)
         // Pitch: Head up decrease(-)
         // Yaw: Clockwise decrease(-) when viewed from above
         auto &data = instance->rawDat_;
+#if !APP_USE_COMM || APP_CHASSIS_SLAVE
         data = {
             .a = { .x = cali.getOutput().ax,
                    .y = cali.getOutput().ay,
@@ -104,6 +138,17 @@ void INS::task(void *_param)
                    .y = -cali.getOutput().gy,
                    .z = cali.getOutput().gz },
         };
+#endif
+#if APP_GIMBAL_MASTER
+        data = {
+            .a = { .x = cali.getOutput().ay,
+                   .y = -cali.getOutput().ax,
+                   .z = -cali.getOutput().az },
+            .g = { .x = -cali.getOutput().gy,
+                   .y = cali.getOutput().gx,
+                   .z = cali.getOutput().gz },
+        };
+#endif
         data.a.x = data.a.x - (data.g.y * data.g.z * IMU_OFFSET_Y -
                                data.g.z * data.g.z * IMU_OFFSET_X);
         data.a.y = data.a.y - (data.g.z * data.g.x * IMU_OFFSET_X -

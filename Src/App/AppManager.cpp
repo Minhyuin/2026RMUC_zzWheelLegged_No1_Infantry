@@ -85,7 +85,7 @@ void AppManager::initApp()
 #endif
 
 #if !APP_USE_COMM || APP_GIMBAL_MASTER
-    // schedule([]() { gimbal.update(cmd->getMsgBus()); });
+    schedule([]() { gimbal.update(cmd->getMsgBus()); });
 #endif
 
 #if APP_USE_COMM
