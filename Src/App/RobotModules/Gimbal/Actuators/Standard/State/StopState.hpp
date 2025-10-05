@@ -1,0 +1,44 @@
+#pragma once
+
+#include "Standard.hpp"
+#include "FSMState.hpp"
+#include "StmLog.hpp"
+
+namespace GIMBAL {
+
+class StopState : public FSMState<FSMState_e> {
+public:
+    StopState(Standard *_gimbal)
+            : FSMState<FSMState_e>(FSMState_e::STOP), gimbal_(_gimbal)
+    {
+    }
+
+    void enter() final
+    {
+        gimbal_->outFilrYaw.reset();
+        gimbal_->outFilrPitch.reset();
+        gimbal_->stop();
+        gimbal_->loadResetState(false);
+
+        LOG::info("GimbalStop", "enter");
+    }
+
+    void run() final { gimbal_->stop(); }
+
+    void exit() final { LOG::info("GimbalStop", "exit"); }
+
+    FSMState_e checkChange() final
+    {
+        if (gimbal_->msg.state == FSMState_e::STOP)
+            return FSMState_e::STOP;
+        else if (gimbal_->msg.state == FSMState_e::RUN)
+            return FSMState_e::LAUNCH;
+        else
+            return FSMState_e::STOP;
+    }
+
+private:
+    Standard *gimbal_;
+};
+
+} // namespace GIMBAL
