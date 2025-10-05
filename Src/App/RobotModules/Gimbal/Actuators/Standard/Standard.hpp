@@ -38,14 +38,14 @@ class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::SamplePacketType> {
 
 class Standard : public Gimbal {
 public:
-    static constexpr float PITCH_LAUNCH_ANG = 2.08033204f;
-    static constexpr float YAW_LAUNCH_ANG = 4.42377377f;
+    static constexpr float PITCH_LAUNCH_ANG = 4.68467999f;
+    static constexpr float YAW_LAUNCH_ANG = 3.06891584f;
 
     static constexpr float PITCH_MOTOR_FREQ = 1000.f;
     static constexpr float YAW_MOTOR_FREQ = 1000.f;
 
     // "REVERSE flag" is true when imu and motor have different direction
-    static constexpr bool PITCH_REVERSE = false;
+    static constexpr bool PITCH_REVERSE = true;
     static constexpr bool YAW_REVERSE = false;
 
     Standard();

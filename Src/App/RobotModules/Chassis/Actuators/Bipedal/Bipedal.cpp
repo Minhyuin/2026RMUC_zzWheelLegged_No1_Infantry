@@ -18,11 +18,9 @@
 #include "./State/IdleState.hpp"
 #include "./State/TestState.hpp"
 
-extern canHandle HCAN1;
-extern canHandle HCAN2;
-
 #define HIP_HANDLE   HCAN2
 #define WHEEL_HANDLE HCAN1
+#define COMM_HANDLE  HCAN3
 
 using namespace CHASSIS;
 using namespace PINYMOTOR;
@@ -30,7 +28,7 @@ using namespace PINYMOTOR;
 void ChassisCtrlRxPacket::registerCallback()
 {
     Can::instance().registerCallback(
-            &HCAN1, uid(), [this](const uint8_t *_rxBuf) {
+            &COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
                 xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
             });
     LOG::info("ChassisCtrlRxPacket", " Receive cb registered, uId:0x%hx \n",
