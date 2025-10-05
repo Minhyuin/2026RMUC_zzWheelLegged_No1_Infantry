@@ -4,11 +4,11 @@
 
 #include "sdkconfig.h"
 
-#include <functional>
-
 #include "IMotor.hpp"
 
 #include "LPF.hpp"
+
+#include "PidBasic.hpp"
 
 #include "TxPacket.hpp"
 #include "PacketImpl.hpp"
@@ -53,11 +53,13 @@ public:
     PINYMOTOR::IMotor *pitch() const;
     PINYMOTOR::IMotor *yaw() const;
 
+    void ctrlPitchSmooth(float _pos, float _step);
+    void ctrlPitch(float _pos);
     void ctrlPitch(PID *_angPID, PID *_velPID, float _pos);
-    void ctrlPitch(PID *_angPID, PID *_velPID, float _pos, float _vel);
 
+    void ctrlYawSmooth(float _pos, float _step);
+    void ctrlYaw(float _pos);
     void ctrlYaw(PID *_angPID, PID *_velPID, float _pos);
-    void ctrlYaw(PID *_angPID, PID *_velPID, float _pos, float _vel);
 
     void stop();
     void enter();
@@ -68,9 +70,6 @@ public:
     float baseYawAng() const { return baseYawAng_; }
 
     void loadResetState(bool _state);
-
-    FILTER::LPF outFilrPitch{ PITCH_MOTOR_FREQ, 4.f };
-    FILTER::LPF outFilrYaw{ YAW_MOTOR_FREQ, 3.f };
 
 private:
     void updateCtrlYaw();
@@ -86,6 +85,15 @@ private:
 #ifdef APP_GIMBAL_MASTER
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
 #endif
+
+    PositionalPid pitchAngPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
+    PositionalPid pitchVelPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
+
+    PositionalPid yawAngPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
+    PositionalPid yawVelPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
+
+    FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
+    FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
 
     float ctrlYawAng_ = 0.f;       // be-ctrled-Joint's ang in earth
     float constDeltaYawArc_ = 0.f; // be-ctrled-Joint to base mapping arc

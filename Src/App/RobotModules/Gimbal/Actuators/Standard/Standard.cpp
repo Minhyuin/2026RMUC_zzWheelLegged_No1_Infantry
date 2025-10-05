@@ -1,7 +1,5 @@
 #include "Standard.hpp"
 
-#include "PidBasic.hpp"
-
 #include "DM4310.hpp"
 
 #include "Bsp_can.hpp"
@@ -70,6 +68,15 @@ Standard::Standard()
 
 void Standard::stop()
 {
+    outFilrYaw_.reset();
+    outFilrPitch_.reset();
+
+    pitchAngPID_.reset();
+    pitchVelPID_.reset();
+
+    yawAngPID_.reset();
+    yawVelPID_.reset();
+
     for (auto &i : motors_._) {
         i->cmd(PINYMOTOR::MotorCmdType_e::OFF);
     }
@@ -139,34 +146,41 @@ void Standard::updateBaseYaw()
 PINYMOTOR::IMotor *Standard::pitch() const { return motors_.pitch; }
 PINYMOTOR::IMotor *Standard::yaw() const { return motors_.yaw; }
 
+void Standard::ctrlPitchSmooth(float _pos, float _step)
+{
+    float delta = getMinorArc(_pos, motors_.pitch->posNorm());
+    delta = clamp(delta, -_step, _step);
+    ctrlPitch(motors_.pitch->posNorm() + delta);
+}
+
+void Standard::ctrlPitch(float _pos)
+{
+    ctrlPitch(&pitchAngPID_, &pitchVelPID_, _pos);
+}
+
 void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _pos)
 {
     float del = getMinorArc(_pos, motors_.pitch->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, motors_.pitch->vel());
-    motors_.pitch->cmdTorq(outFilrPitch.process(torq));
+    float torq = _velPID->calc(vel, insData_.body.gy);
+    motors_.pitch->cmdTorq(outFilrPitch_.process(torq));
 }
-void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _pos, float _vel)
+
+void Standard::ctrlYawSmooth(float _pos, float _step)
 {
-    float del = getMinorArc(_pos, motors_.pitch->posNorm());
-    float vel = _angPID->calc(fmax(-_vel, fmin(del, _vel)), 0);
-    float torq = _velPID->calc(vel, motors_.pitch->vel());
-    motors_.pitch->cmdTorq(outFilrPitch.process(torq));
+    float delta = getMinorArc(_pos, motors_.yaw->posNorm());
+    delta = clamp(delta, -_step, _step);
+    ctrlYaw(motors_.yaw->posNorm() + delta);
 }
+
+void Standard::ctrlYaw(float _pos) { ctrlYaw(&yawAngPID_, &yawVelPID_, _pos); }
 
 void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _pos)
 {
     float del = getMinorArc(_pos, motors_.yaw->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, motors_.yaw->vel());
-    motors_.yaw->cmdTorq(outFilrYaw.process(torq));
-}
-void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _pos, float _vel)
-{
-    float del = getMinorArc(_pos, motors_.yaw->posNorm());
-    float vel = _angPID->calc(fmax(-_vel, fmin(del, _vel)), 0);
-    float torq = _velPID->calc(vel, motors_.yaw->vel());
-    motors_.yaw->cmdTorq(outFilrYaw.process(torq));
+    float torq = _velPID->calc(vel, insData_.body.gz);
+    motors_.yaw->cmdTorq(outFilrYaw_.process(torq));
 }
 
 void Standard::loadResetState(bool _state)

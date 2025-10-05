@@ -5,26 +5,10 @@
 #include "StmLog.hpp"
 
 #include "MotorCommonMacros.hpp"
-#include "PidBasic.hpp"
-
-static PositionalPid gMotPA(130.f, 300.f, 5.f, 1.f / 500.f, 1.f, 120.f, 0.f);
-static PositionalPid gMotPV(0.025f, 0.0f, 0.f, 1.f / 500.f, 0.f, 7.f, 0.f);
-static PositionalPid gMotYA(50.f, 300.f, 5.f, 1.f / 500.f, 1.f, 120.f, 0.f);
-static PositionalPid gMotYV(0.01f, 0.0f, 0.f, 1.f / 500.f, 0.f, 0.1f, 0.f);
 
 namespace GIMBAL {
 
 class MotorRunState : public FSMState<FSMState_e> {
-    union Pids_u {
-        struct {
-            PositionalPid *pitchAngPid;
-            PositionalPid *pitchVelPid;
-
-            PositionalPid *yawAngPid;
-            PositionalPid *yawVelPid;
-        };
-        PID *_[4];
-    };
     static constexpr float PITCH_MIN_ANG = 0.f;
     static constexpr float PITCH_MAX_ANG = 0.f;
 
@@ -32,10 +16,6 @@ public:
     MotorRunState(Standard *_gimbal)
             : FSMState<FSMState_e>(FSMState_e::RUN), gimbal_(_gimbal)
     {
-        pids_.pitchAngPid = &gMotPA;
-        pids_.pitchVelPid = &gMotPV;
-        pids_.yawAngPid = &gMotYA;
-        pids_.yawVelPid = &gMotYV;
     }
 
     void enter() final
@@ -61,19 +41,11 @@ public:
         cmdMotorYawAng_ = PINYMOTOR::rangeMap(cmdMotorYawAng_);
 
         // ctrl
-        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid,
-                           cmdMotorPitchAng_);
-        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdMotorYawAng_);
+        gimbal_->ctrlPitch(cmdMotorPitchAng_);
+        gimbal_->ctrlYaw(cmdMotorYawAng_);
     }
 
-    void exit() final
-    {
-        for (auto &i : pids_._) {
-            i->reset();
-        }
-
-        LOG::info("GimbalMotorRun", "exit");
-    }
+    void exit() final { LOG::info("GimbalMotorRun", "exit"); }
 
     FSMState_e checkChange() final
     {
@@ -87,8 +59,6 @@ public:
 
 private:
     Standard *gimbal_;
-
-    Pids_u pids_;
 
     float cmdMotorPitchAng_;
     float cmdMotorYawAng_;
