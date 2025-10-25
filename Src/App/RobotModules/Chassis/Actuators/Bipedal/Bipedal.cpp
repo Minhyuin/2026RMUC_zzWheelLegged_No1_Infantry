@@ -47,7 +47,6 @@ Bipedal::Bipedal()
         .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = true,
     };
     motors_.HipRF =
@@ -62,7 +61,6 @@ Bipedal::Bipedal()
         .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = false,
     };
     motors_.HipLF =
@@ -77,7 +75,6 @@ Bipedal::Bipedal()
         .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = false,
     };
     motors_.HipLB =
@@ -92,7 +89,6 @@ Bipedal::Bipedal()
         .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = true,
     };
     motors_.HipRB =
@@ -107,7 +103,6 @@ Bipedal::Bipedal()
         .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = true,
     };
     motors_.WheelL = new DJIMOTOR::M3508("WheelL", lM3508Config);
@@ -121,7 +116,6 @@ Bipedal::Bipedal()
         .txFreq = CTRL_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = false,
     };
     motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);

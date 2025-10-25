@@ -33,7 +33,7 @@ union States_u {
 };
 
 class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::SamplePacketType> {
-    void send(uint8_t *_buf, uint16_t _len) final;
+    void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class Standard : public Gimbal {

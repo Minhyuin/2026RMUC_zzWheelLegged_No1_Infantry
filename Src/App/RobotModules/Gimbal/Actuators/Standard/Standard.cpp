@@ -11,7 +11,7 @@
 using namespace GIMBAL;
 using namespace PINYMOTOR;
 
-void ChassisCtrlTxPacket::send(uint8_t *_buf, uint16_t _len)
+void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
     Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
@@ -33,7 +33,6 @@ Standard::Standard()
         .txFreq = PITCH_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = PITCH_REVERSE,
     };
     motors_.pitch = new DMMOTOR::DM4310("Pitch", pitchConfig);
@@ -49,7 +48,6 @@ Standard::Standard()
         .txFreq = YAW_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
-        .torqPID = nullptr,
         .isReverse = YAW_REVERSE,
     };
     motors_.yaw = new DMMOTOR::DM4310("Yaw", yawConfig);
