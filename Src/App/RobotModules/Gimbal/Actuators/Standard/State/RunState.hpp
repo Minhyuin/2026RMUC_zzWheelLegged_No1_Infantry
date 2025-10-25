@@ -5,24 +5,50 @@
 #include "StmLog.hpp"
 
 #include "MotorCommonMacros.hpp"
+#include "PidBasic.hpp"
+
+static volatile float pitchGimbalExpOffset = 0.f;
+static volatile float yawGimbalExpOffset = 0.f;
+
+static PositionalPid runPitchAngPID(30.f, 100.f, 0.5f, 0.001f, 0.3f, 10.f, 0.f);
+static PositionalPid runPitchVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid runYawAngPID(30.f, 100.f, 0.1f, 0.001f, 0.1f, 7.f, 0.f);
+static PositionalPid runYawVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
-
 class RunState : public FSMState<FSMState_e> {
-    static constexpr float IMU_PITCH_MIN_ANG = -0.5f;
-    static constexpr float IMU_PITCH_MAX_ANG = 0.3f;
+    union Pids_u {
+        struct {
+            PositionalPid *pitchAngPid;
+            PositionalPid *pitchVelPid;
+
+            PositionalPid *yawAngPid;
+            PositionalPid *yawVelPid;
+        };
+        PID *_[4];
+    };
+
+    static constexpr float IMU_PITCH_START_ANG = -0.26f;
+    static constexpr float IMU_PITCH_END_ANG = 0.21f;
+
+    static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
+    static constexpr float IMU_YAW_END_ANG = PI / 1.f;
 
 public:
     RunState(Standard *_gimbal)
             : FSMState<FSMState_e>(FSMState_e::RUN), gimbal_(_gimbal)
     {
+        pids_.pitchAngPid = &runPitchAngPID;
+        pids_.pitchVelPid = &runPitchVelPID;
+        pids_.yawAngPid = &runYawAngPID;
+        pids_.yawVelPid = &runYawVelPID;
     }
 
     void enter() final
     {
         cmdImuPitchAng_ = gimbal_->ins().pitch;
-        cmdImuYawAng_ = gimbal_->ctrlYawAng();
+        cmdImuYawAng_ = gimbal_->ins().yaw;
 
         gimbal_->enter();
 
@@ -31,34 +57,54 @@ public:
 
     void run() final
     {
+        // update yaw range
+        float rangeCenter = PINYMOTOR::getMinorArc(gimbal_->ins().yaw,
+                                                   gimbal_->yaw()->posNorm());
+        imuYawMinAng_ = PINYMOTOR::rangeMap(rangeCenter + IMU_YAW_START_ANG);
+        imuYawMaxAng_ = PINYMOTOR::rangeMap(rangeCenter + IMU_YAW_END_ANG);
+
+        // update ctrl ang
         cmdImuPitchAng_ = PINYMOTOR::clampArc(
                 cmdImuPitchAng_ + (gimbal_->msg.wPitch * 0.001f),
-                IMU_PITCH_MIN_ANG, IMU_PITCH_MAX_ANG);
-        cmdImuYawAng_ += gimbal_->msg.wYaw * 0.001f;
-        cmdImuYawAng_ = cmdImuYawAng_ > PI ? cmdImuYawAng_ - (2 * PI) :
-                                             (cmdImuYawAng_ < -PI ?
-                                                      cmdImuYawAng_ + (2 * PI) :
-                                                      cmdImuYawAng_);
+                IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
+        cmdImuPitchAngWithOffset_ = cmdImuPitchAng_ + pitchGimbalExpOffset;
+        cmdImuPitchAngWithOffset_ =
+                PINYMOTOR::clampArc(cmdImuPitchAngWithOffset_,
+                                    IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
 
-        float insPitchDelArc =
-                PINYMOTOR::getMinorArc(cmdImuPitchAng_, gimbal_->ins().pitch);
-        float insYawDelArc =
-                PINYMOTOR::getMinorArc(cmdImuYawAng_, gimbal_->ctrlYawAng());
+        // cmdImuYawAng_ = PINYMOTOR::clampArc(
+        //         cmdImuYawAng_ + (gimbal_->msg.wYaw * 0.001f), imuYawMinAng_,
+        //         imuYawMaxAng_);
+        cmdImuYawAng_ = cmdImuYawAng_ + (gimbal_->msg.wYaw * 0.001f);
+        cmdImuYawAngWithOffset_ = cmdImuYawAng_ + yawGimbalExpOffset;
+        // cmdImuYawAngWithOffset_ = PINYMOTOR::clampArc(
+        //         cmdImuYawAngWithOffset_, imuYawMinAng_, imuYawMaxAng_);
+
+        // calc ang with motor
+        float insPitchDelArc = PINYMOTOR::getMinorArc(cmdImuPitchAngWithOffset_,
+                                                      gimbal_->ins().pitch);
+        float insYawDelArc = PINYMOTOR::getMinorArc(cmdImuYawAngWithOffset_,
+                                                    gimbal_->ins().yaw);
 
         // joints' target pos
-        cmdMotorPitchAng_ = PINYMOTOR::rangeMap(
-                gimbal_->pitch()->posNorm() +
-                (Standard::PITCH_REVERSE ? -insPitchDelArc : insPitchDelArc));
-        cmdMotorYawAng_ = PINYMOTOR::rangeMap(
-                gimbal_->yaw()->posNorm() +
-                (Standard::YAW_REVERSE ? -insYawDelArc : insYawDelArc));
+        cmdMotorPitchAng_ = PINYMOTOR::rangeMap(gimbal_->pitch()->posNorm() +
+                                                insPitchDelArc);
+        cmdMotorYawAng_ =
+                PINYMOTOR::rangeMap(gimbal_->yaw()->posNorm() + insYawDelArc);
 
         // ctrl
-        gimbal_->ctrlPitch(cmdMotorPitchAng_);
-        gimbal_->ctrlYaw(cmdMotorYawAng_);
+        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid,
+                           cmdMotorPitchAng_);
+        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdMotorYawAng_);
     }
 
-    void exit() final { LOG::info("GimbalRun", "exit"); }
+    void exit() final
+    {
+        for (auto &i : pids_._) {
+            i->reset();
+        }
+        LOG::info("GimbalRun", "exit");
+    }
 
     FSMState_e checkChange() final
     {
@@ -73,8 +119,16 @@ public:
 private:
     Standard *gimbal_;
 
+    Pids_u pids_;
+
+    float imuYawMinAng_ = IMU_YAW_START_ANG;
+    float imuYawMaxAng_ = IMU_YAW_END_ANG;
+
     float cmdImuPitchAng_;
+    float cmdImuPitchAngWithOffset_;
+
     float cmdImuYawAng_;
+    float cmdImuYawAngWithOffset_;
 
     float cmdMotorPitchAng_;
     float cmdMotorYawAng_;

@@ -1,14 +1,20 @@
 #pragma once
 
-#include "Standard.hpp"
-#include "FSMState.hpp"
-#include "StmLog.hpp"
-
-#include "MotorCommonMacros.hpp"
-
+#include "LaunchState.hpp"
 namespace GIMBAL {
 
 class MotorRunState : public FSMState<FSMState_e> {
+    union Pids_u {
+        struct {
+            PositionalPid *pitchAngPid;
+            PositionalPid *pitchVelPid;
+
+            PositionalPid *yawAngPid;
+            PositionalPid *yawVelPid;
+        };
+        PID *_[4];
+    };
+
     static constexpr float PITCH_MIN_ANG = 0.f;
     static constexpr float PITCH_MAX_ANG = 0.f;
 
@@ -16,6 +22,10 @@ public:
     MotorRunState(Standard *_gimbal)
             : FSMState<FSMState_e>(FSMState_e::RUN), gimbal_(_gimbal)
     {
+        pids_.pitchAngPid = &launchPitchAngPID;
+        pids_.pitchVelPid = &launchPitchVelPID;
+        pids_.yawAngPid = &launchYawAngPID;
+        pids_.yawVelPid = &launchYawVelPID;
     }
 
     void enter() final
@@ -33,7 +43,6 @@ public:
         // cmdMotorPitchAng_ = PINYMOTOR::clampArc(
         //         cmdMotorPitchAng_ + (gimbal_->msg.wPitch * 0.001f),
         //         PITCH_MIN_ANG, PITCH_MAX_ANG);
-        cmdMotorPitchAng_ += gimbal_->msg.wPitch * 0.001f;
         cmdMotorYawAng_ += gimbal_->msg.wYaw * 0.001f;
 
         // joints' target pos
@@ -41,11 +50,18 @@ public:
         cmdMotorYawAng_ = PINYMOTOR::rangeMap(cmdMotorYawAng_);
 
         // ctrl
-        gimbal_->ctrlPitch(cmdMotorPitchAng_);
-        gimbal_->ctrlYaw(cmdMotorYawAng_);
+        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid,
+                           cmdMotorPitchAng_);
+        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdMotorYawAng_);
     }
 
-    void exit() final { LOG::info("GimbalMotorRun", "exit"); }
+    void exit() final
+    {
+        for (auto &i : pids_._) {
+            i->reset();
+        }
+        LOG::info("GimbalMotorRun", "exit");
+    }
 
     FSMState_e checkChange() final
     {
@@ -59,6 +75,8 @@ public:
 
 private:
     Standard *gimbal_;
+
+    Pids_u pids_;
 
     float cmdMotorPitchAng_;
     float cmdMotorYawAng_;

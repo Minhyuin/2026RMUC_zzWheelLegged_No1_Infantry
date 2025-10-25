@@ -1,5 +1,7 @@
 #include "Standard.hpp"
 
+#include "Pid.hpp"
+
 #include "DM4310.hpp"
 
 #include "Bsp_can.hpp"
@@ -18,13 +20,6 @@ void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 
 Standard::Standard()
 {
-#if !APP_USE_COMM
-    // NOLINTBEGIN
-    gimbalYawPub_ = new Publisher<GimbalYawMsg_s>(
-            &TopicRouter::instance().gimbalYawTopic, &gimbalYawMsg_);
-    // NOLINTEND
-#endif
-
     InitConfig_s pitchConfig = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
         .comType = ComType_e::CAN,
@@ -69,12 +64,6 @@ void Standard::stop()
     outFilrYaw_.reset();
     outFilrPitch_.reset();
 
-    pitchAngPID_.reset();
-    pitchVelPID_.reset();
-
-    yawAngPID_.reset();
-    yawVelPID_.reset();
-
     for (auto &i : motors_._) {
         i->cmd(PINYMOTOR::MotorCmdType_e::OFF);
     }
@@ -93,67 +82,30 @@ void Standard::update(void *_param)
     };
     this->insSub_->receive();
 
-    updateCtrlYaw();
-
 #ifdef APP_GIMBAL_MASTER
     ChassisMsg_s cmsg{};
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg, 0) ==
         pdTRUE) {
+        chassisCtrlTxPacket_.setData().state = static_cast<uint8_t>(cmsg.state);
+        chassisCtrlTxPacket_.setData().vx = cmsg.vx;
+        chassisCtrlTxPacket_.setData().vy = cmsg.vy;
     };
-    chassisCtrlTxPacket_.setData().vx = cmsg.vx;
-    chassisCtrlTxPacket_.setData().vy = cmsg.vy;
-    chassisCtrlTxPacket_.setData().gimbalYaw = ctrlYawAng_;
-#endif
+    chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
-#if !APP_USE_COMM
-    updateBaseYaw();
-    gimbalYawMsg_.followYaw = ctrlYawAng_;
-    gimbalYawMsg_.chassisYaw = baseYawAng_;
-    gimbalYawPub_->publish();
 #endif
 
     this->stateFactory_.update();
 }
 
-void Standard::updateCtrlYaw()
-{
-    if (this->isConfirmYawZero_) {
-        this->ctrlYawAng_ =
-                getMinorArc(this->insData_.yaw, this->constDeltaYawArc_);
-    } else {
-        // confirm zero
-        if (motors_.yaw->posNorm() != 0.f) { // TODO: prefer to globalState
-            this->constDeltaYawArc_ =
-                    YAW_REVERSE ? getMinorArc(0.f, motors_.yaw->posNorm()) :
-                                  getMinorArc(motors_.yaw->posNorm(), 0.f);
-            this->isConfirmYawZero_ = true;
-        } else {
-            this->isConfirmYawZero_ = false;
-        }
-    }
-}
-
-void Standard::updateBaseYaw()
-{
-    this->baseYawAng_ = getMinorArc(this->ctrlYawAng_,
-                                    (motors_.yaw->posNorm() > PI) ?
-                                            motors_.yaw->posNorm() - (2 * PI) :
-                                            motors_.yaw->posNorm());
-}
-
 PINYMOTOR::IMotor *Standard::pitch() const { return motors_.pitch; }
 PINYMOTOR::IMotor *Standard::yaw() const { return motors_.yaw; }
 
-void Standard::ctrlPitchSmooth(float _pos, float _step)
+void Standard::ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _pos,
+                               float _step)
 {
     float delta = getMinorArc(_pos, motors_.pitch->posNorm());
     delta = clamp(delta, -_step, _step);
-    ctrlPitch(motors_.pitch->posNorm() + delta);
-}
-
-void Standard::ctrlPitch(float _pos)
-{
-    ctrlPitch(&pitchAngPID_, &pitchVelPID_, _pos);
+    ctrlPitch(_angPID, _velPID, motors_.pitch->posNorm() + delta);
 }
 
 void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _pos)
@@ -164,14 +116,13 @@ void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _pos)
     motors_.pitch->cmdTorq(outFilrPitch_.process(torq));
 }
 
-void Standard::ctrlYawSmooth(float _pos, float _step)
+void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _pos,
+                             float _step)
 {
     float delta = getMinorArc(_pos, motors_.yaw->posNorm());
     delta = clamp(delta, -_step, _step);
-    ctrlYaw(motors_.yaw->posNorm() + delta);
+    ctrlYaw(_angPID, _velPID, motors_.yaw->posNorm() + delta);
 }
-
-void Standard::ctrlYaw(float _pos) { ctrlYaw(&yawAngPID_, &yawVelPID_, _pos); }
 
 void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _pos)
 {

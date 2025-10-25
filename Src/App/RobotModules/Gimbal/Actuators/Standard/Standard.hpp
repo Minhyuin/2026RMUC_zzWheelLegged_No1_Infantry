@@ -8,9 +8,8 @@
 
 #include "LPF.hpp"
 
-#include "PidBasic.hpp"
-
 #include "TxPacket.hpp"
+#include "RxPacket.hpp"
 #include "PacketImpl.hpp"
 
 namespace GIMBAL {
@@ -32,14 +31,16 @@ union States_u {
     float _[2];
 };
 
-class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::SamplePacketType> {
+class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
+    friend class Standard;
+    // ChassisCtrlTxPacket() : TxPacket(500.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class Standard : public Gimbal {
 public:
     static constexpr float PITCH_LAUNCH_ANG = 4.68467999f;
-    static constexpr float YAW_LAUNCH_ANG = 3.06891584f;
+    static constexpr float YAW_LAUNCH_ANG = 3.04590487f;
 
     static constexpr float PITCH_MOTOR_FREQ = 1000.f;
     static constexpr float YAW_MOTOR_FREQ = 1000.f;
@@ -53,53 +54,25 @@ public:
     PINYMOTOR::IMotor *pitch() const;
     PINYMOTOR::IMotor *yaw() const;
 
-    void ctrlPitchSmooth(float _pos, float _step);
-    void ctrlPitch(float _pos);
+    void ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
     void ctrlPitch(PID *_angPID, PID *_velPID, float _pos);
 
-    void ctrlYawSmooth(float _pos, float _step);
-    void ctrlYaw(float _pos);
+    void ctrlYawSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
     void ctrlYaw(PID *_angPID, PID *_velPID, float _pos);
 
     void stop();
     void enter();
     void update(void *_param);
 
-    float ctrlYawAng() const { return ctrlYawAng_; }
-
-    float baseYawAng() const { return baseYawAng_; }
-
     void loadResetState(bool _state);
 
 private:
-    void updateCtrlYaw();
-    void updateBaseYaw();
-
     Motors_u motors_;
 
-#if !APP_USE_COMM
-    // Master send deltaYaw to chassis
-    GimbalYawMsg_s gimbalYawMsg_{};
-    Publisher<GimbalYawMsg_s> *gimbalYawPub_;
-#endif
-#ifdef APP_GIMBAL_MASTER
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
-#endif
 
-    PositionalPid pitchAngPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
-    PositionalPid pitchVelPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
-
-    PositionalPid yawAngPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
-    PositionalPid yawVelPID_{ 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f };
-
-    FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
-    FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
-
-    float ctrlYawAng_ = 0.f;       // be-ctrled-Joint's ang in earth
-    float constDeltaYawArc_ = 0.f; // be-ctrled-Joint to base mapping arc
-    bool isConfirmYawZero_ = false;
-
-    float baseYawAng_ = 0.f; // J0's ang in earth
+    FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 10.f };
+    FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 10.f };
 };
 
 } // namespace GIMBAL

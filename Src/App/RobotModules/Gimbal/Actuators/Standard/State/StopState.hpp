@@ -3,7 +3,6 @@
 #include "Standard.hpp"
 #include "FSMState.hpp"
 #include "StmLog.hpp"
-
 namespace GIMBAL {
 
 class StopState : public FSMState<FSMState_e> {
@@ -15,7 +14,6 @@ public:
 
     void enter() final
     {
-        gimbal_->stop();
         gimbal_->loadResetState(false);
 
         LOG::info("GimbalStop", "enter");

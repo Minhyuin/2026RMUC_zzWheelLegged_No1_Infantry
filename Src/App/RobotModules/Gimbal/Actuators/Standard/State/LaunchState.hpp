@@ -5,22 +5,44 @@
 #include "StmLog.hpp"
 
 #include "MotorCommonMacros.hpp"
+#include "PidBasic.hpp"
+
+static volatile float launchPitchStep = 0.6f;
+static volatile float launchYawStep = 0.5f;
+
+static PositionalPid launchPitchAngPID(60.f, 100.f, 2.0f, 0.001f, 0.5f, 10.f,
+                                       0.f);
+static PositionalPid launchPitchVelPID(1.f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid launchYawAngPID(60.f, 600.f, 1.5f, 0.001f, 3.f, 7.f, 0.f);
+static PositionalPid launchYawVelPID(0.7f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr uint16_t MAX_LAUNCH_TIME = 1000; // 3s
+    union Pids_u {
+        struct {
+            PositionalPid *pitchAngPid;
+            PositionalPid *pitchVelPid;
+
+            PositionalPid *yawAngPid;
+            PositionalPid *yawVelPid;
+        };
+        PID *_[4];
+    };
+
+    static constexpr uint16_t MAX_LAUNCH_TIME = 300; // 0.3s
 
     static constexpr float PITCH_LAUNCH_ANG_DEADBAND = 0.1f;
     static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.1f;
-
-    static constexpr float PITCH_LAUNCH_STEP = 0.08f;
-    static constexpr float YAW_LAUNCH_STEP = 0.05f;
 
 public:
     LaunchState(Standard *_gimbal)
             : FSMState<FSMState_e>(FSMState_e::LAUNCH), gimbal_(_gimbal)
     {
+        pids_.pitchAngPid = &launchPitchAngPID;
+        pids_.pitchVelPid = &launchPitchVelPID;
+        pids_.yawAngPid = &launchYawAngPID;
+        pids_.yawVelPid = &launchYawVelPID;
     }
 
     void enter() final
@@ -54,14 +76,21 @@ public:
         }
 
         // ctrl (smooth)
-        gimbal_->ctrlPitch(cmdMotorPitchAng_ /*, PITCH_LAUNCH_STEP*/);
-        gimbal_->ctrlYaw(cmdMotorYawAng_ /*, YAW_LAUNCH_STEP*/);
+        gimbal_->ctrlPitchSmooth(pids_.pitchAngPid, pids_.pitchVelPid,
+                                 cmdMotorPitchAng_, launchPitchStep);
+        gimbal_->ctrlYawSmooth(pids_.yawAngPid, pids_.yawVelPid,
+                               cmdMotorYawAng_, launchYawStep);
     }
 
     void exit() final
     {
         finishLaunching_ = true;
         gimbal_->loadResetState(true);
+
+        for (auto &i : pids_._) {
+            i->reset();
+        }
+
         LOG::info("GimbalLaunch", "exit");
     }
 
@@ -77,6 +106,8 @@ public:
 
 private:
     Standard *gimbal_;
+
+    Pids_u pids_;
 
     float cmdMotorPitchAng_;
     float cmdMotorYawAng_;
