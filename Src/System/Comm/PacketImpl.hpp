@@ -99,6 +99,7 @@ public:
  * @brief Sample Packet (Gimbal -> Chassis)
  * 
  */
+
 class SamplePacketType {
 public:
     static constexpr uint8_t LEN = 8;

@@ -6,9 +6,9 @@
 #endif
 #include "Cmd.hpp"
 #include "Buzzer.hpp"
-#include "UI/UIApp.hpp"
 #include "test/TestModule.hpp"
 #include "Bsp.hpp"
+#include "Lazy.hpp"
 
 #if APP_USE_DAEMONS
 #include "Daemons/Daemons.hpp"
@@ -19,18 +19,19 @@
 
 #if APP_USE_INS
 #include "INS.hpp"
-INS_SYS::INS *ins;
+Lazy<INS_SYS::INS> ins;
 #endif
 
 //---------------------------------------------------------------------------------------------------
 
-Cmd *cmd;
+Lazy<Cmd> cmd;
 
 //---------------------------------------------------------------------------------------------------
 
 
 #if APP_USE_UI
-UI::App ui(UI_ROBOT_ID);
+#include "UI/UIApp.hpp"
+Lazy<UI::App> ui;
 #endif
 
 //---------------------------------------------------------------------------------------------------
@@ -38,13 +39,13 @@ UI::App ui(UI_ROBOT_ID);
 #ifdef CHASSIS_TYPE
 #if !APP_USE_COMM || APP_CHASSIS_SLAVE
 #include CHASSIS_FILE
-CHASSIS::CHASSIS_TYPE chassis;
+Lazy<CHASSIS::CHASSIS_TYPE> chassis;
 #endif
 #endif
 #ifdef GIMBAL_TYPE
 #if !APP_USE_COMM || APP_GIMBAL_MASTER
 #include GIMBAL_FILE
-GIMBAL::GIMBAL_TYPE gimbal;
+Lazy<GIMBAL::GIMBAL_TYPE> gimbal;
 #endif
 #endif
 
@@ -61,13 +62,13 @@ void AppManager::initApp()
 #endif
 
 #if APP_USE_INS
-    ins = new INS_SYS::INS(&IMU_SPI);
+    ins.init(&IMU_SPI);
 #endif
 
-    cmd = new Cmd();
+    cmd.init();
 
 #if APP_USE_UI
-    ui.init();
+    ui.init(UI_ROBOT_ID);
     schedule([]() { ui.task(); });
 #endif
 
@@ -81,11 +82,13 @@ void AppManager::initApp()
     }
 
 #if !APP_USE_COMM || APP_CHASSIS_SLAVE
-    schedule([]() { chassis.update(cmd->getMsgBus()); });
+    chassis.init();
+    schedule([]() { chassis->update(cmd->getMsgBus()); });
 #endif
 
 #if !APP_USE_COMM || APP_GIMBAL_MASTER
-    schedule([]() { gimbal.update(cmd->getMsgBus()); });
+    gimbal.init();
+    schedule([]() { gimbal->update(cmd->getMsgBus()); });
 #endif
 
 #if APP_USE_COMM

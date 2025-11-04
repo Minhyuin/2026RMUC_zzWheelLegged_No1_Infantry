@@ -84,11 +84,11 @@ void RcMsgHandler::chassisHandle()
     } else if (rcMsg_.rSwitch == RC_SW_MID) {
         // chassis
         cmsg_.state = CHASSIS::FSMState_e::IDLE;
-        cmsg_.vx = s_curve(ROCKER_VX_GAIN, rcMsg_.ry);
-        cmsg_.wz = -s_curve(ROCKER_WZ_GAIN, rcMsg_.lx);
+        cmsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
+        cmsg_.wz = -SMOOTH::sCurve(ROCKER_WZ_GAIN, rcMsg_.lx, T_ACC_CNT);
 
-        cmsg_.dphi = -s_curve(ROCKER_FDPHI_GAIN, rcMsg_.rx);
-        cmsg_.dl = s_curve(ROCKER_FDL_GAIN, rcMsg_.ly);
+        cmsg_.dphi = -SMOOTH::sCurve(ROCKER_FDPHI_GAIN, rcMsg_.rx, T_ACC_CNT);
+        cmsg_.dl = SMOOTH::sCurve(ROCKER_FDL_GAIN, rcMsg_.ly, T_ACC_CNT);
     } else {
         return;
     }
@@ -107,25 +107,25 @@ void RcMsgHandler::masterHandle()
     } else if (rcMsg_.rSwitch == RC_SW_MID) {
         // gimbal
         gmsg_.state = GIMBAL::FSMState_e::RUN;
-        gmsg_.wPitch = -s_curve(ROCKER_PITCH_GAIN, rcMsg_.ly);
-        gmsg_.wYaw = -s_curve(ROCKER_YAW_GAIN, rcMsg_.lx);
+        gmsg_.wPitch = -SMOOTH::sCurve(ROCKER_PITCH_GAIN, rcMsg_.ly, T_ACC_CNT);
+        gmsg_.wYaw = -SMOOTH::sCurve(ROCKER_YAW_GAIN, rcMsg_.lx, T_ACC_CNT);
         // chassis
         cmsg_.state = CHASSIS::FSMState_e::IDLE;
-        cmsg_.vx = s_curve(ROCKER_VX_GAIN, rcMsg_.ry);
-        cmsg_.vy = -s_curve(ROCKER_VY_GAIN, rcMsg_.rx);
+        cmsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
+        cmsg_.vy = -SMOOTH::sCurve(ROCKER_VY_GAIN, rcMsg_.rx, T_ACC_CNT);
     } else if (rcMsg_.rSwitch == RC_SW_UP) {
         // gimbal
         gmsg_.state = GIMBAL::FSMState_e::RUN;
-        gmsg_.wPitch = -s_curve(ROCKER_PITCH_GAIN, rcMsg_.ly);
-        gmsg_.wYaw = -s_curve(ROCKER_YAW_GAIN, rcMsg_.lx);
+        gmsg_.wPitch = -SMOOTH::sCurve(ROCKER_PITCH_GAIN, rcMsg_.ly, T_ACC_CNT);
+        gmsg_.wYaw = -SMOOTH::sCurve(ROCKER_YAW_GAIN, rcMsg_.lx, T_ACC_CNT);
         // chassis
         if (rcMsg_.lSwitch == RC_SW_DOWN) {
             // cmsg_.state = CHASSIS::FSMState_e::TANK;
         } else {
             // cmsg_.state = CHASSIS::FSMState_e::SPIN;
         }
-        cmsg_.vx = s_curve(ROCKER_VX_GAIN, rcMsg_.ry);
-        cmsg_.vy = -s_curve(ROCKER_VY_GAIN, rcMsg_.rx);
+        cmsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
+        cmsg_.vy = -SMOOTH::sCurve(ROCKER_VY_GAIN, rcMsg_.rx, T_ACC_CNT);
     } else {
         return;
     }
