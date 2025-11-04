@@ -71,8 +71,8 @@ private:
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
 
-    FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 10.f };
-    FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 10.f };
+    FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
+    FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
 };
 
 } // namespace GIMBAL

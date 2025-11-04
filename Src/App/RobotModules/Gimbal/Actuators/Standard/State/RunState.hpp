@@ -10,10 +10,14 @@
 static volatile float pitchGimbalExpOffset = 0.f;
 static volatile float yawGimbalExpOffset = 0.f;
 
-static PositionalPid runPitchAngPID(30.f, 100.f, 0.5f, 0.001f, 0.3f, 10.f, 0.f);
-static PositionalPid runPitchVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
-static PositionalPid runYawAngPID(30.f, 100.f, 0.1f, 0.001f, 0.1f, 7.f, 0.f);
-static PositionalPid runYawVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static volatile float yawMotorAng = 0.f;
+static volatile float pitchMotorAng = 0.f;
+
+static PositionalPid runPitchAngPID(40.f, 200.f, 0.005f, 0.001f, 0.3f, 7.f,
+                                    0.f);
+static PositionalPid runPitchVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid runYawAngPID(45.f, 100.f, 0.3f, 0.001f, 0.3f, 10.f, 0.f);
+static PositionalPid runYawVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
@@ -29,8 +33,8 @@ class RunState : public FSMState<FSMState_e> {
         PID *_[4];
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.26f;
-    static constexpr float IMU_PITCH_END_ANG = 0.21f;
+    static constexpr float IMU_PITCH_START_ANG = -0.44f;
+    static constexpr float IMU_PITCH_END_ANG = 0.45f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
@@ -57,6 +61,8 @@ public:
 
     void run() final
     {
+        yawMotorAng = gimbal_->yaw()->posNorm();
+        pitchMotorAng = gimbal_->pitch()->posNorm();
         // update yaw range
         float rangeCenter = PINYMOTOR::getMinorArc(gimbal_->ins().yaw,
                                                    gimbal_->yaw()->posNorm());
@@ -87,10 +93,8 @@ public:
                                                     gimbal_->ins().yaw);
 
         // joints' target pos
-        cmdMotorPitchAng_ = PINYMOTOR::rangeMap(gimbal_->pitch()->posNorm() +
-                                                insPitchDelArc);
-        cmdMotorYawAng_ =
-                PINYMOTOR::rangeMap(gimbal_->yaw()->posNorm() + insYawDelArc);
+        cmdMotorPitchAng_ = PINYMOTOR::rangeMap(pitchMotorAng + insPitchDelArc);
+        cmdMotorYawAng_ = PINYMOTOR::rangeMap(yawMotorAng + insYawDelArc);
 
         // ctrl
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid,

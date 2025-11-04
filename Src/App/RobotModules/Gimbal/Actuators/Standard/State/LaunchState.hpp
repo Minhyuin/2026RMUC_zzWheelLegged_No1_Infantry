@@ -10,7 +10,7 @@
 static volatile float launchPitchStep = 0.6f;
 static volatile float launchYawStep = 0.5f;
 
-static PositionalPid launchPitchAngPID(60.f, 100.f, 2.0f, 0.001f, 0.5f, 10.f,
+static PositionalPid launchPitchAngPID(60.f, 100.f, 0.5f, 0.001f, 0.5f, 5.f,
                                        0.f);
 static PositionalPid launchPitchVelPID(1.f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid launchYawAngPID(60.f, 600.f, 1.5f, 0.001f, 3.f, 7.f, 0.f);
