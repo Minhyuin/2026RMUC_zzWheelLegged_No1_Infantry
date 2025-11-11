@@ -8,6 +8,8 @@
 
 #include "LPF.hpp"
 
+#include "Vision.hpp"
+
 #include "TxPacket.hpp"
 #include "RxPacket.hpp"
 #include "PacketImpl.hpp"
@@ -50,6 +52,8 @@ public:
     static constexpr bool YAW_REVERSE = false;
 
     Standard();
+
+    Vision vision;
 
     PINYMOTOR::IMotor *pitch() const;
     PINYMOTOR::IMotor *yaw() const;

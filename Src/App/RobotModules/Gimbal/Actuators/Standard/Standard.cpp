@@ -92,6 +92,12 @@ void Standard::update(void *_param)
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
+    // vision send
+    vision.setData().roll = insData_.roll;
+    vision.setData().pitch = insData_.pitch;
+    vision.setData().yaw = insData_.yaw;
+    vision.setData().timestamp = xTaskGetTickCount();
+
 #endif
 
     this->stateFactory_.update();
