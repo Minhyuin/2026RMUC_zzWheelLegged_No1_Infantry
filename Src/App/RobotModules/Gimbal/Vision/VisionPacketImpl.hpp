@@ -90,7 +90,7 @@ public:
     union Data_u {
         struct Data_s {
             uint8_t header;
-            uint8_t fire : 1; // 0-false 1-true
+            uint8_t fire; // 0-false 1-true
             float targetYaw;
             float targetPitch;
             float yaw;
@@ -112,19 +112,28 @@ public:
     static ProtoData_s decompress(const Data_u &_data)
     {
         ProtoData_s protoData{};
-        if (_data.content.header == ID &&
-            Verify_CRC16_Check_Sum(const_cast<uint8_t *>(_data.bytes),
-                                   LEN)) { // Don't safe but temporary
-            protoData.fire = _data.content.fire;
-            protoData.targetYaw = _data.content.targetYaw;
-            protoData.targetPitch = _data.content.targetPitch;
-            protoData.yaw = _data.content.yaw;
-            protoData.yawVel = _data.content.yawVel;
-            protoData.yawAcc = _data.content.yawAcc;
-            protoData.pitch = _data.content.pitch;
-            protoData.pitchVel = _data.content.pitchVel;
-            protoData.pitchAcc = _data.content.pitchAcc;
-        }
+        // if (_data.content.header == ID &&
+        //     Verify_CRC16_Check_Sum(const_cast<uint8_t *>(_data.bytes),
+        //                            LEN)) { // Don't safe but temporary
+        //     protoData.fire = _data.content.fire;
+        //     protoData.targetYaw = _data.content.targetYaw;
+        //     protoData.targetPitch = _data.content.targetPitch;
+        //     protoData.yaw = _data.content.yaw;
+        //     protoData.yawVel = _data.content.yawVel;
+        //     protoData.yawAcc = _data.content.yawAcc;
+        //     protoData.pitch = _data.content.pitch;
+        //     protoData.pitchVel = _data.content.pitchVel;
+        //     protoData.pitchAcc = _data.content.pitchAcc;
+        // }
+        protoData.fire = _data.content.fire;
+        protoData.targetYaw = _data.content.targetYaw;
+        protoData.targetPitch = _data.content.targetPitch;
+        protoData.yaw = _data.content.yaw;
+        protoData.yawVel = _data.content.yawVel;
+        protoData.yawAcc = _data.content.yawAcc;
+        protoData.pitch = _data.content.pitch;
+        protoData.pitchVel = _data.content.pitchVel;
+        protoData.pitchAcc = _data.content.pitchAcc;
         return protoData;
     }
 };

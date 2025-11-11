@@ -10,7 +10,7 @@
 static volatile float launchPitchStep = 0.6f;
 static volatile float launchYawStep = 0.5f;
 
-static PositionalPid launchPitchAngPID(60.f, 100.f, 0.5f, 0.001f, 0.5f, 5.f,
+static PositionalPid launchPitchAngPID(40.f, 100.f, 0.5f, 0.001f, 0.5f, 5.f,
                                        0.f);
 static PositionalPid launchPitchVelPID(1.f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid launchYawAngPID(60.f, 600.f, 1.5f, 0.001f, 3.f, 7.f, 0.f);
@@ -50,8 +50,8 @@ public:
         launchTotalTime_ = 0;
         launchFinishTime_ = 0;
 
-        cmdMotorPitchAng_ = 0.f;
-        cmdMotorYawAng_ = 0.f;
+        cmdMotorPitchAng_ = gimbal_->ins().pitch - gimbal_->pitch()->posNorm();
+        cmdMotorYawAng_ = gimbal_->ins().yaw - gimbal_->yaw()->posNorm();
 
         gimbal_->enter();
 
@@ -98,8 +98,12 @@ public:
     {
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (launchFinishTime_ > MAX_LAUNCH_TIME)
+        else if (launchFinishTime_ > MAX_LAUNCH_TIME &&
+                 gimbal_->msg.state == FSMState_e::RUN)
             return FSMState_e::RUN;
+        else if (launchFinishTime_ > MAX_LAUNCH_TIME &&
+                 gimbal_->msg.state == FSMState_e::AUTO)
+            return FSMState_e::AUTO;
         else
             return FSMState_e::LAUNCH;
     }

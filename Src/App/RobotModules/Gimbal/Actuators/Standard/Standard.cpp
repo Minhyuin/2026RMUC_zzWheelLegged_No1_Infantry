@@ -9,6 +9,7 @@
 #include "./State/StopState.hpp"
 #include "./State/LaunchState.hpp"
 #include "./State/RunState.hpp"
+#include "./State/AutoState.hpp"
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
@@ -51,6 +52,8 @@ Standard::Standard()
 
     this->stateFactory_.addState(FSMState_e::RUN,
                                  std::make_unique<RunState>(this));
+    this->stateFactory_.addState(FSMState_e::AUTO,
+                                 std::make_unique<AutoState>(this));
     this->stateFactory_.addState(FSMState_e::LAUNCH,
                                  std::make_unique<LaunchState>(this));
     this->stateFactory_.addState(FSMState_e::STOP,
@@ -106,44 +109,79 @@ void Standard::update(void *_param)
 PINYMOTOR::IMotor *Standard::pitch() const { return motors_.pitch; }
 PINYMOTOR::IMotor *Standard::yaw() const { return motors_.yaw; }
 
-void Standard::ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _pos,
+void Standard::ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _insPos,
                                float _step)
 {
-    float delta = getMinorArc(_pos, motors_.pitch->posNorm());
+    float delta = getMinorArc(_insPos, ins().pitch);
     delta = clamp(delta, -_step, _step);
-    ctrlPitch(_angPID, _velPID, motors_.pitch->posNorm() + delta);
+    ctrlPitch(_angPID, _velPID, ins().pitch + delta);
 }
 
-void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _pos)
+void Standard::ctrlPitchAuto(PID *_angPID, PID *_velPID, float _insPos)
 {
-    float del = getMinorArc(_pos, motors_.pitch->posNorm());
+    float insPitchDelArc = getMinorArc(_insPos, ins().pitch);
+    float pos = rangeMap(pitch()->posNorm() + insPitchDelArc);
+    float del = getMinorArc(pos, pitch()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, insData_.body.gy);
-    motors_.pitch->cmdTorq(outFilrPitch_.process(torq));
+    vel = clamp(vel, -vision.data().pitchVel, vision.data().pitchVel);
+    float acc = _velPID->calc(vel, insData_.body.gy);
+    acc += vision.data().pitchAcc; // forward feedback
+    float torq = calcPitchTorq(_insPos, vel, acc);
+    pitch()->cmdTorq(outFilrPitch_.process(torq));
 }
 
-void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _pos,
+void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _insPos)
+{
+    float insPitchDelArc = getMinorArc(_insPos, ins().pitch);
+    float pos = rangeMap(pitch()->posNorm() + insPitchDelArc);
+    float del = getMinorArc(pos, pitch()->posNorm());
+    float vel = _angPID->calc(del, 0);
+    float torq = _velPID->calc(vel, insData_.body.gy); // TODO: calc acc first
+    pitch()->cmdTorq(outFilrPitch_.process(torq));
+}
+
+void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _insPos,
                              float _step)
 {
-    float delta = getMinorArc(_pos, motors_.yaw->posNorm());
+    float delta = getMinorArc(_insPos, ins().yaw);
     delta = clamp(delta, -_step, _step);
-    ctrlYaw(_angPID, _velPID, motors_.yaw->posNorm() + delta);
+    ctrlYaw(_angPID, _velPID, ins().yaw + delta);
 }
 
-void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _pos)
+void Standard::ctrlYawAuto(PID *_angPID, PID *_velPID, float _insPos)
 {
-    float del = getMinorArc(_pos, motors_.yaw->posNorm());
+    float insYawDelArc = getMinorArc(_insPos, ins().yaw);
+    float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
+    float del = getMinorArc(pos, yaw()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, insData_.body.gz);
-    motors_.yaw->cmdTorq(outFilrYaw_.process(torq));
+    vel = clamp(vel, -vision.data().yawVel, vision.data().yawVel);
+    float acc = _velPID->calc(vel, insData_.body.gz);
+    acc += vision.data().yawAcc; // forward feedback
+    float torq = calcYawTorq(vel, acc);
+    yaw()->cmdTorq(outFilrYaw_.process(torq));
+}
+
+void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _insPos)
+{
+    float insYawDelArc = getMinorArc(_insPos, ins().yaw);
+    float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
+    float del = getMinorArc(pos, yaw()->posNorm());
+    float vel = _angPID->calc(del, 0);
+    float torq = _velPID->calc(vel, insData_.body.gz); // TODO: calc acc first
+    yaw()->cmdTorq(outFilrYaw_.process(torq));
 }
 
 void Standard::loadResetState(bool _state)
 {
-#if !APP_USE_COMM
-    gimbalYawMsg_.isReset = _state;
-#endif
-#ifdef APP_GIMBAL_MASTER
     chassisCtrlTxPacket_.setData().gimbalReset = _state;
-#endif
+}
+
+float Standard::calcPitchTorq(float _ang, float _vel, float _acc)
+{
+    return 0.f; // TODO:
+}
+
+float Standard::calcYawTorq(float _vel, float _acc)
+{
+    return 0.f; // TODO:
 }

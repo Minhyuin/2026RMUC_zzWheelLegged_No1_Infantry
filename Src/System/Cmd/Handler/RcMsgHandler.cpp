@@ -79,58 +79,99 @@ void RcMsgHandler::chassisHandle()
 {
     if (rcMsg_.rSwitch == RC_SW_DOWN) {
         // chassis
-        cmsg_.state = CHASSIS::FSMState_e::STOP;
-        cmsg_.vx = cmsg_.vy = cmsg_.wz = cmsg_.dl = cmsg_.dphi = 0.f;
+        chassisMsg_.state = CHASSIS::FSMState_e::STOP;
+        chassisMsg_.vx = chassisMsg_.vy = chassisMsg_.wz = chassisMsg_.dl =
+                chassisMsg_.dphi = 0.f;
     } else if (rcMsg_.rSwitch == RC_SW_MID) {
         // chassis
-        cmsg_.state = CHASSIS::FSMState_e::IDLE;
-        cmsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
-        cmsg_.wz = -SMOOTH::sCurve(ROCKER_WZ_GAIN, rcMsg_.lx, T_ACC_CNT);
+        chassisMsg_.state = CHASSIS::FSMState_e::IDLE;
+        chassisMsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
+        chassisMsg_.wz = -SMOOTH::sCurve(ROCKER_WZ_GAIN, rcMsg_.lx, T_ACC_CNT);
 
-        cmsg_.dphi = -SMOOTH::sCurve(ROCKER_FDPHI_GAIN, rcMsg_.rx, T_ACC_CNT);
-        cmsg_.dl = SMOOTH::sCurve(ROCKER_FDL_GAIN, rcMsg_.ly, T_ACC_CNT);
+        chassisMsg_.dphi =
+                -SMOOTH::sCurve(ROCKER_FDPHI_GAIN, rcMsg_.rx, T_ACC_CNT);
+        chassisMsg_.dl = SMOOTH::sCurve(ROCKER_FDL_GAIN, rcMsg_.ly, T_ACC_CNT);
     } else {
         return;
     }
-    notify(&cmsg_, msgBus_->chassisQueue);
+    notify(&chassisMsg_, msgBus_->chassisQueue);
 }
 
 void RcMsgHandler::masterHandle()
 {
     if (rcMsg_.rSwitch == RC_SW_DOWN) {
         // gimbal
-        gmsg_.state = GIMBAL::FSMState_e::STOP;
-        gmsg_.wPitch = gmsg_.wYaw = 0.f;
+        gimbalMsg_.state = GIMBAL::FSMState_e::STOP;
+        gimbalMsg_.wPitch = gimbalMsg_.wYaw = 0.f;
         // chassis
-        cmsg_.state = CHASSIS::FSMState_e::STOP;
-        cmsg_.vx = cmsg_.vy = 0.f;
+        chassisMsg_.state = CHASSIS::FSMState_e::STOP;
+        chassisMsg_.vx = chassisMsg_.vy = 0.f;
+        // ArmorLoader
+        // armorLoaderMsg_.state = ARMORLOADER::FSMState_e::STOP;
+        // armorLoaderMsg_.fire = false;
+        // // ArmorBooster
+        // armorBoosterMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
     } else if (rcMsg_.rSwitch == RC_SW_MID) {
-        // gimbal
-        gmsg_.state = GIMBAL::FSMState_e::RUN;
-        gmsg_.wPitch = -SMOOTH::sCurve(ROCKER_PITCH_GAIN, rcMsg_.ly, T_ACC_CNT);
-        gmsg_.wYaw = -SMOOTH::sCurve(ROCKER_YAW_GAIN, rcMsg_.lx, T_ACC_CNT);
-        // chassis
-        cmsg_.state = CHASSIS::FSMState_e::IDLE;
-        cmsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
-        cmsg_.vy = -SMOOTH::sCurve(ROCKER_VY_GAIN, rcMsg_.rx, T_ACC_CNT);
+        chassisMsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
+        chassisMsg_.vy = -SMOOTH::sCurve(ROCKER_VY_GAIN, rcMsg_.rx, T_ACC_CNT);
+        if (rcMsg_.lSwitch == RC_SW_DOWN) {
+            // gimbal
+            gimbalMsg_.state = GIMBAL::FSMState_e::RUN;
+            // chassis
+            chassisMsg_.state = CHASSIS::FSMState_e::IDLE;
+            // ArmorLoader
+            // armorLoaderMsg_.state = ARMORLOADER::FSMState_e::STOP;
+            // // ArmorBooster
+            // armorBoosterMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+        } else if (rcMsg_.lSwitch == RC_SW_MID) {
+            // gimbal
+            gimbalMsg_.state = GIMBAL::FSMState_e::AUTO;
+            // chassis
+            // chassisMsg_.state = CHASSIS::FSMState_e::TANK;
+            // // ArmorLoader
+            // armorLoaderMsg_.state = ARMORLOADER::FSMState_e::AUTO;
+            // // ArmorBooster
+            // armorBoosterMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+        } else if (rcMsg_.lSwitch == RC_SW_UP) {
+            // ArmorLoader
+            // armorLoaderMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
+            // // ArmorBooster
+            // armorBoosterMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+        }
+        // armorLoaderMsg_.fire = rcMsg_.wheelRocker > WHEEL_THESHORLD ||
+        //                        rcMsg_.wheelRocker < -WHEEL_THESHORLD;
+        gimbalMsg_.wPitch =
+                -SMOOTH::sCurve(ROCKER_PITCH_GAIN, rcMsg_.ly, T_ACC_CNT);
+        gimbalMsg_.wYaw =
+                -SMOOTH::sCurve(ROCKER_YAW_GAIN, rcMsg_.lx, T_ACC_CNT);
+
     } else if (rcMsg_.rSwitch == RC_SW_UP) {
         // gimbal
-        gmsg_.state = GIMBAL::FSMState_e::RUN;
-        gmsg_.wPitch = -SMOOTH::sCurve(ROCKER_PITCH_GAIN, rcMsg_.ly, T_ACC_CNT);
-        gmsg_.wYaw = -SMOOTH::sCurve(ROCKER_YAW_GAIN, rcMsg_.lx, T_ACC_CNT);
+        gimbalMsg_.state = GIMBAL::FSMState_e::RUN;
+        gimbalMsg_.wPitch =
+                -SMOOTH::sCurve(ROCKER_PITCH_GAIN, rcMsg_.ly, T_ACC_CNT);
+        gimbalMsg_.wYaw =
+                -SMOOTH::sCurve(ROCKER_YAW_GAIN, rcMsg_.lx, T_ACC_CNT);
         // chassis
         if (rcMsg_.lSwitch == RC_SW_DOWN) {
-            // cmsg_.state = CHASSIS::FSMState_e::TANK;
+            // chassisMsg_.state = CHASSIS::FSMState_e::TANK;
         } else {
-            // cmsg_.state = CHASSIS::FSMState_e::SPIN;
+            // chassisMsg_.state = CHASSIS::FSMState_e::SPIN;
         }
-        cmsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
-        cmsg_.vy = -SMOOTH::sCurve(ROCKER_VY_GAIN, rcMsg_.rx, T_ACC_CNT);
+        chassisMsg_.vx = SMOOTH::sCurve(ROCKER_VX_GAIN, rcMsg_.ry, T_ACC_CNT);
+        chassisMsg_.vy = -SMOOTH::sCurve(ROCKER_VY_GAIN, rcMsg_.rx, T_ACC_CNT);
+        // ArmorLoader
+        // armorLoaderMsg_.state = ARMORLOADER::FSMState_e::STOP;
+        // armorLoaderMsg_.fire = false;
+        // ArmorBooster
+        // armorBoosterMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
     } else {
         return;
     }
-    notify(&cmsg_, msgBus_->chassisQueue);
-    notify(&gmsg_, msgBus_->gimbalQueue);
+    notify(&chassisMsg_, msgBus_->chassisQueue);
+    notify(&gimbalMsg_, msgBus_->gimbalQueue);
+    // notify(&armorLoaderMsg_, msgBus_->armorLoaderQueue);
+    // notify(&armorBoosterMsg_, msgBus_->armorBoosterQueue);
 }
 
 void RcMsgHandler::notify(Msg *_msg, QueueHandle_t _queue)

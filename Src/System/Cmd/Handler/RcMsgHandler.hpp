@@ -57,8 +57,8 @@ private:
     void chassisHandle();
     void masterHandle();
 
-    ChassisMsg_s cmsg_;
-    GimbalMsg_s gmsg_;
+    ChassisMsg_s chassisMsg_;
+    GimbalMsg_s gimbalMsg_;
 
     UART_HandleTypeDef *_uart;
 };

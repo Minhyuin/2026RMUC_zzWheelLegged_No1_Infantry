@@ -59,9 +59,11 @@ public:
     PINYMOTOR::IMotor *yaw() const;
 
     void ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
+    void ctrlPitchAuto(PID *_angPID, PID *_velPID, float _pos);
     void ctrlPitch(PID *_angPID, PID *_velPID, float _pos);
 
     void ctrlYawSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
+    void ctrlYawAuto(PID *_angPID, PID *_velPID, float _pos);
     void ctrlYaw(PID *_angPID, PID *_velPID, float _pos);
 
     void stop();
@@ -77,6 +79,9 @@ private:
 
     FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
     FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
+
+    float calcPitchTorq(float _ang, float _vel, float _acc);
+    float calcYawTorq(float _vel, float _acc);
 };
 
 } // namespace GIMBAL
