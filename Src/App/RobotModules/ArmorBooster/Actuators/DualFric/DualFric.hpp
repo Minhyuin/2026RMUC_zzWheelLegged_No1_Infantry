@@ -6,6 +6,8 @@
 
 #include "IIR.hpp"
 
+#include "PidBasic.hpp"
+
 namespace ARMORBOOSTER {
 
 class DualFric : public ArmorBooster {
@@ -42,6 +44,9 @@ private:
     Motors_u motors_;
 
     FILTER::IIR3 velFltr_[2];
+
+    PositionalPid pid_[2]{ { 0.1f, 0.0f, 0.0f, 0.001f, 0.0f, 0.236f },
+                           { 0.1f, 0.0f, 0.0f, 0.001f, 0.0f, 0.236f } };
 
     float targetVel_ = SLOW_FRIC_RATE;
 };

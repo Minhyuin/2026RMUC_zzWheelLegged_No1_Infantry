@@ -27,7 +27,7 @@ class Dial : public ArmorLoader {
     };
 
 public:
-    static constexpr float OUTER_RR = 5.f / 2.f;
+    static constexpr float OUTER_RR = 54.f / 24.f;
 
     static constexpr uint8_t BULLET_NUM_ROUND = 8;
 

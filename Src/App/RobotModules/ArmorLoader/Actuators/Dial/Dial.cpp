@@ -4,7 +4,7 @@
 
 #include "Bsp_can.hpp"
 
-#include "M2006.hpp"
+#include "M3508.hpp"
 
 #include "./State/AutoState.hpp"
 #include "./State/BlockState.hpp"
@@ -27,17 +27,17 @@ void ShooterCtrlRxPacket::registerCallback()
 Dial::Dial()
 {
     InitConfig_s dialConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::QUAD_CURR,
-        .offsetId = 8,
+        .offsetId = 7,
         .txFreq = DIAL_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .isReverse = DIAL_REVERSE,
     };
-    motors_.dial = new DJIMOTOR::M2006("M2006", dialConfig);
-    motors_.dial->overrideReductionRatio(DJIMOTOR::M2006::ORIGINAL_GEARBOX_RR *
+    motors_.dial = new DJIMOTOR::M3508("M3508", dialConfig);
+    motors_.dial->overrideReductionRatio(DJIMOTOR::M3508::ORIGINAL_GEARBOX_RR *
                                          OUTER_RR);
 
     this->stateFactory_.addState(FSMState_e::AUTO,
