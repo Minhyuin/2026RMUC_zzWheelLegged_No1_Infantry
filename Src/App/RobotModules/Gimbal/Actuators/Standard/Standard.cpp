@@ -19,6 +19,11 @@ void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
     Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
+void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+}
+
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
@@ -81,11 +86,11 @@ void Standard::enter()
 
 void Standard::update(void *_param)
 {
-    if (xQueueReceive((((MsgBus_s *)_param)->gimbalQueue), &msg, 0) == pdTRUE) {
-    };
     this->insSub_->receive();
 
-#ifdef APP_GIMBAL_MASTER
+    if (xQueueReceive((((MsgBus_s *)_param)->gimbalQueue), &msg, 0) == pdTRUE) {
+    };
+
     ChassisMsg_s cmsg{};
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg, 0) ==
         pdTRUE) {
@@ -95,13 +100,20 @@ void Standard::update(void *_param)
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
+    ArmorLoaderMsg_s almsg{};
+    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg, 0) ==
+        pdTRUE) {
+        shooterCtrlTxPacket_.setData().state =
+                static_cast<uint8_t>(almsg.state);
+        shooterCtrlTxPacket_.setData().fire = almsg.fire;
+    }
+    shooterCtrlTxPacket_.setData().fire &= true; // TODO: vision fire
+
     // vision send
     vision.setData().roll = insData_.roll;
     vision.setData().pitch = insData_.pitch;
     vision.setData().yaw = insData_.yaw;
     vision.setData().timestamp = xTaskGetTickCount();
-
-#endif
 
     this->stateFactory_.update();
 }

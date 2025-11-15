@@ -39,6 +39,13 @@ class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
+class ShooterCtrlTxPacket
+        : public COMM::TxPacket<COMM::ArmorBoosterPacketType> {
+    friend class Standard;
+    // ShooterCtrlTxPacket() : TxPacket(200.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
+};
+
 class Standard : public Gimbal {
 public:
     static constexpr float PITCH_LAUNCH_ANG = 4.68467999f;
@@ -76,6 +83,7 @@ private:
     Motors_u motors_;
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
+    ShooterCtrlTxPacket shooterCtrlTxPacket_;
 
     FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
     FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
