@@ -35,14 +35,14 @@ union States_u {
 
 class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
     friend class Standard;
-    // ChassisCtrlTxPacket() : TxPacket(500.f) {}
+    ChassisCtrlTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class ShooterCtrlTxPacket
         : public COMM::TxPacket<COMM::ArmorBoosterPacketType> {
     friend class Standard;
-    // ShooterCtrlTxPacket() : TxPacket(200.f) {}
+    ShooterCtrlTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -51,8 +51,8 @@ public:
     static constexpr float PITCH_LAUNCH_ANG = 4.68467999f;
     static constexpr float YAW_LAUNCH_ANG = 3.04590487f;
 
-    static constexpr float PITCH_MOTOR_FREQ = 1000.f;
-    static constexpr float YAW_MOTOR_FREQ = 1000.f;
+    static constexpr float PITCH_MOTOR_FREQ = 500.f;
+    static constexpr float YAW_MOTOR_FREQ = 500.f;
 
     // "REVERSE flag" is true when imu and motor have different direction
     static constexpr bool PITCH_REVERSE = true;

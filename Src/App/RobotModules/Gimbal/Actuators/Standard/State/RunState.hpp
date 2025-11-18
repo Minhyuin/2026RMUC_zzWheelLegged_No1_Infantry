@@ -13,8 +13,7 @@ static volatile float yawGimbalExpOffset = 0.f;
 static volatile float yawMotorAng = 0.f;
 static volatile float pitchMotorAng = 0.f;
 
-static PositionalPid runPitchAngPID(40.f, 200.f, 0.005f, 0.001f, 0.3f, 7.f,
-                                    0.f);
+static PositionalPid runPitchAngPID(40.f, 200.f, 0.005f, 0.001f, 0.3f, 7.f, 0.f);
 static PositionalPid runPitchVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid runYawAngPID(45.f, 100.f, 0.3f, 0.001f, 0.3f, 10.f, 0.f);
 static PositionalPid runYawVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
@@ -40,8 +39,7 @@ class RunState : public FSMState<FSMState_e> {
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
 
 public:
-    RunState(Standard *_gimbal)
-            : FSMState<FSMState_e>(FSMState_e::RUN), gimbal_(_gimbal)
+    RunState(Standard *_gimbal) : FSMState<FSMState_e>(FSMState_e::RUN), gimbal_(_gimbal)
     {
         pids_.pitchAngPid = &runPitchAngPID;
         pids_.pitchVelPid = &runPitchVelPID;
@@ -62,13 +60,11 @@ public:
     void run() final
     {
         // update ctrl ang
-        cmdImuPitchAng_ = PINYMOTOR::clampArc(
-                cmdImuPitchAng_ + (gimbal_->msg.wPitch * 0.001f),
-                IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
+        cmdImuPitchAng_ = PINYMOTOR::clampArc(cmdImuPitchAng_ + (gimbal_->msg.wPitch * 0.001f), IMU_PITCH_START_ANG,
+                                              IMU_PITCH_END_ANG);
         cmdImuPitchAngWithOffset_ = cmdImuPitchAng_ + pitchGimbalExpOffset;
         cmdImuPitchAngWithOffset_ =
-                PINYMOTOR::clampArc(cmdImuPitchAngWithOffset_,
-                                    IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
+                PINYMOTOR::clampArc(cmdImuPitchAngWithOffset_, IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
 
         // update yaw range
         // float rangeCenter = PINYMOTOR::getMinorArc(gimbal_->ins().yaw,
@@ -83,10 +79,8 @@ public:
         // cmdImuYawAngWithOffset_ = PINYMOTOR::clampArc(
         //         cmdImuYawAngWithOffset_, imuYawMinAng_, imuYawMaxAng_);
 
-        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid,
-                           cmdImuPitchAngWithOffset_);
-        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid,
-                         cmdImuYawAngWithOffset_);
+        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAngWithOffset_);
+        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAngWithOffset_);
     }
 
     void exit() final
@@ -104,9 +98,10 @@ public:
         else if (gimbal_->msg.state == FSMState_e::RUN)
             return FSMState_e::RUN;
         else if (gimbal_->msg.state == FSMState_e::AUTO)
-            return FSMState_e::AUTO;
+            // return FSMState_e::AUTO;
+            return FSMState_e::RUN;
         else
-            return FSMState_e::AUTO;
+            return FSMState_e::RUN;
     }
 
 private:

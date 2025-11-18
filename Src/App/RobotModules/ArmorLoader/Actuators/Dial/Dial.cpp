@@ -17,7 +17,7 @@ using namespace PINYMOTOR;
 void ShooterCtrlRxPacket::registerCallback()
 {
     Can::instance().registerCallback(
-            &HCAN1, uid(), [this](const uint8_t *_rxBuf) {
+            &HCAN3, uid(), [this](const uint8_t *_rxBuf) {
                 xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
             });
     LOG::info("ShooterCtrlRxPacket", " Receive cb registered, uId:0x%hx",

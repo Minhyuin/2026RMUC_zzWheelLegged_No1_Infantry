@@ -21,7 +21,7 @@ void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 
 void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
 Standard::Standard()
