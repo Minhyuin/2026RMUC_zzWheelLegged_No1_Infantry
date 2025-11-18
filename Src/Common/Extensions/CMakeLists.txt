@@ -36,6 +36,12 @@ if(EXTENSION_SUPERCAP)
   list(APPEND SOURCES "SuperCap/SuperCap.cpp")
 endif()
 
+if(EXTENSION_TOF)
+    if(TOF_TFMINIS)
+        list(APPEND SOURCES "TOF/TFmini-S/TFmini-S.cpp")
+    endif()
+endif()
+
 # Add the library
 add_library(Extensions STATIC ${SOURCES})
 

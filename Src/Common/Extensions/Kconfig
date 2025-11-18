@@ -17,7 +17,6 @@ menu "extension config"
     config EXTENSION_LED
     bool "led"
     default y
-
     source "Src/Common/Extensions/LED/Kconfig"
 
     config EXTENSION_MOTOR
@@ -35,5 +34,10 @@ menu "extension config"
     config EXTENSION_SUPERCAP
     bool "super cap"
     default n
+
+    config EXTENSION_TOF
+    bool "tof"
+    default n
+    source "Src/Common/Extensions/TOF/Kconfig"
 
 endmenu

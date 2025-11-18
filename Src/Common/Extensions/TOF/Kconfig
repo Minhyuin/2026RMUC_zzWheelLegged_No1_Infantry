@@ -1,0 +1,8 @@
+menu "TOF config"
+    depends on EXTENSION_TOF
+
+    config TOF_TFMINIS
+    bool "TFmini-S"
+    default y
+
+endmenu
