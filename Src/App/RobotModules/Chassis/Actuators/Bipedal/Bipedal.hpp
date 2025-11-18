@@ -30,7 +30,8 @@ union Motors_u {
     PINYMOTOR::IMotor *_[6];
 };
 
-class ChassisCtrlRxPacket : public COMM::RxPacket<COMM::SamplePacketType, 1> {
+class ChassisCtrlRxPacket
+        : public COMM::RxPacket<COMM::ChassisCtrlPacketType, 1> {
 public:
     // TODO: slightly cumbersome like this or CRTP
     ChassisCtrlRxPacket() { registerCallback(); }
@@ -64,10 +65,11 @@ public:
     void enter();
     void update(void *_param);
 
+    bool isGimbalReset() const;
+
     void setYawZero(float _yawZero);
 
     void setRoll(float _roll);
-
 
     void setLengthSmooth(float _l, float _step);
     void setLengthSmooth(float _lL, float _lR, float _step);
@@ -135,6 +137,8 @@ public:
     float calcFdForwardL();
     float calcFdForwardR();
 
+    float deltaYaw = 0.f;
+
 private:
     Motors_u motors_;
 
@@ -192,7 +196,11 @@ private:
     float dt_ = 0.001f;
     uint32_t dtCnt_ = 0;
 
+    void loadDeltaYaw();
     void updateVel();
+
+    float cosYaw_ = 0.f;
+    float sinYaw_ = 0.f;
 };
 
 } // namespace CHASSIS

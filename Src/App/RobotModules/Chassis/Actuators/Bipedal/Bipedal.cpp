@@ -172,20 +172,21 @@ void Bipedal::enter()
 
 void Bipedal::update(void *_param)
 {
-    // #if !APP_USE_COMM
+#if !APP_USE_COMM
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &msg, 0) ==
         pdTRUE) {
     };
-    // #else
-    //     msg.vx = chassisCtrlRxPacket_.data().vx;
-    //     msg.vy = chassisCtrlRxPacket_.data().vy;
-    // #endif
+#else
+    msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().state);
+    msg.vx = chassisCtrlRxPacket_.data().vx;
+    msg.vy = chassisCtrlRxPacket_.data().vy;
+#endif
 
     // update dt
     dt_ = Dwt::instance().getDt(&dtCnt_);
 
     // update insData
-    insSub_->receive();
+    loadDeltaYaw();
 
     // update leg
     legL_.stateUpdate(dt_);
@@ -210,6 +211,21 @@ void Bipedal::update(void *_param)
 
     // update state
     this->stateFactory_.update();
+}
+
+void Bipedal::loadDeltaYaw()
+{
+    // Master Board method
+    insSub_->receive();
+    deltaYaw = getMinorArc(chassisCtrlRxPacket_.data().deltaYaw, 0.f);
+
+    cosYaw_ = arm_cos_f32(deltaYaw);
+    sinYaw_ = arm_sin_f32(deltaYaw);
+};
+
+bool Bipedal::isGimbalReset() const
+{
+    return chassisCtrlRxPacket_.data().gimbalReset;
 }
 
 void Bipedal::updateVel()

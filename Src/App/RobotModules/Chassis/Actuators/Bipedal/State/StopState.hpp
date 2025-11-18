@@ -28,7 +28,7 @@ public:
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
         else if (chassis_->msg.state != FSMState_e::STOP &&
-                 chassis_->isFreeze())
+                 chassis_->isFreeze() && chassis_->isGimbalReset())
             // return FSMState_e::LAUNCH;
             return FSMState_e::TEST;
 
