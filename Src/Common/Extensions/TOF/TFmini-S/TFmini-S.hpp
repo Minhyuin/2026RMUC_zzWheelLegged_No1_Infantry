@@ -13,8 +13,8 @@
 #include "event_groups.h"
 #include "TOF.hpp"
 
-#define TOF_READY_EVENT1 (1 << 4)
-#define TOF_READY_EVENT2 (1 << 5)
+#define TOF_LEFT_READY_EVENT  (1 << 4)
+#define TOF_RIGHT_READY_EVENT (1 << 5)
 
 class TFminiS : public TOF {
     static constexpr uint8_t SOF = 0x59;
@@ -25,7 +25,7 @@ public:
     TFminiS(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event);
     ~TFminiS() override;
     bool isOnline() final;
-    void *getData() final;
+    float getDist() final;
 
 #pragma pack(push, 1)
     struct TFminiSData_s {

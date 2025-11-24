@@ -35,7 +35,7 @@ void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength)
         __HAL_DMA_SET_COUNTER(_huart->hdmarx, 2 * FRAME_LENGTH);
         if (size == FRAME_LENGTH) {
             if (buf_[0] == SOF && buf_[1] == SOF && checksum()) {
-                xEventGroupSetBitsFromISR(event_, TOF_READY_EVENT1 | TOF_READY_EVENT2, nullptr);
+                xEventGroupSetBitsFromISR(event_, TOF_LEFT_READY_EVENT | TOF_RIGHT_READY_EVENT, nullptr);
             }
         }
     } else {
@@ -44,7 +44,7 @@ void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength)
         __HAL_DMA_SET_COUNTER(_huart->hdmarx, 2 * FRAME_LENGTH);
         if (size == FRAME_LENGTH) {
             if (buf_[0] == SOF && buf_[1] == SOF && checksum()) {
-                xEventGroupSetBitsFromISR(event_, TOF_READY_EVENT1 | TOF_READY_EVENT2, nullptr);
+                xEventGroupSetBitsFromISR(event_, TOF_LEFT_READY_EVENT | TOF_RIGHT_READY_EVENT, nullptr);
             }
         }
     }
@@ -70,4 +70,7 @@ bool TFminiS::isOnline()
         return false;
 }
 
-void *TFminiS::getData() { return &data_; }
+float TFminiS::getDist()
+{
+    return static_cast<float>(data_.distance) / 100.0f; // unit:m
+}

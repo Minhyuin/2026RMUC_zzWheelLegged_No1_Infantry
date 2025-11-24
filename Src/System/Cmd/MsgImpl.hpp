@@ -2,6 +2,7 @@
 #include "MsgBase.hpp"
 #include "FreeRTOS.h"
 #include "queue.h"
+#include <array>
 
 
 namespace CHASSIS {
@@ -26,6 +27,8 @@ struct MsgBus_s {
     QueueHandle_t armorBoosterQueue;
     QueueHandle_t armorLoaderQueue;
     QueueHandle_t refereeQueue;
+    QueueHandle_t tofLefDistQueue;
+    QueueHandle_t tofRigDistQueue;
 };
 
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ctrl msg ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -54,6 +57,10 @@ struct ArmorLoaderMsg_s : public Msg {
 struct RefereeMsg_s : public Msg {
     uint16_t currentHP, shooterHeatLimit, chassisPowerLimit, chassisPowerBuffer;
     float bulletSpeed, rxFreq;
+};
+
+struct TOFMsg_s : public Msg {
+    float dist;
 };
 
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ other msg ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

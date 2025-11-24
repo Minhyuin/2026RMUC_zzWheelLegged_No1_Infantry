@@ -12,7 +12,7 @@ public:
     virtual ~TOF() = default;
     virtual void parse() = 0;
     virtual bool isOnline() = 0;
-    virtual void *getData() = 0;
+    virtual float getDist() = 0;
 
 protected:
     virtual void callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _pos) = 0;
@@ -22,5 +22,3 @@ protected:
     EventGroupHandle_t &event_;
     volatile uint8_t rxLostCnt_;
 };
-
-inline std::unique_ptr<TOF> tfmini[2]{ nullptr, nullptr };
