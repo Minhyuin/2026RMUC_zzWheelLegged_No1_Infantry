@@ -12,6 +12,11 @@ void PinyCore::bspInit()
 
     Can::instance().init();
 
+    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, GPIO_PIN_SET);
+
+
     /* we need lazy init firstly */
     auto &usb = Usb::instance();
 }
