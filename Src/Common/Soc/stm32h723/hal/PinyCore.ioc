@@ -570,7 +570,6 @@ NVIC.FDCAN2_IT1_IRQn=true\:6\:0\:true\:false\:true\:true\:true\:true
 NVIC.FDCAN3_IT0_IRQn=true\:6\:0\:true\:false\:true\:true\:true\:true
 NVIC.FDCAN3_IT1_IRQn=true\:6\:0\:true\:false\:true\:true\:true\:true
 NVIC.FDCAN_CAL_IRQn=true\:6\:0\:true\:false\:true\:true\:true\:true
-NVIC.FPU_IRQn=true\:0\:0\:false\:false\:true\:true\:false\:true
 NVIC.ForceEnableDMAVector=true
 NVIC.HardFault_IRQn=true\:0\:0\:false\:false\:false\:false\:false\:false
 NVIC.MemoryManagement_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false

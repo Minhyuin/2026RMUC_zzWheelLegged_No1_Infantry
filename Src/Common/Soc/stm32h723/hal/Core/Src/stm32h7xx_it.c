@@ -596,19 +596,6 @@ void OTG_HS_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles FPU global interrupt.
-  */
-void FPU_IRQHandler(void)
-{
-  /* USER CODE BEGIN FPU_IRQn 0 */
-
-  /* USER CODE END FPU_IRQn 0 */
-  /* USER CODE BEGIN FPU_IRQn 1 */
-
-  /* USER CODE END FPU_IRQn 1 */
-}
-
-/**
   * @brief This function handles UART7 global interrupt.
   */
 void UART7_IRQHandler(void)
