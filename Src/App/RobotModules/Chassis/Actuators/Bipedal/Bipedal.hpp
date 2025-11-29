@@ -30,8 +30,7 @@ union Motors_u {
     PINYMOTOR::IMotor *_[6];
 };
 
-class ChassisCtrlRxPacket
-        : public COMM::RxPacket<COMM::ChassisCtrlPacketType, 1> {
+class ChassisCtrlRxPacket : public COMM::RxPacket<COMM::ChassisCtrlPacketType, 1> {
 public:
     // TODO: slightly cumbersome like this or CRTP
     ChassisCtrlRxPacket() { registerCallback(); }
@@ -106,8 +105,7 @@ public:
     void setHipFd(float _fdL, float _fdR);
 
     void bal(const WLController::States_u &_ref, float _yaw);
-    void bal(const WLController::States_u &_refL,
-             const WLController::States_u &_refR, float _yaw);
+    void bal(const WLController::States_u &_refL, const WLController::States_u &_refR, float _yaw);
 
     void bal(const WBRController::States_u &_ref);
 
@@ -152,7 +150,7 @@ private:
     GimbalYawMsg_s gimbalYawMsg_;
     Subscriber<GimbalYawMsg_s> *gimbalYawSub_;
 #endif
-#ifdef APP_CHASSIS_SLAVE
+#ifdef TARGET_SLAVE
     ChassisCtrlRxPacket chassisCtrlRxPacket_;
 #endif
 
@@ -169,8 +167,7 @@ private:
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
-    PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f },
-                              { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
+    PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
     IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     FILTER::IIR3 wheelFltr[2];

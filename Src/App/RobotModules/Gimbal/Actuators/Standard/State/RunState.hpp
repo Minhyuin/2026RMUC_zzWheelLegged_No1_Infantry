@@ -95,11 +95,9 @@ public:
     {
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (gimbal_->msg.state == FSMState_e::RUN)
-            return FSMState_e::RUN;
-        else if (gimbal_->msg.state == FSMState_e::AUTO)
-            // return FSMState_e::AUTO;
-            return FSMState_e::RUN;
+
+        if (gimbal_->msg.state == FSMState_e::AUTO && gimbal_->vision.data().control)
+            return FSMState_e::AUTO;
         else
             return FSMState_e::RUN;
     }

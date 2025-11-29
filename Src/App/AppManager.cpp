@@ -37,7 +37,7 @@ Lazy<UI::App> ui;
 //---------------------------------------------------------------------------------------------------
 
 #ifdef CHASSIS_TYPE
-#if !APP_USE_COMM || APP_CHASSIS_SLAVE
+#if !APP_USE_COMM || TARGET_SLAVE
 #include CHASSIS_FILE
 Lazy<CHASSIS::CHASSIS_TYPE> chassis;
 #include ARMORLOADER_FILE
@@ -45,7 +45,7 @@ Lazy<ARMORLOADER::ARMORLOADER_TYPE> armorLoader;
 #endif
 #endif
 #ifdef GIMBAL_TYPE
-#if !APP_USE_COMM || APP_GIMBAL_MASTER
+#if !APP_USE_COMM || TARGET_MASTER
 #include GIMBAL_FILE
 Lazy<GIMBAL::GIMBAL_TYPE> gimbal;
 #include ARMORBOOSTER_FILE
@@ -84,14 +84,14 @@ void AppManager::initApp()
         TestModule::instance()->init();
     }
 
-#if !APP_USE_COMM || APP_CHASSIS_SLAVE
+#if !APP_USE_COMM || TARGET_SLAVE
     chassis.init();
     schedule([]() { chassis->update(cmd->getMsgBus()); });
     armorLoader.init();
     schedule([]() { armorLoader->update(cmd->getMsgBus()); });
 #endif
 
-#if !APP_USE_COMM || APP_GIMBAL_MASTER
+#if !APP_USE_COMM || TARGET_MASTER
     gimbal.init();
     schedule([]() { gimbal->update(cmd->getMsgBus()); });
     armorBooster.init();

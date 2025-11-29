@@ -7,8 +7,7 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
-static PositionalPid autoPitchAngPID(40.f, 200.f, 0.005f, 0.001f, 0.3f, 7.f,
-                                     0.f);
+static PositionalPid autoPitchAngPID(40.f, 200.f, 0.005f, 0.001f, 0.3f, 7.f, 0.f);
 static PositionalPid autoPitchVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid autoYawAngPID(45.f, 100.f, 0.3f, 0.001f, 0.3f, 10.f, 0.f);
 static PositionalPid autoYawVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
@@ -34,8 +33,7 @@ class AutoState : public FSMState<FSMState_e> {
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
 
 public:
-    AutoState(Standard *_gimbal)
-            : FSMState<FSMState_e>(FSMState_e::AUTO), gimbal_(_gimbal)
+    AutoState(Standard *_gimbal) : FSMState<FSMState_e>(FSMState_e::AUTO), gimbal_(_gimbal)
     {
         pids_.pitchAngPid = &autoPitchAngPID;
         pids_.pitchVelPid = &autoPitchVelPID;
@@ -55,8 +53,7 @@ public:
         cmdImuPitchAng_ = gimbal_->vision.data().targetPitch;
         cmdImuYawAng_ = gimbal_->vision.data().targetYaw;
 
-        cmdImuPitchAng_ = PINYMOTOR::clampArc(
-                cmdImuPitchAng_, IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
+        cmdImuPitchAng_ = PINYMOTOR::clampArc(cmdImuPitchAng_, IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
 
         // float rangeCenter = PINYMOTOR::getMinorArc(gimbal_->ins().yaw,
         //                                            gimbal_->yaw()->posNorm());
@@ -65,8 +62,7 @@ public:
         // cmdImuYawAng_ = PINYMOTOR::clampArc(cmdImuYawAng_, imuYawMinAng_,
         //                                     imuYawMaxAng_);
 
-        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid,
-                           cmdImuPitchAng_);
+        gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAng_);
         gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAng_);
     }
 
@@ -81,10 +77,9 @@ public:
     {
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (gimbal_->msg.state == FSMState_e::RUN)
+
+        if (gimbal_->msg.state == FSMState_e::RUN || !gimbal_->vision.data().control)
             return FSMState_e::RUN;
-        else if (gimbal_->msg.state == FSMState_e::AUTO)
-            return FSMState_e::AUTO;
         else
             return FSMState_e::AUTO;
     }

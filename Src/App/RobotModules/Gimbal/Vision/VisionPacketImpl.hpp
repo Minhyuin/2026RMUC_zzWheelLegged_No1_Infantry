@@ -73,10 +73,11 @@ public:
 
 class VisionRxPacket {
 public:
-    static constexpr uint8_t LEN = (208 / 8); // bits to bytes
+    static constexpr uint8_t LEN = (216 / 8); // bits to bytes
     static constexpr uint16_t ID = 0xA5;
     struct ProtoData_s {
-        uint8_t fire : 1;
+        uint8_t control;
+        uint8_t fire;
         float targetYaw;
         float targetPitch;
         float yaw;
@@ -90,6 +91,7 @@ public:
     union Data_u {
         struct Data_s {
             uint8_t header;
+            uint8_t control;
             uint8_t fire; // 0-false 1-true
             float targetYaw;
             float targetPitch;
