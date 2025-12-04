@@ -3,12 +3,9 @@
 
 using namespace GIMBAL;
 
-Vision::Vision() : TxPacket<VisionTxPacket>(500.f) { registerCallback(); }
+Vision::Vision() : TxPacket<VisionTxPacket>(1000.f) { registerCallback(); }
 
-void Vision::transmit(uint8_t *_buf, uint16_t _len)
-{
-    Usb::instance().send(_buf, _len);
-}
+void Vision::transmit(uint8_t *_buf, uint16_t _len) { Usb::instance().send(_buf, _len); }
 
 void Vision::registerCallback()
 {

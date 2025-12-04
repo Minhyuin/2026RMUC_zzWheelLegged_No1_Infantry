@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstdint>
+
 #include "Crc.hpp"
+#include "StmLog.hpp"
 
 class VisionTxPacket {
 public:
@@ -73,7 +75,7 @@ public:
 
 class VisionRxPacket {
 public:
-    static constexpr uint8_t LEN = (216 / 8); // bits to bytes
+    static constexpr uint8_t LEN = (296 / 8); // bits to bytes
     static constexpr uint16_t ID = 0xA5;
     struct ProtoData_s {
         uint8_t control;
@@ -92,7 +94,7 @@ public:
         struct Data_s {
             uint8_t header;
             uint8_t control;
-            uint8_t fire; // 0-false 1-true
+            uint8_t fire;
             float targetYaw;
             float targetPitch;
             float yaw;
@@ -114,28 +116,20 @@ public:
     static ProtoData_s decompress(const Data_u &_data)
     {
         ProtoData_s protoData{};
-        // if (_data.content.header == ID &&
-        //     Verify_CRC16_Check_Sum(const_cast<uint8_t *>(_data.bytes),
-        //                            LEN)) { // Don't safe but temporary
-        //     protoData.fire = _data.content.fire;
-        //     protoData.targetYaw = _data.content.targetYaw;
-        //     protoData.targetPitch = _data.content.targetPitch;
-        //     protoData.yaw = _data.content.yaw;
-        //     protoData.yawVel = _data.content.yawVel;
-        //     protoData.yawAcc = _data.content.yawAcc;
-        //     protoData.pitch = _data.content.pitch;
-        //     protoData.pitchVel = _data.content.pitchVel;
-        //     protoData.pitchAcc = _data.content.pitchAcc;
-        // }
-        protoData.fire = _data.content.fire;
-        protoData.targetYaw = _data.content.targetYaw;
-        protoData.targetPitch = _data.content.targetPitch;
-        protoData.yaw = _data.content.yaw;
-        protoData.yawVel = _data.content.yawVel;
-        protoData.yawAcc = _data.content.yawAcc;
-        protoData.pitch = _data.content.pitch;
-        protoData.pitchVel = _data.content.pitchVel;
-        protoData.pitchAcc = _data.content.pitchAcc;
+        if (_data.content.header == ID && Verify_CRC16_Check_Sum(_data.bytes, LEN)) {
+            protoData.fire = _data.content.fire;
+            protoData.control = _data.content.control;
+            protoData.targetYaw = _data.content.targetYaw;
+            protoData.targetPitch = _data.content.targetPitch;
+            protoData.yaw = _data.content.yaw;
+            protoData.yawVel = _data.content.yawVel;
+            protoData.yawAcc = _data.content.yawAcc;
+            protoData.pitch = _data.content.pitch;
+            protoData.pitchVel = _data.content.pitchVel;
+            protoData.pitchAcc = _data.content.pitchAcc;
+        } else {
+            LOG::warn("Vision", "wrong SOF or CRC!");
+        }
         return protoData;
     }
 };
