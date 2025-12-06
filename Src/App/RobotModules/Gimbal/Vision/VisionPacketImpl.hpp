@@ -75,7 +75,8 @@ public:
 
 class VisionRxPacket {
 public:
-    static constexpr uint8_t LEN = (296 / 8); // bits to bytes
+    // static constexpr uint8_t LEN = (296 / 8); // bits to bytes
+    static constexpr uint8_t LEN = (240 / 8); // bits to bytes
     static constexpr uint16_t ID = 0xA5;
     struct ProtoData_s {
         uint8_t control;
@@ -92,17 +93,26 @@ public:
 #pragma pack(push, 1)
     union Data_u {
         struct Data_s {
+            // uint8_t header;
+            // uint8_t control;
+            // uint8_t fire;
+            // float targetYaw;
+            // float targetPitch;
+            // float yaw;
+            // float yawVel;
+            // float yawAcc;
+            // float pitch;
+            // float pitchVel;
+            // float pitchAcc;
             uint8_t header;
-            uint8_t control;
-            uint8_t fire;
             float targetYaw;
             float targetPitch;
-            float yaw;
-            float yawVel;
-            float yawAcc;
-            float pitch;
-            float pitchVel;
-            float pitchAcc;
+            float yawDiff;
+            float pitchDiff;
+            float distance;
+            uint8_t fire;
+            uint32_t capTimestamp;
+            uint16_t tOffset;
             uint16_t checksum = 0;
         } content;
         uint8_t bytes[LEN];
@@ -117,16 +127,20 @@ public:
     {
         ProtoData_s protoData{};
         if (_data.content.header == ID && Verify_CRC16_Check_Sum(_data.bytes, LEN)) {
+            // protoData.fire = _data.content.fire;
+            // protoData.control = _data.content.control;
+            // protoData.targetYaw = _data.content.targetYaw;
+            // protoData.targetPitch = _data.content.targetPitch;
+            // protoData.yaw = _data.content.yaw;
+            // protoData.yawVel = _data.content.yawVel;
+            // protoData.yawAcc = _data.content.yawAcc;
+            // protoData.pitch = _data.content.pitch;
+            // protoData.pitchVel = _data.content.pitchVel;
+            // protoData.pitchAcc = _data.content.pitchAcc;
             protoData.fire = _data.content.fire;
-            protoData.control = _data.content.control;
+            protoData.control = (_data.content.distance == -1) ? 0 : 1;
             protoData.targetYaw = _data.content.targetYaw;
             protoData.targetPitch = _data.content.targetPitch;
-            protoData.yaw = _data.content.yaw;
-            protoData.yawVel = _data.content.yawVel;
-            protoData.yawAcc = _data.content.yawAcc;
-            protoData.pitch = _data.content.pitch;
-            protoData.pitchVel = _data.content.pitchVel;
-            protoData.pitchAcc = _data.content.pitchAcc;
         } else {
             LOG::warn("Vision", "wrong SOF or CRC!");
         }

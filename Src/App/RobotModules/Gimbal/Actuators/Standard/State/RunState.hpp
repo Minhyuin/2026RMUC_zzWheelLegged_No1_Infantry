@@ -13,10 +13,10 @@ static volatile float yawGimbalExpOffset = 0.f;
 static volatile float yawMotorAng = 0.f;
 static volatile float pitchMotorAng = 0.f;
 
-static PositionalPid runPitchAngPID(40.f, 200.f, 0.005f, 0.001f, 0.3f, 7.f, 0.f);
+static PositionalPid runPitchAngPID(50.f, 200.f, 0.005f, 0.001f, 0.6f, 7.f, 0.f);
 static PositionalPid runPitchVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid runYawAngPID(45.f, 100.f, 0.3f, 0.001f, 0.3f, 10.f, 0.f);
-static PositionalPid runYawVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid runYawVelPID(0.9f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
