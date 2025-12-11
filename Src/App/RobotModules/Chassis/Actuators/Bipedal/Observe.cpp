@@ -38,6 +38,29 @@ bool Bipedal::detectPhiR(float _ang1, float _ang2)
     return getMinorArc(_ang1, legR_.state().phi0) > 0 && getMinorArc(_ang2, legR_.state().phi0) < 0;
 }
 
+/**
+ * @brief detect if the leg is in the target length
+ * 
+ * @param _l target length
+ * @param _threthold tolerance
+ * @return true if the leg is in the target length
+ * @return false if the leg is in the target length
+ */
+
+bool Bipedal::detectLength(float _l, float _threthold)
+{
+    return detectLengthL(_l, _threthold) && detectLengthR(_l, _threthold);
+}
+
+bool Bipedal::detectLengthL(float _l, float _threthold)
+{
+    return legL_.state().L0 < _l + _threthold && legL_.state().L0 > _l - _threthold;
+}
+bool Bipedal::detectLengthR(float _l, float _threthold)
+{
+    return legR_.state().L0 < _l + _threthold && legR_.state().L0 > _l - _threthold;
+}
+
 void Bipedal::updateVel()
 {
     // update ax az

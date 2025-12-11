@@ -10,20 +10,22 @@ namespace CHASSIS {
 class WheelLegged {
 public:
     static constexpr float GRAVITY = 9.7833f;
+
     static constexpr float MASS_WHEEL = 0.521f;
+    static constexpr float MASS_LEG = 1.5f;
+    static constexpr float MASS = MASS_WHEEL + MASS_LEG;
+
     static constexpr float MAX_L = 0.33f;
     static constexpr float MIN_L = 0.2f;
 
     static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
-    static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.215f,
-                                                .L2 = 0.258f,
-                                                .L3 = 0.258f,
-                                                .L4 = 0.215f,
-                                                .L5 = 0.f };
-    void init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4,
-              PINYMOTOR::IMotor *_wheel);
+    static constexpr float MAX_FD = 120.f;
+
+    static constexpr VMCConfig_s VMC_CONFIG = { .L1 = 0.215f, .L2 = 0.258f, .L3 = 0.258f, .L4 = 0.215f, .L5 = 0.f };
+
+    void init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4, PINYMOTOR::IMotor *_wheel);
     void stop();
     void enter();
 
@@ -42,6 +44,7 @@ public:
     const LegState_s &state() const { return legState_; }
 
     bool isFloating = false;
+    bool needJumping = false;
 
 private:
     LegState_s legState_;
@@ -66,7 +69,7 @@ private:
 
     // TODO: 位置环积分饱和会影响离地检测
     PositionalPid lengthAngPid_{ 30.f, 30.f, 1.f, 0.001f, 0.3f, 3.f, 0.f };
-    PositionalPid lengthVelPid_{ 50.f, 0.f, 0.f, 0.001f, 0.f, 120.f, 0.f };
+    PositionalPid lengthVelPid_{ 50.f, 0.f, 0.f, 0.001f, 0.f, MAX_FD, 0.f };
 
     PINYMOTOR::IMotor *hip1_;
     PINYMOTOR::IMotor *hip4_;

@@ -3,7 +3,7 @@
 #include "FSMState.hpp"
 #include "TopicRouter.hpp"
 namespace CHASSIS {
-enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, TEST };
+enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, JUMP, TEST };
 }
 class Chassis {
 public:

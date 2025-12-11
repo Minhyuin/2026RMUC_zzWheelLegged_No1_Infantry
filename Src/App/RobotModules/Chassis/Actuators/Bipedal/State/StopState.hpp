@@ -4,12 +4,10 @@
 #include "StmLog.hpp"
 
 namespace CHASSIS {
+
 class StopState : public FSMState<FSMState_e> {
 public:
-    StopState(Bipedal *_chassis)
-            : FSMState<FSMState_e>(FSMState_e::STOP), chassis_(_chassis)
-    {
-    }
+    StopState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::STOP), chassis_(_chassis) {}
 
     void enter() final
     {
@@ -27,8 +25,7 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (chassis_->msg.state != FSMState_e::STOP &&
-                 chassis_->isFreeze() && chassis_->isGimbalReset())
+        else if (chassis_->msg.state != FSMState_e::STOP && chassis_->isFreeze() && chassis_->isGimbalReset())
             // return FSMState_e::LAUNCH;
             return FSMState_e::TEST;
 

@@ -13,10 +13,7 @@ class IdleState : public FSMState<FSMState_e> {
     static constexpr float MAX_ACC = 0.05f;
 
 public:
-    IdleState(Bipedal *_chassis)
-            : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis)
-    {
-    }
+    IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
 
     void enter() final
     {
@@ -30,31 +27,21 @@ public:
     {
         refLength_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(refLength_);
+        chassis_->setFdForward();
 
         // limit acc
-        float vx = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC,
-                              chassis_->vel() + MAX_ACC);
-        vx = chassis_->msg.vx;
+        float vx = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC, chassis_->vel() + MAX_ACC);
+        // vx = chassis_->msg.vx;
 
         // WBR
         WBRController::States_u ref{};
-        refYaw_ = chassis_->isFloating() ?
-                          chassis_->yaw() :
-                          (PINYMOTOR::rangeMap(
-                                  refYaw_ + (chassis_->msg.wz * 0.001f), -PI,
-                                  PI));
+        refYaw_ = chassis_->isFloating() ? chassis_->yaw() :
+                                           (PINYMOTOR::rangeMap(refYaw_ + (chassis_->msg.wz * 0.001f), -PI, PI));
         ref.ds = vx;
         ref.yaw = refYaw_;
         ref.dyaw = chassis_->msg.wz;
         ref.q = OFFSET_Q;
         chassis_->bal(ref);
-
-        chassis_->setFdForward(chassis_->calcFdForwardL(),
-                               chassis_->calcFdForwardR());
-
-        // TestRun
-        // chassis_->setHipPhi((PI / 4.f) - 0.25f);
-        // chassis_->noBal(chassis_->msg.vx, chassis_->msg.wz);
 
         chassis_->ctrl();
     }

@@ -64,6 +64,9 @@ public:
     void enter();
     void update(void *_param);
 
+    void enableJump();
+    void disbaleJump();
+
     bool isGimbalReset() const;
 
     void setYawZero(float _yawZero);
@@ -80,6 +83,7 @@ public:
     void setLengthL(float _l);
     void setLengthR(float _l);
 
+    void setFdForward();
     void setFdForward(float _fd);
     void setFdForward(float _fdL, float _fdR);
 
@@ -101,9 +105,6 @@ public:
     void setHipTp(float _tp);
     void setHipTp(float _tpL, float _tpR);
 
-    void setHipFd(float _fd);
-    void setHipFd(float _fdL, float _fdR);
-
     void bal(const WLController::States_u &_ref, float _yaw);
     void bal(const WLController::States_u &_refL, const WLController::States_u &_refR, float _yaw);
 
@@ -113,7 +114,6 @@ public:
 
     void noBal(float _vx, float _wz);
 
-
     void ctrl();
 
     bool isTumble();
@@ -122,6 +122,9 @@ public:
     bool detectPitch(float _ang1, float _ang2);
     bool detectPhiL(float _ang1, float _ang2);
     bool detectPhiR(float _ang1, float _ang2);
+    bool detectLength(float _l, float _threthold = 0.05f);
+    bool detectLengthL(float _l, float _threthold = 0.05f);
+    bool detectLengthR(float _l, float _threthold = 0.05f);
 
     float yaw() const;
     bool isFloating() const;

@@ -16,6 +16,7 @@
 #include "./State/LaunchState.hpp"
 #include "./State/StandState.hpp"
 #include "./State/IdleState.hpp"
+#include "./State/JumpState.hpp"
 #include "./State/TestState.hpp"
 
 #define HIP_HANDLE   HCAN2
@@ -121,6 +122,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     this->stateFactory_.addState(FSMState_e::STAND, std::make_unique<StandState>(this));
     this->stateFactory_.addState(FSMState_e::RESCUE, std::make_unique<RescueState>(this));
     this->stateFactory_.addState(FSMState_e::IDLE, std::make_unique<IdleState>(this));
+    this->stateFactory_.addState(FSMState_e::JUMP, std::make_unique<JumpState>(this));
     this->stateFactory_.addState(FSMState_e::TEST, std::make_unique<TestState>(this));
     this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
 }
@@ -210,6 +212,18 @@ void Bipedal::ctrl()
     legR_.ctrl();
 }
 
+void Bipedal::enableJump()
+{
+    legL_.needJumping = true;
+    legR_.needJumping = true;
+}
+
+void Bipedal::disbaleJump()
+{
+    legL_.needJumping = false;
+    legR_.needJumping = false;
+}
+
 void Bipedal::setYawZero(float _yawZero) { yawZero_ = _yawZero; }
 
 void Bipedal::setRoll(float _roll) { setRoll_ = _roll; }
@@ -247,6 +261,8 @@ void Bipedal::setLength(float _lL, float _lR)
 void Bipedal::setLengthL(float _l) { legL_.setL(_l); }
 
 void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
+
+void Bipedal::setFdForward() { setFdForward(calcFdForwardL(), calcFdForwardR()); }
 
 void Bipedal::setFdForward(float _fd) { setFdForward(_fd, _fd); }
 
@@ -324,14 +340,6 @@ void Bipedal::setHipTp(float _tpL, float _tpR)
 {
     legL_.setTp(_tpL);
     legR_.setTp(_tpR);
-}
-
-void Bipedal::setHipFd(float _fd) { setHipFd(_fd, _fd); }
-
-void Bipedal::setHipFd(float _fdL, float _fdR)
-{
-    legL_.setFdForward(_fdL);
-    legR_.setFdForward(_fdR);
 }
 
 float Bipedal::yaw() const { return yaw_; }
