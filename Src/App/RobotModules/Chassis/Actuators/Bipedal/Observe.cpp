@@ -68,17 +68,7 @@ void Bipedal::updateVel()
     float cosPitch = arm_cos_f32(insData_.pitch);
     float cosRoll = arm_cos_f32(insData_.roll);
 
-    float axFromX = (insData_.body.ax - (WheelLegged::GRAVITY * -sinPitch)) * cosPitch;
-    float axFromZ = (-insData_.body.az - (WheelLegged::GRAVITY * cosPitch * cosRoll)) * sinPitch * cosRoll;
-    float axFromINS = axFromX + axFromZ;
-
-    float azFromX = (insData_.body.ax - (WheelLegged::GRAVITY * -sinPitch)) * -sinPitch;
-    float azFromZ = -insData_.body.az - (WheelLegged::GRAVITY * cosPitch);
-    // (-insData_.body.az - (WheelLegged::GRAVITY * cosPitch * cosRoll)) *
-    // cosPitch * cosRoll;
-    float azFromINS = azFromX + azFromZ;
-
-    az_ = azFromINS;
+    az_ = insData_.earth.az + WheelLegged::GRAVITY;
 
     // update odom
     // w = w_eb + dq + w_ecd
@@ -94,7 +84,7 @@ void Bipedal::updateVel()
                   legR_.state().vd * arm_sin_f32(legR_.state().phi0);
     float vxFromWheel = (wheelVel[0] + wheelVel[1]) / 2.f;
 
-    odom_.update(dt_, vxFromWheel, axFromINS, yaw_);
+    odom_.update(dt_, vxFromWheel, insData_.earth.ax, yaw_);
 
     // ds_ = odom_.normVel();
     ds_ = vxFromWheel;
@@ -104,7 +94,7 @@ void Bipedal::updateVel()
     bool slowSpeedFlag = false;
     if (detector_.isStop(this->msg.vx, ds_)) {
         s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
-        if (fabs(axFromINS) < 0.0025f && !slowSpeedFlag) {
+        if (fabs(insData_.earth.ax) < 0.0025f && !slowSpeedFlag) {
             // LOG::info("sForward", "%f", s_);
         }
         if (ds_ < 0.1f && !slowSpeedFlag) {

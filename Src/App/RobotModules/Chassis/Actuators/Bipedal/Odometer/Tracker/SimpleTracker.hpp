@@ -46,18 +46,18 @@ public:
         // update matrix
         const float dt2 = _dt * _dt;
         const float dt3 = _dt * dt2;
-        CAKF.F[0][1] = _dt;
+        CAKF.F(0, 1) = _dt;
 
-        CAKF.Q[0][0] = dt3 * sigmaQ_ / 3.f;
-        CAKF.Q[0][1] = dt2 * sigmaQ_ / 2.f;
-        CAKF.Q[1][0] = dt2 * sigmaQ_ / 2.f;
-        CAKF.Q[1][1] = _dt * sigmaQ_ / 1.f;
+        CAKF.Q(0, 0) = dt3 * sigmaQ_ / 3.f;
+        CAKF.Q(0, 1) = dt2 * sigmaQ_ / 2.f;
+        CAKF.Q(1, 0) = dt2 * sigmaQ_ / 2.f;
+        CAKF.Q(1, 1) = _dt * sigmaQ_ / 1.f;
 
-        CAKF.R[0][0] = sigmaR_;
-        CAKF.R[1][1] = sigmaR_;
+        CAKF.R(0, 0) = sigmaR_;
+        CAKF.R(1, 1) = sigmaR_;
 
-        CAKF.z[0][0] = _vel;
-        CAKF.z[1][0] = _acc;
+        CAKF.z(0, 0) = _vel;
+        CAKF.z(1, 0) = _acc;
 
         // predict
         CAKF.process();
@@ -76,9 +76,8 @@ private:
         _data.n++;
         float delta = _val - _data.mean;
         _data.mean += delta / static_cast<float>(_data.n);
-        _data.center = delta * (_val - _data.mean); // new mean
-        _data.variance = _data.center /
-                         static_cast<float>(_data.n - 1); // unbiased estimation
+        _data.center = delta * (_val - _data.mean);                      // new mean
+        _data.variance = _data.center / static_cast<float>(_data.n - 1); // unbiased estimation
     }
     WelFordData_s accData_{};
     WelFordData_s velData_{};
