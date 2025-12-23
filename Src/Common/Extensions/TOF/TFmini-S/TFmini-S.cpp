@@ -1,11 +1,13 @@
 #include "TFmini-S.hpp"
 #include <cstring>
 
-TFminiS::TFminiS(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event) : TOF(_huart, FRAME_LENGTH * 2, _event)
+TFminiS::TFminiS(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event, uint32_t _eventBit)
+        : TOF(_huart, FRAME_LENGTH * 2, _event)
 {
     uart_.recvDmaMultiBufInit((uint32_t *)buf_, FRAME_LENGTH * 2);
-    uart_.registerCallback(
-            [this](UART_HandleTypeDef *_huart, uint16_t _dataLength) { callBackFromISR(_huart, _dataLength); });
+    uart_.registerCallback([this, _eventBit](UART_HandleTypeDef *_huart, uint16_t _dataLength) {
+        callBackFromISR(_huart, _dataLength, _eventBit);
+    });
 
     rxLostCnt_ = RX_LOST_MAX;
 }
@@ -25,7 +27,7 @@ bool TFminiS::checksum()
     return (sum & 0xFF) == buf_[8];
 }
 
-void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength)
+void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength, uint32_t _eventBit)
 {
     uint16_t size = _huart->RxXferCount;
     // NOLINTBEGIN(readability-redundant-casting)
@@ -35,7 +37,7 @@ void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength)
         __HAL_DMA_SET_COUNTER(_huart->hdmarx, 2 * FRAME_LENGTH);
         if (size == FRAME_LENGTH) {
             if (buf_[0] == SOF && buf_[1] == SOF && checksum()) {
-                xEventGroupSetBitsFromISR(event_, TOF_LEFT_READY_EVENT | TOF_RIGHT_READY_EVENT, nullptr);
+                xEventGroupSetBitsFromISR(event_, _eventBit, nullptr);
             }
         }
     } else {
@@ -44,7 +46,7 @@ void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength)
         __HAL_DMA_SET_COUNTER(_huart->hdmarx, 2 * FRAME_LENGTH);
         if (size == FRAME_LENGTH) {
             if (buf_[0] == SOF && buf_[1] == SOF && checksum()) {
-                xEventGroupSetBitsFromISR(event_, TOF_LEFT_READY_EVENT | TOF_RIGHT_READY_EVENT, nullptr);
+                xEventGroupSetBitsFromISR(event_, _eventBit, nullptr);
             }
         }
     }

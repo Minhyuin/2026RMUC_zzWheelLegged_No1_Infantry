@@ -13,16 +13,13 @@
 #include "event_groups.h"
 #include "TOF.hpp"
 
-#define TOF_LEFT_READY_EVENT  (1 << 4)
-#define TOF_RIGHT_READY_EVENT (1 << 5)
-
 class TFminiS : public TOF {
     static constexpr uint8_t SOF = 0x59;
     static constexpr uint8_t FRAME_LENGTH = 9;
     static constexpr uint8_t RX_LOST_MAX = 10;
 
 public:
-    TFminiS(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event);
+    TFminiS(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event, uint32_t _eventBit);
     ~TFminiS() override;
     bool isOnline() final;
     float getDist() final;
@@ -37,7 +34,7 @@ public:
 
 private:
     void parse() final;
-    void callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _pos) final;
+    void callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _pos, uint32_t _eventBit) final;
 
     bool checksum();
 

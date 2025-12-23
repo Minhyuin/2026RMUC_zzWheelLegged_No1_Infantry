@@ -9,7 +9,6 @@
 #include "RcMsgHandler.hpp"
 #include "RefereeHandler.hpp"
 #include "TofMsgHandler.hpp"
-#include <bitset>
 
 class Cmd : public Task<Cmd, 256> {
 public:
@@ -24,15 +23,17 @@ protected:
 private:
     MsgBus_s msgBus_;
     EventGroupHandle_t eventGroup_;
-    std::bitset<32> masks_;
 
     RcMsgHandler rcHandler_;
+
     RTTMsgHandler rttHandler_;
-#if defined APP_USE_REFEREE
+
+#if APP_USE_REFEREE
     RefereeHandler refereeHandler_;
 #endif
+
 #if EXTENSION_TOF
-    std::unique_ptr<TOFMsgHandler<TFMINI_S> > tofLeftHandler_;
-    std::unique_ptr<TOFMsgHandler<TFMINI_S> > tofRightHandler_;
+    TOFMsgHandler<TFMINI_S> tofLeftHandler_;
+    TOFMsgHandler<TFMINI_S> tofRightHandler_;
 #endif
 };

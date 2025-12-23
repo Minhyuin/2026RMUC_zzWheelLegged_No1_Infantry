@@ -106,7 +106,6 @@ void AppManager::initApp()
     this->createApp();
 }
 
-void AppManager::schedule(std::function<void()> _callback) { tasks.push_back(std::move(_callback)); }
 
 void AppManager::createApp()
 {

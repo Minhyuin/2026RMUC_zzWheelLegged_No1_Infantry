@@ -10,11 +10,11 @@ enum TOFDevType_e : uint8_t {
 
 template <TOFDevType_e Dev> class TOFMsgHandler : public Handler {
 public:
-    TOFMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event, QueueHandle_t _queue) : queue_(_queue)
+    TOFMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event, const QueueHandle_t &_queue) : queue_(_queue)
     {
         switch (Dev) {
         case TFMINI_S:
-            tof_ = std::make_unique<TFminiS>(_huart, _event);
+            tof_ = std::make_unique<TFminiS>(_huart, _event, this->bit_);
         }
     }
 
@@ -36,7 +36,7 @@ public:
 private:
     MsgBus_s *msgBus_;
 
-    QueueHandle_t queue_;
+    const QueueHandle_t &queue_;
 
     TOFMsg_s tofMsg_;
 
