@@ -50,8 +50,10 @@ struct VMCConfig_s {
  *        https://zhuanlan.zhihu.com/p/613007726
  */
 class VMC {
+    static constexpr VMCConfig_s DEFAULT_CONFIG = { .L1 = 0.210f, .L2 = 0.250f, .L3 = 0.250f, .L4 = 0.210f, .L5 = 0.f };
+
 public:
-    VMC(const VMCConfig_s &_config);
+    VMC(const VMCConfig_s &_config = DEFAULT_CONFIG);
     ~VMC() = default;
 
     void update(LegState_s &_curLegState, float _dt);

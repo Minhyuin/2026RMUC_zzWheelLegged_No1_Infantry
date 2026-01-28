@@ -28,8 +28,8 @@ void WheelLegged::stop()
 
 void WheelLegged::enter()
 {
-    // hip1_->cmd(MotorCmdType_e::ON);
-    // hip4_->cmd(MotorCmdType_e::ON);
+    hip1_->cmd(MotorCmdType_e::ON);
+    hip4_->cmd(MotorCmdType_e::ON);
     wheel_->cmd(MotorCmdType_e::ON);
 }
 
