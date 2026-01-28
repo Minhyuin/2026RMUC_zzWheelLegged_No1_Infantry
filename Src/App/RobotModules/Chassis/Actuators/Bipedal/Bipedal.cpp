@@ -46,8 +46,8 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .velPID = nullptr,
         .isReverse = true,
     };
-    motors_.HipRF = new DMMOTOR::DM8009("HipRF", rfDM8009Config); // HIP1控制电机
-    motors_.HipRF->setZeroAng(rangeMap(RF_HIP_ZERO_ANG - PI));
+    motors_.HipRF = new DMMOTOR::DM8009("HipRF", rfDM8009Config); // 右HIP4控制电机
+    motors_.HipRF->setZeroAng(RF_HIP_ZERO_ANG);
 
     InitConfig_s lfDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -59,8 +59,8 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .velPID = nullptr,
         .isReverse = false,
     };
-    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config); // HIP1控制电机
-    motors_.HipLF->setZeroAng(rangeMap(LF_HIP_ZERO_ANG - PI));
+    motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config); // 左HIP4控制电机
+    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
 
     InitConfig_s lbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -72,8 +72,8 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .velPID = nullptr,
         .isReverse = false,
     };
-    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config); // HIP4控制电机
-    motors_.HipLB->setZeroAng(LB_HIP_ZERO_ANG);
+    motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config); // 左HIP1控制电机
+    motors_.HipLB->setZeroAng(rangeMap(LB_HIP_ZERO_ANG - PI));
 
     InitConfig_s rbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -85,8 +85,8 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .velPID = nullptr,
         .isReverse = true,
     };
-    motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config); // HIP4控制电机
-    motors_.HipRB->setZeroAng(RB_HIP_ZERO_ANG);
+    motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config); // 右HIP1控制电机
+    motors_.HipRB->setZeroAng(rangeMap(RB_HIP_ZERO_ANG - PI));
 
     InitConfig_s lM3508Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
@@ -114,8 +114,8 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     motors_.WheelR = new DJIMOTOR::M3508("WheelR", rM3508Config);
     motors_.WheelR->overrideReductionRatio(DJIMOTOR::M3508::XROLL_GEARBOX_RR);
 
-    legL_.init(motors_.HipLF, motors_.HipLB, motors_.WheelL);
-    legR_.init(motors_.HipRF, motors_.HipRB, motors_.WheelR);
+    legL_.init(motors_.HipLB, motors_.HipLF, motors_.WheelL);
+    legR_.init(motors_.HipRB, motors_.HipRF, motors_.WheelR);
 
     this->stateFactory_.addState(FSMState_e::STOP, std::make_unique<StopState>(this));
     this->stateFactory_.addState(FSMState_e::LAUNCH, std::make_unique<LaunchState>(this));
@@ -159,14 +159,11 @@ void Bipedal::enter()
 
 void Bipedal::update(void *_param)
 {
-#if !APP_USE_COMM
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &msg, 0) == pdTRUE) {
     };
-#else
-    msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().state);
-    msg.vx = chassisCtrlRxPacket_.data().vx;
-    msg.vy = chassisCtrlRxPacket_.data().vy;
-#endif
+    // msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().state);
+    // msg.vx = chassisCtrlRxPacket_.data().vx;
+    // msg.vy = chassisCtrlRxPacket_.data().vy;
 
     // update dt
     dt_ = Dwt::instance().getDt(&dtCnt_);
@@ -189,8 +186,8 @@ void Bipedal::update(void *_param)
     // update other state
     yaw_ = insData_.yaw;
 
-    wz_ = insData_.body.gz; // TODO: earth.gz
-    wx_ = insData_.body.gx; // TODO: earth.gx
+    wz_ = insData_.earth.gz;
+    wx_ = insData_.earth.gx;
 
     // update state
     this->stateFactory_.update();

@@ -38,10 +38,10 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_ZERO_ANG = 4.73760557f;
-    static constexpr float LB_HIP_ZERO_ANG = 5.68604708f;
-    static constexpr float RF_HIP_ZERO_ANG = 0.617081642f;
-    static constexpr float RB_HIP_ZERO_ANG = 4.168846371f;
+    static constexpr float LF_HIP_ZERO_ANG = 0.531173289f;
+    static constexpr float LB_HIP_ZERO_ANG = 2.17838573f;
+    static constexpr float RF_HIP_ZERO_ANG = 4.08025455f;
+    static constexpr float RB_HIP_ZERO_ANG = 3.65915108f;
 
     static constexpr float MASS_BODY = 15.329f;
 
@@ -63,6 +63,13 @@ public:
     void stop();
     void enter();
     void update(void *_param);
+
+    PINYMOTOR::IMotor *getHipLB() { return motors_.HipLB; }
+    PINYMOTOR::IMotor *getHipRB() { return motors_.HipRB; }
+    PINYMOTOR::IMotor *getHipLF() { return motors_.HipLF; }
+    PINYMOTOR::IMotor *getHipRF() { return motors_.HipRF; }
+    PINYMOTOR::IMotor *getWheelL() { return motors_.WheelL; }
+    PINYMOTOR::IMotor *getWheelR() { return motors_.WheelR; }
 
     void enableJump();
     void disbaleJump();
@@ -164,8 +171,8 @@ private:
     PositionalPid rollAngPid_{ 0.1f, 0.f, 0.f, 0.001f, 0.f, 1.f, 0.f };
     PositionalPid rollVelPid_{ 0.001f, 0.f, 0.f, 0.001f, 0.1f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 20.f, 5.f, 1.f, 0.001f, 5.f, 40.f, 0.f };
-    PositionalPid hipVelPidL_{ 13.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 15.f, 1.f, 1.f, 0.001f, 1.f, 2.5f, 0.f };
+    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
