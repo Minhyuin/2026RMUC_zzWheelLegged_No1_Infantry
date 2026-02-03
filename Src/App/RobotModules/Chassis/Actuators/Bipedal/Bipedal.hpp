@@ -43,15 +43,15 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_ZERO_ANG = 4.08025455f;
     static constexpr float RB_HIP_ZERO_ANG = 3.65915108f;
 
-    static constexpr float MASS_BODY = 15.329f;
+    static constexpr float MASS_BODY = 16.245f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // rad
 
-    static constexpr float W_RADIUS = 0.1153f / 2.f; // m
+    static constexpr float W_RADIUS = 0.11704f / 2.f; // m
     static constexpr float W_DIAMETER = W_RADIUS * 2.f;
     static constexpr float W_CIRCUMFERENCE = (PI * W_DIAMETER);
 
-    static constexpr float B_RADIUS = 0.5695f / 2.f;
+    static constexpr float W_DISTANCE = 0.4611f / 2.f; // half of the left-right wheelbase
 
     static constexpr float MAX_S = 2.f;
 

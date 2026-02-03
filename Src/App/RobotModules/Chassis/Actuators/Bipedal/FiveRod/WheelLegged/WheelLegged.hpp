@@ -11,14 +11,14 @@ class WheelLegged {
 public:
     static constexpr float GRAVITY = 9.7833f;
 
-    static constexpr float MASS_WHEEL = 0.521f;
-    static constexpr float MASS_LEG = 1.5f;
+    static constexpr float MASS_WHEEL = 0.334f + 0.179f;
+    static constexpr float MASS_LEG = 1.43744054f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
 
-    static constexpr float MAX_L = 0.36f;
-    static constexpr float MIN_L = 0.17f;
+    static constexpr float MAX_L = 0.36f; // 0.36998937
+    static constexpr float MIN_L = 0.17f; // 0.16051326
 
-    static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
+    static constexpr float MAX_HIP_CTRL_TORQ = 15.f;
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
     static constexpr float MAX_FD = 120.f;

@@ -14,17 +14,17 @@ using namespace INS_SYS;
 // default accelerometer calibration
 static constexpr AccCaliParams_s ACC_CALI = {
 
-    .accelT = { { 1.00378931f, -0.00643978501f, 0.00929921027f },
-                { 0.0178677756f, 1.00453115f, -0.000616421574f },
-                { -0.0180354994f, -0.0277505852f, 1.00323439f } },
-    .accelOffs = { 0.0724740028f, -0.0040230751f, -0.0407223701f }
+    .accelT = { { 1.004461f, -0.005147f, 0.007639f },
+                { 0.006626f, 1.007218f, 0.000414f },
+                { 0.015524f, 0.013984f, 1.003260f } },
+    .accelOffs = { -0.073562f, 0.074129f, 0.067744f }
 };
 // default gyroscope calibration
 static constexpr GyroCaliParams_s GYRO_CALI = {
 
-    .gxBias = 0.880962729f,
-    .gyBias = 0.107801974f,
-    .gzBias = 5.86759758f,
+    .gxBias = 0.73322892f,
+    .gyBias = 1.15822041f,
+    .gzBias = 5.78845787f,
     .gxTcoK = 0.f,
     .gxTcoB0 = 0.f,
     .gyTcoK = 0.f,
@@ -33,8 +33,8 @@ static constexpr GyroCaliParams_s GYRO_CALI = {
     .gzTcoB0 = 0.f
 };
 
-static constexpr float IMU_OFFSET_X = (187.027922f * 0.001f);
-static constexpr float IMU_OFFSET_Y = (32.450801f * 0.001f);
+static constexpr float IMU_OFFSET_X = (5.27f * 0.001f);
+static constexpr float IMU_OFFSET_Y = (17.04f * 0.001f);
 
 #endif
 
@@ -126,8 +126,8 @@ void INS::task()
         auto &data = rawDat_;
 #if !APP_USE_COMM || TARGET_SLAVE
         data = {
-            .a = { .x = cali.getOutput().ax, .y = cali.getOutput().ay, .z = -cali.getOutput().az },
-            .g = { .x = -cali.getOutput().gx, .y = -cali.getOutput().gy, .z = cali.getOutput().gz },
+            .a = { .x = -cali.getOutput().ay, .y = -cali.getOutput().ax, .z = cali.getOutput().az },
+            .g = { .x = cali.getOutput().gy, .y = cali.getOutput().gx, .z = -cali.getOutput().gz },
         };
 #endif
 #if TARGET_MASTER

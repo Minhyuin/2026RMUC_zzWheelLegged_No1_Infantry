@@ -35,8 +35,8 @@ struct MsgBus_s {
 struct ChassisMsg_s : public Msg {
     CHASSIS::FSMState_e state;
     float vx, vy, wz;
-    float dl;
-    float dphi;
+    float dl;   // only for debug
+    float dphi; // only for debug
 };
 
 struct GimbalMsg_s : public Msg {
