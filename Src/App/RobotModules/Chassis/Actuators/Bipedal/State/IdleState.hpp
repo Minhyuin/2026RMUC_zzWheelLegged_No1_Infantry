@@ -21,13 +21,13 @@ public:
         chassis_->enter();
         refYaw_ = chassis_->yaw();
         refRoll_ = chassis_->roll();
-        refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
+        refLength_ = 0.25f;
         LOG::info("ChassisIdle", " enter");
     }
 
     void run() final
     {
-        refLength_ += chassis_->msg.dl * 0.001f / 5.f;
+        refLength_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(refLength_);
         chassis_->setFdForward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -35,11 +35,11 @@ public:
 
         // WBR
         WBRController::States_u ref{};
-        refYaw_ = chassis_->isFloating() ? chassis_->yaw() :
-                                           (PINYMOTOR::rangeMap(refYaw_ + (chassis_->msg.wz * 0.001f), -PI, PI));
+        float wz = chassis_->msg.wz * 0.001f;
+        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
         ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.dyaw = chassis_->msg.wz / 3.f;
+        ref.dyaw = wz;
         ref.q = OFFSET_Q;
         chassis_->bal(ref);
 
@@ -59,7 +59,8 @@ public:
             return FSMState_e::STOP;
         else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::IDLE;
-        // TODO: the other state
+        else if (chassis_->msg.state == FSMState_e::SPIN)
+            return FSMState_e::SPIN;
         else
             return FSMState_e::IDLE;
     }

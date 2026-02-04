@@ -82,8 +82,8 @@ void RcMsgHandler::masterHandle()
     } else if (sr == SW::MID) {
         cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
         cMsg_.dphi = -(cMsg_.droll = static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_ROLL_MAX);
-        cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX);
-        cMsg_.wz = gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX;
+        cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
+        cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
         alMsg_.fire = std::fabs(static_cast<float>(rcData->wheel - DT7::CH_VALUE_OFFSET) / CH_RANGE) > WHEEL_THESHORLD;
         if (sl == SW::DOWN) {
             gMsg_.state = GIMBAL::FSMState_e::RUN;
@@ -100,15 +100,13 @@ void RcMsgHandler::masterHandle()
         }
     } else if (sr == SW::UP) {
         cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
-        cMsg_.droll = static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_ROLL_MAX;
-        gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX;
-        gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX;
+        cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
         alMsg_.fire = false;
-        // if (sl == SW::DOWN) {
-        //     cMsg_.state = CHASSIS::FSMState_e::TANK;
-        // } else {
-        //     cMsg_.state = CHASSIS::FSMState_e::SPIN;
-        // }
+        if (sl == SW::DOWN) {
+            cMsg_.state = CHASSIS::FSMState_e::IDLE;
+        } else {
+            cMsg_.state = CHASSIS::FSMState_e::SPIN;
+        }
         gMsg_.state = GIMBAL::FSMState_e::RUN;
         alMsg_.state = ARMORLOADER::FSMState_e::STOP;
         abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;

@@ -16,6 +16,7 @@
 #include "./State/LaunchState.hpp"
 #include "./State/StandState.hpp"
 #include "./State/IdleState.hpp"
+#include "./State/SpinState.hpp"
 #include "./State/JumpState.hpp"
 #include "./State/TestState.hpp"
 
@@ -122,6 +123,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     this->stateFactory_.addState(FSMState_e::STAND, std::make_unique<StandState>(this));
     this->stateFactory_.addState(FSMState_e::RESCUE, std::make_unique<RescueState>(this));
     this->stateFactory_.addState(FSMState_e::IDLE, std::make_unique<IdleState>(this));
+    this->stateFactory_.addState(FSMState_e::SPIN, std::make_unique<SpinState>(this));
     this->stateFactory_.addState(FSMState_e::JUMP, std::make_unique<JumpState>(this));
     this->stateFactory_.addState(FSMState_e::TEST, std::make_unique<TestState>(this));
     this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
