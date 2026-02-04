@@ -12,17 +12,18 @@ Matrix<1, 1> STController::solve(const Matrix<4, 1> &_errX, float _l, bool _isFl
     float pow2f = x * x;
     float pow3f = pow2f * x;
     float arrayK[1 * 4] = {
-        (82.36945565f * powf(x, 2)) - (26.72296633f * x) - (83.6698081f * powf(x, 3)) - (10.55188428f),
-        (408.7636007f * x) - (1086.824088f * powf(x, 2)) + (1089.179834f * powf(x, 3)) + (298.9067399f),
-        (147.5477642f * powf(x, 2)) - (51.05181056f * x) - (148.8875148f * powf(x, 3)) - (18.4852547f),
-        (77.41491432f * x) - (77.96371544f * powf(x, 2)) + (71.12149053f * powf(x, 3)) + (5.804348264f)
+        (121.435796f * powf(x, 2)) - (37.38054996f * x) - (128.1384775f * powf(x, 3)) - (13.86213762f),
+        (497.2703763f * x) - (1294.546407f * powf(x, 2)) + (1361.131721f * powf(x, 3)) + (306.6259867f),
+        (248.5920119f * powf(x, 2)) - (81.35609083f * x) - (261.7798166f * powf(x, 3)) - (28.33483983f),
+        (91.47644933f * x) - (89.03366037f * powf(x, 2)) + (101.159991f * powf(x, 3)) + (11.3614279f)
     };
 
     Matrix<1, 4> k(arrayK);
     Matrix<1, 1> u;
-    if (!_isFloating)
-        u = k * _errX;
-    else
-        u(0, 0) = 0;
+    // if (!_isFloating)
+    //     u = k * _errX;
+    // else
+    //     u(0, 0) = 0;
+    u = k * _errX;
     return u;
 }
