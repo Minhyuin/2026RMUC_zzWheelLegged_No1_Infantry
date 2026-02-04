@@ -224,7 +224,7 @@ void Bipedal::setYawZero(float _yawZero) { yawZero_ = _yawZero; }
 
 void Bipedal::feedS(float _s) { s_ = _s; }
 
-void Bipedal::setRoll(float _roll) { setRoll_ = _roll; }
+void Bipedal::setRoll(float _roll) { setRoll_ = std::clamp(_roll, -MAX_ABS_ROLL, MAX_ABS_ROLL); }
 
 void Bipedal::setLengthSmooth(float _l, float _step) { setLengthSmooth(_l, _l, _step); }
 void Bipedal::setLengthSmooth(float _lL, float _lR, float _step)
@@ -349,6 +349,8 @@ void Bipedal::setHipTp(float _tpL, float _tpR)
 float Bipedal::yaw() const { return yaw_; }
 
 float Bipedal::pitch() const { return insData_.pitch; }
+
+float Bipedal::roll() const { return insData_.roll; }
 
 float Bipedal::phiL() const { return legL_.state().phi0; }
 

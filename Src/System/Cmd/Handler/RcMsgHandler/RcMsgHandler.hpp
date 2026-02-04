@@ -6,7 +6,7 @@
 
 class RcMsgHandler final : public Handler {
     static constexpr float INPUT_VX_MAX = 2.5f;
-    static constexpr float INPUT_VY_MAX = 2.f;
+    static constexpr float INPUT_ROLL_MAX = 1.f;
 
     static constexpr float INPUT_PITCH_MAX = 4.f;
     static constexpr float INPUT_YAW_MAX = 6.f;

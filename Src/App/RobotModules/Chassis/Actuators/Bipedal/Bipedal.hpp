@@ -143,6 +143,7 @@ public:
 
     float yaw() const;
     float pitch() const;
+    float roll() const;
 
     float phiL() const;
     float phiR() const;

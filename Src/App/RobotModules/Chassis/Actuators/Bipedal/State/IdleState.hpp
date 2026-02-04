@@ -20,6 +20,7 @@ public:
     {
         chassis_->enter();
         refYaw_ = chassis_->yaw();
+        refRoll_ = chassis_->roll();
         refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
         LOG::info("ChassisIdle", " enter");
     }
@@ -29,6 +30,8 @@ public:
         refLength_ += chassis_->msg.dl * 0.001f / 5.f;
         chassis_->setLength(refLength_);
         chassis_->setFdForward();
+        refRoll_ += chassis_->msg.droll * 0.001f;
+        chassis_->setRoll(refRoll_);
 
         // WBR
         WBRController::States_u ref{};
@@ -66,6 +69,7 @@ private:
     PositionalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
     float refYaw_ = 0;
     float refLength_ = DEFAULT_L;
+    float refRoll_ = 0;
 };
 
 } // namespace CHASSIS

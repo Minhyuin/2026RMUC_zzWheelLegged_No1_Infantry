@@ -38,8 +38,7 @@ Standard::Standard()
     };
     motors_.pitch = new DMMOTOR::DM4310("Pitch", pitchConfig);
     motors_.pitch->setZeroAng(PITCH_LAUNCH_ANG);
-    LOG::info("Gimbal", "Pitch zeros has set to %f",
-              motors_.pitch->data().zeroAng);
+    LOG::info("Gimbal", "Pitch zeros has set to %f", motors_.pitch->data().zeroAng);
 
     InitConfig_s yawConfig = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
@@ -55,16 +54,11 @@ Standard::Standard()
     motors_.yaw->setZeroAng(YAW_LAUNCH_ANG);
     LOG::info("Gimbal", "Yaw zeros has set to %f", motors_.yaw->data().zeroAng);
 
-    this->stateFactory_.addState(FSMState_e::RUN,
-                                 std::make_unique<RunState>(this));
-    this->stateFactory_.addState(FSMState_e::AUTO,
-                                 std::make_unique<AutoState>(this));
-    this->stateFactory_.addState(FSMState_e::LAUNCH,
-                                 std::make_unique<LaunchState>(this));
-    this->stateFactory_.addState(FSMState_e::STOP,
-                                 std::make_unique<StopState>(this));
-    this->stateFactory_.init(
-            this->stateFactory_.getNextState(FSMState_e::STOP));
+    this->stateFactory_.addState(FSMState_e::RUN, std::make_unique<RunState>(this));
+    this->stateFactory_.addState(FSMState_e::AUTO, std::make_unique<AutoState>(this));
+    this->stateFactory_.addState(FSMState_e::LAUNCH, std::make_unique<LaunchState>(this));
+    this->stateFactory_.addState(FSMState_e::STOP, std::make_unique<StopState>(this));
+    this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
 }
 
 void Standard::stop()
@@ -92,19 +86,15 @@ void Standard::update(void *_param)
     };
 
     ChassisMsg_s cmsg{};
-    if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg, 0) ==
-        pdTRUE) {
+    if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg, 0) == pdTRUE) {
         chassisCtrlTxPacket_.setData().state = static_cast<uint8_t>(cmsg.state);
         chassisCtrlTxPacket_.setData().vx = cmsg.vx;
-        chassisCtrlTxPacket_.setData().vy = cmsg.vy;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
     ArmorLoaderMsg_s almsg{};
-    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg, 0) ==
-        pdTRUE) {
-        shooterCtrlTxPacket_.setData().state =
-                static_cast<uint8_t>(almsg.state);
+    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg, 0) == pdTRUE) {
+        shooterCtrlTxPacket_.setData().state = static_cast<uint8_t>(almsg.state);
         shooterCtrlTxPacket_.setData().fire = almsg.fire;
     }
     shooterCtrlTxPacket_.setData().fire &= true; // TODO: vision fire
@@ -121,8 +111,7 @@ void Standard::update(void *_param)
 PINYMOTOR::IMotor *Standard::pitch() const { return motors_.pitch; }
 PINYMOTOR::IMotor *Standard::yaw() const { return motors_.yaw; }
 
-void Standard::ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _insPos,
-                               float _step)
+void Standard::ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _insPos, float _step)
 {
     float delta = getMinorArc(_insPos, ins().pitch);
     delta = clamp(delta, -_step, _step);
@@ -152,8 +141,7 @@ void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _insPos)
     pitch()->cmdTorq(outFilrPitch_.process(torq));
 }
 
-void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _insPos,
-                             float _step)
+void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _insPos, float _step)
 {
     float delta = getMinorArc(_insPos, ins().yaw);
     delta = clamp(delta, -_step, _step);
@@ -183,10 +171,7 @@ void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _insPos)
     yaw()->cmdTorq(outFilrYaw_.process(torq));
 }
 
-void Standard::loadResetState(bool _state)
-{
-    chassisCtrlTxPacket_.setData().gimbalReset = _state;
-}
+void Standard::loadResetState(bool _state) { chassisCtrlTxPacket_.setData().gimbalReset = _state; }
 
 float Standard::calcPitchTorq(float _ang, float _vel, float _acc)
 {
