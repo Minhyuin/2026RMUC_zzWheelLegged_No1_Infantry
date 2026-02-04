@@ -7,8 +7,6 @@
 #include "WBRController.hpp"
 #include "STController.hpp"
 
-#include "Detector.hpp"
-
 #include "Axis1Odom.hpp"
 
 #include "LPF.hpp"
@@ -53,9 +51,12 @@ class Bipedal : public Chassis {
 
     static constexpr float W_DISTANCE = 0.4611f / 2.f; // half of the left-right wheelbase
 
-    static constexpr float MAX_S = 2.f;
+    static constexpr float MAX_S = 5.f;
 
     static constexpr float CTRL_FREQ = 1000.f;
+
+    static constexpr float S_FEEDBACK_BACKWARD = -0.35f;
+    static constexpr float S_FEEDBACK_FORWARD = -0.90f;
 
 public:
     Bipedal();
@@ -76,6 +77,8 @@ public:
 
     bool isGimbalReset() const;
 
+    void feedS(float _s);
+
     void setYawZero(float _yawZero);
 
     void setRoll(float _roll);
@@ -89,6 +92,7 @@ public:
     void setLength(float _lL, float _lR);
     void setLengthL(float _l);
     void setLengthR(float _l);
+    void setLengthPID(const PositionalPid &_angPID, const PositionalPid &_velPID);
 
     void setFdForward();
     void setFdForward(float _fd);
@@ -123,18 +127,22 @@ public:
 
     void ctrl();
 
-    bool isTumble();
-    bool isFreeze();
-    bool isOverturn();
-    bool detectPitch(float _ang1, float _ang2);
-    bool detectPhiL(float _ang1, float _ang2);
-    bool detectPhiR(float _ang1, float _ang2);
-    bool detectLength(float _l, float _threthold = 0.05f);
-    bool detectLengthL(float _l, float _threthold = 0.05f);
-    bool detectLengthR(float _l, float _threthold = 0.05f);
+    // Observe functions
+    bool isTumble() const;
+    bool isFreeze() const;
+    bool isOverturn() const;
+    bool isFloating() const;
+    bool detectFloating();
+    bool detectNeedStop(float _expVel);
+    bool detectPitchRange(float _ang1, float _ang2) const;
+    bool detectPhiLRange(float _ang1, float _ang2) const;
+    bool detectPhiRRange(float _ang1, float _ang2) const;
+    bool detectLengthRange(float _l, float _threthold = 0.05f) const;
+    bool detectLengthLRange(float _l, float _threthold = 0.05f) const;
+    bool detectLengthRRange(float _l, float _threthold = 0.05f) const;
 
     float yaw() const;
-    bool isFloating() const;
+    float pitch() const;
 
     float phiL() const;
     float phiR() const;
@@ -166,10 +174,8 @@ private:
 
     Axis1Odom odom_;
 
-    Detector detector_;
-
-    PositionalPid rollAngPid_{ 0.1f, 0.f, 0.f, 0.001f, 0.f, 1.f, 0.f };
-    PositionalPid rollVelPid_{ 0.001f, 0.f, 0.f, 0.001f, 0.1f, 0.05f, 0.f };
+    PositionalPid rollAngPid_{ 60.f, 90.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
+    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.15f, 0.f };
 
     PositionalPid hipAngPidL_{ 15.f, 1.f, 1.f, 0.001f, 1.f, 2.5f, 0.f };
     PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
@@ -178,7 +184,7 @@ private:
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
-    IncrementalPid dsPid_[2]{ { 0.6f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
+    PositionalPid dsPid_[2]{ { 0.6f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     FILTER::IIR3 wheelFltr[2];
 
@@ -193,7 +199,7 @@ private:
 
     float ds_ = 0.f;
     float s_ = 0.f;
-    float sForward_ = -0.2009f;
+    float dsCmdBeforeStop_ = 0.f;
 
     float wz_ = 0.f;
     float wx_ = 0.f;
@@ -204,6 +210,8 @@ private:
     uint32_t dtCnt_ = 0;
 
     void loadDeltaYaw();
+
+    // Observe functions
     void updateVel();
 
     float cosYaw_ = 0.f;

@@ -174,10 +174,9 @@ void Bipedal::update(void *_param)
     // update leg
     legL_.stateUpdate(dt_);
     legR_.stateUpdate(dt_);
+    detectFloating();
 
-    legL_.isFloating = detector_.isFloating(legL_.calcFn(az_, insData_.pitch), legL_.state().L0);
-    legR_.isFloating = detector_.isFloating(legR_.calcFn(az_, insData_.pitch), legR_.state().L0);
-
+    // update vel
     updateVel();
 
     // update roll
@@ -223,6 +222,8 @@ void Bipedal::disbaleJump()
 
 void Bipedal::setYawZero(float _yawZero) { yawZero_ = _yawZero; }
 
+void Bipedal::feedS(float _s) { s_ = _s; }
+
 void Bipedal::setRoll(float _roll) { setRoll_ = _roll; }
 
 void Bipedal::setLengthSmooth(float _l, float _step) { setLengthSmooth(_l, _l, _step); }
@@ -251,13 +252,19 @@ void Bipedal::setLength(float _l) { setLength(_l, _l); }
 
 void Bipedal::setLength(float _lL, float _lR)
 {
-    setLengthL(_lL - lengthOffset_);
-    setLengthR(_lR + lengthOffset_);
+    setLengthL(_lL + lengthOffset_);
+    setLengthR(_lR - lengthOffset_);
 }
 
 void Bipedal::setLengthL(float _l) { legL_.setL(_l); }
 
 void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
+
+void Bipedal::setLengthPID(const PositionalPid &_angPID, const PositionalPid &_velPID)
+{
+    legL_.overrideLengthPid(_angPID, _velPID);
+    legR_.overrideLengthPid(_angPID, _velPID);
+}
 
 void Bipedal::setFdForward() { setFdForward(calcFdForwardL(), calcFdForwardR()); }
 
@@ -340,6 +347,8 @@ void Bipedal::setHipTp(float _tpL, float _tpR)
 }
 
 float Bipedal::yaw() const { return yaw_; }
+
+float Bipedal::pitch() const { return insData_.pitch; }
 
 float Bipedal::phiL() const { return legL_.state().phi0; }
 

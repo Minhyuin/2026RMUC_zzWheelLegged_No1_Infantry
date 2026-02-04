@@ -8,19 +8,13 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_L = 0.2f;
 
     static constexpr float LAUNCH_ROT_TO_PHI1 = 0.1f;
-    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.1f;
+    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.001f;
 
     static constexpr float PRE_RUN_PHI_STEP = 0.1 * 0.001f;
     static constexpr float PRE_RUN_PHI = LAUNCH_ROT_TO_PHI1;
 
-    // static constexpr float L_THRESHOLD = 0.05f;
-    // static constexpr float PHI_THRESHOLD = 0.1f;
-
 public:
-    LaunchState(Bipedal *_chassis)
-            : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis)
-    {
-    }
+    LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
 
     void enter() final
     {
@@ -38,7 +32,7 @@ public:
         bool rotFinish[2] = { false, false };
 
         // 定方向旋到指定角度再复位
-        if (chassis_->detectPhiL(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
+        if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
             chassis_->setHipPhiSmoothL(PRE_RUN_PHI, PRE_RUN_PHI_STEP);
             rotFinish[0] = true;
         } else {
@@ -50,7 +44,7 @@ public:
             chassis_->setHipPhiL(refPhiL_);
             rotFinish[0] = false;
         }
-        if (chassis_->detectPhiR(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
+        if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
             chassis_->setHipPhiSmoothR(PRE_RUN_PHI, PRE_RUN_PHI_STEP);
             rotFinish[1] = true;
         } else {

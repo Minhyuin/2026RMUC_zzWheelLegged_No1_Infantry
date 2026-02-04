@@ -48,7 +48,7 @@ void WheelLegged::stateUpdate(float _dt)
     vmc_.update(legState_, _dt);
 }
 
-float WheelLegged::calcFn(float _az, float _q)
+bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
     float sinPhi0 = arm_sin_f32(legState_.phi0 + _q);
@@ -58,10 +58,12 @@ float WheelLegged::calcFn(float _az, float _q)
     nWheel_ = ((azWheel + GRAVITY) * MASS_WHEEL);
     rawFn_ = nWheel_ + fp_;
     if (isnan(rawFn_)) {
-        return fn_;
-    } else {
-        return fn_ = fnLPF_.process(rawFn_);
+        fn_ = fnLPF_.process(rawFn_);
     }
+    constexpr float OFFSET_THRESHOLD = 0.f;
+    float threshold = FN_THRESHOLD + ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) *
+                                      OFFSET_THRESHOLD);
+    return floatFlag = fn_ < threshold;
 }
 
 void WheelLegged::ctrl()
@@ -93,6 +95,28 @@ float WheelLegged::minL(float _phi) const
 {
     // TODO: a fitted polynomial : minL = f(phi)
     return MIN_L;
+}
+
+void WheelLegged::overrideLengthPid(const PositionalPid &_angPID, const PositionalPid &_velPID)
+{
+    lengthAngPid_ = _angPID;
+    lengthVelPid_ = _velPID;
+    lengthAngPid_.reset();
+    lengthVelPid_.reset();
+}
+
+void WheelLegged::overrideLengthPid()
+{
+    lengthAngPid_ = PositionalPid{ DEFAULT_LENGTH_ANG_PID_PARAM[0], DEFAULT_LENGTH_ANG_PID_PARAM[1],
+                                   DEFAULT_LENGTH_ANG_PID_PARAM[2], DEFAULT_LENGTH_ANG_PID_PARAM[3],
+                                   DEFAULT_LENGTH_ANG_PID_PARAM[4], DEFAULT_LENGTH_ANG_PID_PARAM[5],
+                                   DEFAULT_LENGTH_ANG_PID_PARAM[6] };
+    lengthVelPid_ = PositionalPid{ DEFAULT_LENGTH_VEL_PID_PARAM[0], DEFAULT_LENGTH_VEL_PID_PARAM[1],
+                                   DEFAULT_LENGTH_VEL_PID_PARAM[2], DEFAULT_LENGTH_VEL_PID_PARAM[3],
+                                   DEFAULT_LENGTH_VEL_PID_PARAM[4], DEFAULT_LENGTH_VEL_PID_PARAM[5],
+                                   DEFAULT_LENGTH_VEL_PID_PARAM[6] };
+    lengthAngPid_.reset();
+    lengthVelPid_.reset();
 }
 
 void WheelLegged::setL(float _l) { setL_ = fmin(fmax(_l, minL(legState_.phi0)), MAX_L); }

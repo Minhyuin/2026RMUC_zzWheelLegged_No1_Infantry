@@ -20,7 +20,7 @@ void Bipedal::bal(const WBRController::States_u &_ref)
         .dq = _ref.dq - insData_.body.gy
     };
     Matrix<10, 1> err{ errData._ };
-    Matrix<4, 1> u = WBRController::solve(err, legL_.state().L0, legR_.state().L0, legL_.isFloating, legR_.isFloating);
+    Matrix<4, 1> u = WBRController::solve(err, legL_.state().L0, legR_.state().L0, legL_.floatFlag, legR_.floatFlag);
     legL_.setTw(u(0, 0));
     legR_.setTw(u(1, 0));
     legL_.setTp(u(2, 0));
@@ -49,8 +49,8 @@ void Bipedal::bal(const WLController::States_u &_refL, const WLController::State
         .dq = _refR.dq - insData_.body.gy,
     };
     Matrix<6, 1> errR{ errDataR._ };
-    Matrix<2, 1> uL = WLController::solve(errL, legL_.state().L0, legL_.isFloating);
-    Matrix<2, 1> uR = WLController::solve(errR, legR_.state().L0, legR_.isFloating);
+    Matrix<2, 1> uL = WLController::solve(errL, legL_.state().L0, legL_.floatFlag);
+    Matrix<2, 1> uR = WLController::solve(errR, legR_.state().L0, legR_.floatFlag);
     float tw2 = yawPid_[1].calc(yawPid_[0].calc(_yaw, insData_.yaw), wz_);
     legL_.setTw(uL(0, 0) + tw2);
     legL_.setTp(uL(1, 0));

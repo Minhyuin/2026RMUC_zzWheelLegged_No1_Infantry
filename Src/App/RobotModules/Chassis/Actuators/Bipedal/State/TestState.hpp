@@ -26,7 +26,7 @@ public:
         l0_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(l0_);
         chassis_->setHipPhi(phi_);
-        chassis_->noBal(chassis_->msg.vx, -chassis_->msg.vy);
+        chassis_->noBal(chassis_->msg.vx, -chassis_->msg.wz);
         chassis_->ctrl();
     }
 

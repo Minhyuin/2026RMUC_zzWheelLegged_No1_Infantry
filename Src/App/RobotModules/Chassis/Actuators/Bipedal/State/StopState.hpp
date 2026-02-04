@@ -13,10 +13,16 @@ public:
     {
         chassis_->stop();
         chassis_->setFdForward(0, 0);
+        freezeFlag_ = false;
         LOG::info("ChassisStop", " enter");
     }
 
-    void run() final { chassis_->stop(); }
+    void run() final
+    {
+        if (!freezeFlag_)
+            freezeFlag_ = chassis_->isFreeze();
+        chassis_->stop();
+    }
 
     void exit() final { LOG::info("ChassisStop", " exit"); }
 
@@ -25,16 +31,16 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (chassis_->msg.state != FSMState_e::STOP && chassis_->isFreeze() && chassis_->isGimbalReset())
-            // return FSMState_e::LAUNCH;
-            return FSMState_e::TEST;
-
+        else if (chassis_->msg.state != FSMState_e::STOP && freezeFlag_ && chassis_->isGimbalReset())
+            return FSMState_e::LAUNCH;
+        // return FSMState_e::TEST;
         else
             return FSMState_e::STOP;
     }
 
 private:
     Bipedal *chassis_;
+    bool freezeFlag_ = false;
 };
 
 } // namespace CHASSIS

@@ -76,7 +76,7 @@ private:
         void exit() final { LOG::info("JumpPrepare", " exit"); }
         JumpFSMState_e checkChange() final
         {
-            if (parent_.chassis_->detectLength(PREPARE_LENGTH))
+            if (parent_.chassis_->detectLengthRange(PREPARE_LENGTH))
                 return JumpFSMState_e::JUMPING;
             else
                 return JumpFSMState_e::PREPARE;
@@ -101,7 +101,7 @@ private:
         void exit() final { LOG::info("Jumping", " exit"); }
         JumpFSMState_e checkChange() final
         {
-            if (parent_.chassis_->detectLength(JUMP_LENGTH)) {
+            if (parent_.chassis_->detectLengthRange(JUMP_LENGTH)) {
                 return JumpFSMState_e::SOAR;
             } else
                 return JumpFSMState_e::JUMPING;
@@ -125,7 +125,7 @@ private:
         void exit() final { LOG::info("JumpSoar", " exit"); }
         JumpFSMState_e checkChange() final
         {
-            if (parent_.chassis_->detectLength(PREPARE_LENGTH)) {
+            if (parent_.chassis_->detectLengthRange(PREPARE_LENGTH)) {
                 return JumpFSMState_e::LAND;
             } else
                 return JumpFSMState_e::SOAR;

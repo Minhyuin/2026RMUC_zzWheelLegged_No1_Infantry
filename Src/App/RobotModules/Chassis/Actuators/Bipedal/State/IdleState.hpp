@@ -8,9 +8,10 @@
 #include "PidBasic.hpp"
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
-    static constexpr float OFFSET_Q = 0.0f;
+    static constexpr float OFFSET_Q = 0.f;
     static constexpr float DEFAULT_L = 0.2f;
-    static constexpr float MAX_ACC = 0.05f;
+    static constexpr float MAX_ACC_BACK = 0.4f;
+    static constexpr float MAX_ACC_FRONT = 2.f;
 
 public:
     IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
@@ -25,21 +26,17 @@ public:
 
     void run() final
     {
-        refLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ += chassis_->msg.dl * 0.001f / 5.f;
         chassis_->setLength(refLength_);
         chassis_->setFdForward();
-
-        // limit acc
-        float vx = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC, chassis_->vel() + MAX_ACC);
-        // vx = chassis_->msg.vx;
 
         // WBR
         WBRController::States_u ref{};
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() :
                                            (PINYMOTOR::rangeMap(refYaw_ + (chassis_->msg.wz * 0.001f), -PI, PI));
-        ref.ds = vx;
+        ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.dyaw = chassis_->msg.wz;
+        ref.dyaw = chassis_->msg.wz / 3.f;
         ref.q = OFFSET_Q;
         chassis_->bal(ref);
 
