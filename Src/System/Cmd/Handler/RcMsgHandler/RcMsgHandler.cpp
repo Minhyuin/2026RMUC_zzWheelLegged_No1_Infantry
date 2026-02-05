@@ -101,9 +101,10 @@ void RcMsgHandler::masterHandle()
     } else if (sr == SW::UP) {
         cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
         cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
+        cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
         alMsg_.fire = false;
         if (sl == SW::DOWN) {
-            cMsg_.state = CHASSIS::FSMState_e::IDLE;
+            cMsg_.state = CHASSIS::FSMState_e::CLIMB;
         } else {
             cMsg_.state = CHASSIS::FSMState_e::SPIN;
         }
@@ -158,7 +159,7 @@ void RcMsgHandler::masterHandle()
         gMsg_.wYaw = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_YAW_MAX;
         alMsg_.fire = false;
         // if (sl == SW::DOWN) {
-        //     cMsg_.state = CHASSIS::FSMState_e::TANK;
+        //     cMsg_.state = CHASSIS::FSMState_e::CLIMB;
         // } else {
         //     cMsg_.state = CHASSIS::FSMState_e::SPIN;
         // }

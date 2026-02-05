@@ -57,6 +57,8 @@ public:
             return FSMState_e::IDLE;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
+        else if (chassis_->msg.state == FSMState_e::CLIMB)
+            return FSMState_e::CLIMB;
         else
             return FSMState_e::SPIN;
     }

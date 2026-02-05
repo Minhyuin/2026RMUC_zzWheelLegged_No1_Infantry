@@ -4,14 +4,11 @@
 #include "StmLog.hpp"
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr float LAUNCH_DPHI = 1.2 * 0.001f; // per ms
+    static constexpr float LAUNCH_DPHI = 5.f * 0.001f; // per ms
     static constexpr float LAUNCH_L = 0.2f;
 
     static constexpr float LAUNCH_ROT_TO_PHI1 = 0.1f;
-    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.001f;
-
-    static constexpr float PRE_RUN_PHI_STEP = 0.1 * 0.001f;
-    static constexpr float PRE_RUN_PHI = LAUNCH_ROT_TO_PHI1;
+    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.1f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
@@ -33,8 +30,8 @@ public:
 
         // 定方向旋到指定角度再复位
         if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
-            chassis_->setHipPhiSmoothL(PRE_RUN_PHI, PRE_RUN_PHI_STEP);
             rotFinish[0] = true;
+            refPhiL_ = chassis_->phiL();
         } else {
             if (chassis_->phiL() > 0) {
                 refPhiL_ -= LAUNCH_DPHI;
@@ -45,8 +42,8 @@ public:
             rotFinish[0] = false;
         }
         if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
-            chassis_->setHipPhiSmoothR(PRE_RUN_PHI, PRE_RUN_PHI_STEP);
             rotFinish[1] = true;
+            refPhiR_ = chassis_->phiR();
         } else {
             if (chassis_->phiR() > 0) {
                 refPhiR_ -= LAUNCH_DPHI;
@@ -61,6 +58,8 @@ public:
         if (rotFinish[0] && rotFinish[1]) {
             isLaunchFinish_ = true;
         }
+
+        chassis_->noBal(chassis_->msg.vx, 0);
 
         chassis_->ctrl();
         // isLaunchFinish_ = true; // debug

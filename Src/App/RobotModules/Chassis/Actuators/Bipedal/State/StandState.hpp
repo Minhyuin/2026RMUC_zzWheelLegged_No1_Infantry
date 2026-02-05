@@ -9,8 +9,11 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float STAND_PHI = 0.f;
     static constexpr float STAND_L = 0.2f;
 
+    static constexpr float MAX_ACC_BACK = 0.4f;
+    static constexpr float MAX_ACC_FRONT = 2.f;
+
     static constexpr float BALANCE_DETECT_THESHOLD = 0.2f;
-    static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 300;
+    static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 100;
 
     static constexpr float TARGET_PITCH_FORWARD = 0.13f;
     static constexpr float TARGET_PITCH_BACKWARD = 0.f;
@@ -34,10 +37,12 @@ public:
             // 腿在后面
             sFeedforward_ = S_FEEDBACK_FORWARD;
             targetBalancePitch_ = TARGET_PITCH_FORWARD;
+            model_ = Model_e::WBR;
         } else {
             // 腿在前面
             sFeedforward_ = S_FEEDBACK_BACKWARD;
             targetBalancePitch_ = TARGET_PITCH_BACKWARD;
+            model_ = Model_e::ST;
         }
 
         LOG::info("ChassisStand", "enter");
@@ -47,12 +52,24 @@ public:
     {
         chassis_->setLength(startLength_);
 
-        chassis_->setHipPhi(0.f);
-        STController::States_u ref{};
-        float vx = chassis_->msg.vx;
-        ref.q = targetBalancePitch_;
-        ref.ds = vx;
-        chassis_->bal(ref, startYaw_);
+        // ST
+        if (model_ == Model_e::ST) {
+            chassis_->setHipPhi(STAND_PHI);
+            STController::States_u ref{};
+            ref.q = targetBalancePitch_;
+            ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
+            chassis_->bal(ref, startYaw_);
+        }
+        // WBR
+        else {
+            WBRController::States_u ref{};
+            float wz = chassis_->msg.wz * 0.001f;
+            ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
+            ref.yaw = startYaw_;
+            ref.dyaw = wz;
+            ref.q = targetBalancePitch_;
+            chassis_->bal(ref);
+        }
 
         if (chassis_->detectPitchRange(BALANCE_DETECT_THESHOLD, -BALANCE_DETECT_THESHOLD)) {
             balanceCnt_++;
@@ -86,6 +103,7 @@ public:
 
 private:
     Bipedal *chassis_;
+    enum class Model_e : uint8_t { ST, WBR } model_ = Model_e::WBR;
     uint16_t balanceCnt_ = 0;
     bool isBalance_ = false;
     float startLength_ = 0.f;
