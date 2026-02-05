@@ -5,6 +5,8 @@
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
+float OFFSET_THRESHOLD = 40.f;
+
 void WheelLegged::init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4, PINYMOTOR::IMotor *_wheel)
 {
     hip1_ = _hip1;
@@ -57,13 +59,12 @@ bool WheelLegged::isFloating(float _az, float _q)
                     (legState_.L0 * legState_.ap * sinPhi0) + (legState_.L0 * powf(legState_.dphi0, 2) * cosPhi0);
     nWheel_ = ((azWheel + GRAVITY) * MASS_WHEEL);
     rawFn_ = nWheel_ + fp_;
-    if (isnan(rawFn_)) {
+    if (!isnan(rawFn_)) {
         fn_ = fnLPF_.process(rawFn_);
     }
-    constexpr float OFFSET_THRESHOLD = 0.f;
-    float threshold = FN_THRESHOLD + ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) *
-                                      OFFSET_THRESHOLD);
-    return floatFlag = fn_ < threshold;
+    fnThreshold_ = FN_THRESHOLD +
+                   ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) * OFFSET_THRESHOLD);
+    return floatFlag = fn_ < fnThreshold_;
 }
 
 void WheelLegged::ctrl()

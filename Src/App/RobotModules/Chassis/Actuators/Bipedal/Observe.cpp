@@ -37,11 +37,14 @@ bool Bipedal::isFreeze() const
 
 bool Bipedal::isOverturn() const { return insData_.body.az > 0.1f; }
 
-bool Bipedal::isFloating() const { return legL_.floatFlag && legR_.floatFlag; }
+bool Bipedal::isFloating() const { return legL_.floatFlag || legR_.floatFlag; }
 
 bool Bipedal::detectFloating()
 {
-    return legL_.isFloating(az_, insData_.pitch) && legR_.isFloating(az_, insData_.pitch);
+    // 合一起写会被编译优化
+    bool l = legL_.isFloating(az_, insData_.pitch);
+    bool r = legR_.isFloating(az_, insData_.pitch);
+    return l && r;
 }
 
 bool Bipedal::detectNeedStop(float _expVel)
@@ -134,6 +137,8 @@ void Bipedal::updateVel()
     as_ = odom_.normAcc();
 
     // stop detect
+    if (lockSCount_ > 0)
+        lockSCount_--;
     static bool slowSpeedFlag = false;
     if (detectNeedStop(this->msg.vx)) {
         s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
@@ -151,6 +156,6 @@ void Bipedal::updateVel()
         s_ = 0;
         slowSpeedFlag = false;
     }
-    // if (isFloating())
-    //     s_ = 0;
+    if (isFloating() && lockSCount_ == 0)
+        s_ = 0;
 }

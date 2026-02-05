@@ -6,8 +6,7 @@
 #include "sdkconfig.h"
 #include "Bsp_can.hpp"
 #include "Dwt.hpp"
-
-// #include "OSnew.hpp"
+#include "Smooth.hpp"
 
 #include "MotorCommonMacros.hpp"
 
@@ -224,7 +223,9 @@ void Bipedal::disbaleJump()
 
 void Bipedal::setYawZero(float _yawZero) { yawZero_ = _yawZero; }
 
-void Bipedal::feedS(float _s) { s_ = _s; }
+void Bipedal::feedS(float _s, float _acc) { SMOOTH::slopeFollowing(&_s, &s_, _acc); }
+
+void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
 
 void Bipedal::setRoll(float _roll) { setRoll_ = std::clamp(_roll, -MAX_ABS_ROLL, MAX_ABS_ROLL); }
 

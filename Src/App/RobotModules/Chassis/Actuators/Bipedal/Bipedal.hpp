@@ -59,6 +59,8 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDBACK_FORWARD = -0.90f;
 
 public:
+    static constexpr float DEFAULT_L = 0.25;
+
     Bipedal();
 
     void stop();
@@ -77,7 +79,8 @@ public:
 
     bool isGimbalReset() const;
 
-    void feedS(float _s);
+    void feedS(float _s, float _acc = 10.f);
+    void lockS(uint16_t _durationMs);
 
     void setYawZero(float _yawZero);
 
@@ -200,6 +203,7 @@ private:
 
     float ds_ = 0.f;
     float s_ = 0.f;
+    uint16_t lockSCount_ = 0;
     float dsCmdBeforeStop_ = 0.f;
 
     float wz_ = 0.f;

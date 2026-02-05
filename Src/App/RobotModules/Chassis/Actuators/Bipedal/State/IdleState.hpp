@@ -6,10 +6,10 @@
 #include "MotorCommonMacros.hpp"
 
 #include "PidBasic.hpp"
+
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float DEFAULT_L = 0.2f;
     static constexpr float MAX_ACC_BACK = 0.4f;
     static constexpr float MAX_ACC_FRONT = 2.f;
 
@@ -21,7 +21,7 @@ public:
         chassis_->enter();
         refYaw_ = chassis_->yaw();
         refRoll_ = chassis_->roll();
-        refLength_ = 0.25f;
+        refLength_ = Bipedal::DEFAULT_L;
         LOG::info("ChassisIdle", " enter");
     }
 
@@ -69,7 +69,7 @@ private:
     Bipedal *chassis_;
     PositionalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
     float refYaw_ = 0;
-    float refLength_ = DEFAULT_L;
+    float refLength_ = Bipedal::DEFAULT_L;
     float refRoll_ = 0;
 };
 
