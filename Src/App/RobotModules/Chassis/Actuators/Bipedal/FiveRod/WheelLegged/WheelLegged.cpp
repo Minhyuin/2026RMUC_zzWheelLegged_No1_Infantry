@@ -108,14 +108,14 @@ void WheelLegged::overrideLengthPid(const PositionalPid &_angPID, const Position
 
 void WheelLegged::overrideLengthPid()
 {
-    lengthAngPid_ = PositionalPid{ DEFAULT_LENGTH_ANG_PID_PARAM[0], DEFAULT_LENGTH_ANG_PID_PARAM[1],
-                                   DEFAULT_LENGTH_ANG_PID_PARAM[2], DEFAULT_LENGTH_ANG_PID_PARAM[3],
-                                   DEFAULT_LENGTH_ANG_PID_PARAM[4], DEFAULT_LENGTH_ANG_PID_PARAM[5],
-                                   DEFAULT_LENGTH_ANG_PID_PARAM[6] };
-    lengthVelPid_ = PositionalPid{ DEFAULT_LENGTH_VEL_PID_PARAM[0], DEFAULT_LENGTH_VEL_PID_PARAM[1],
-                                   DEFAULT_LENGTH_VEL_PID_PARAM[2], DEFAULT_LENGTH_VEL_PID_PARAM[3],
-                                   DEFAULT_LENGTH_VEL_PID_PARAM[4], DEFAULT_LENGTH_VEL_PID_PARAM[5],
-                                   DEFAULT_LENGTH_VEL_PID_PARAM[6] };
+    lengthAngPid_ = PositionalPid{ FLOAT_LENGTH_ANG_PID_PARAM[0], FLOAT_LENGTH_ANG_PID_PARAM[1],
+                                   FLOAT_LENGTH_ANG_PID_PARAM[2], FLOAT_LENGTH_ANG_PID_PARAM[3],
+                                   FLOAT_LENGTH_ANG_PID_PARAM[4], FLOAT_LENGTH_ANG_PID_PARAM[5],
+                                   FLOAT_LENGTH_ANG_PID_PARAM[6] };
+    lengthVelPid_ = PositionalPid{ FLOAT_LENGTH_VEL_PID_PARAM[0], FLOAT_LENGTH_VEL_PID_PARAM[1],
+                                   FLOAT_LENGTH_VEL_PID_PARAM[2], FLOAT_LENGTH_VEL_PID_PARAM[3],
+                                   FLOAT_LENGTH_VEL_PID_PARAM[4], FLOAT_LENGTH_VEL_PID_PARAM[5],
+                                   FLOAT_LENGTH_VEL_PID_PARAM[6] };
     lengthAngPid_.reset();
     lengthVelPid_.reset();
 }

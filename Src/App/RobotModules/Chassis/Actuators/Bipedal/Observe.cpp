@@ -58,27 +58,20 @@ bool Bipedal::detectNeedStop(float _expVel)
     }
 }
 
-bool Bipedal::detectPitchRange(float _ang1, float _ang2) const
+bool Bipedal::detectPitchRange(float _endAng, float _startAng) const { return detectAng(pitch(), _startAng, _endAng); }
+
+bool Bipedal::detectPhiLRange(float _endAng, float _startAng) const { return detectAng(phiL(), _startAng, _endAng); }
+
+bool Bipedal::detectPhiRRange(float _endAng, float _startAng) const { return detectAng(phiR(), _startAng, _endAng); }
+
+bool Bipedal::detectPhiGlobalLRange(float _endAng, float _startAng) const
 {
-    return getMinorArc(_ang1, insData_.pitch) > 0 && getMinorArc(_ang2, insData_.pitch) < 0;
+    return detectAng(phiGlobalL(), _startAng, _endAng);
 }
 
-/**
- * @brief detect if the leg is in the swing phase
- * 
- * @param _ang1 clockwise leading phase
- * @param _ang2 clockwise lag phase
- * @return true if the leg is in the swing phase
- * @return false if the leg is in the stance phase
- */
-bool Bipedal::detectPhiLRange(float _ang1, float _ang2) const
+bool Bipedal::detectPhiGlobalRRange(float _endAng, float _startAng) const
 {
-    return getMinorArc(_ang1, legL_.state().phi0) > 0 && getMinorArc(_ang2, legL_.state().phi0) < 0;
-}
-
-bool Bipedal::detectPhiRRange(float _ang1, float _ang2) const
-{
-    return getMinorArc(_ang1, legR_.state().phi0) > 0 && getMinorArc(_ang2, legR_.state().phi0) < 0;
+    return detectAng(phiGlobalR(), _startAng, _endAng);
 }
 
 /**
@@ -102,6 +95,23 @@ bool Bipedal::detectLengthLRange(float _l, float _threthold) const
 bool Bipedal::detectLengthRRange(float _l, float _threthold) const
 {
     return legR_.state().L0 < _l + _threthold && legR_.state().L0 > _l - _threthold;
+}
+
+
+/**
+ * @brief detect if an angle is in the target range
+ * 
+ * @param _input input angle
+ * @param _startAng start angle
+ * @param _endAng end angle (counter-clockwise relative to start angle)
+ * @return true if the input is in the range
+ * @return false if the input is not in the range
+ */
+bool Bipedal::detectAng(float _input, float _startAng, float _endAng) const
+{
+    // NOLINTBEGIN(readability-suspicious-call-argument)
+    return getMinorArc(_endAng, _input) > 0 && getMinorArc(_startAng, _input) < 0;
+    // NOLINTEND(readability-suspicious-call-argument)
 }
 
 void Bipedal::updateVel()

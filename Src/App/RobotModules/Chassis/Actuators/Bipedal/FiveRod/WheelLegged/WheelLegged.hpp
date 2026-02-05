@@ -15,8 +15,8 @@ class WheelLegged {
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
     static constexpr float MAX_FD = 120.f;
-    static constexpr float DEFAULT_LENGTH_ANG_PID_PARAM[7] = { 30.f, 0.f, 1.f, 0.001f, 0.f, 3.f, 0.f };
-    static constexpr float DEFAULT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, MAX_FD, 0.f };
+    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 30.f, 0.f, 1.f, 0.001f, 0.f, 3.f, 0.f };
+    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, MAX_FD, 0.f };
 
 public:
     static constexpr float MAX_L = 0.36f; // 0.36998937
@@ -72,14 +72,14 @@ private:
     float setL_ = 0.f;
 
     // TODO: 位置环积分饱和会影响离地检测
-    PositionalPid lengthAngPid_{ DEFAULT_LENGTH_ANG_PID_PARAM[0], DEFAULT_LENGTH_ANG_PID_PARAM[1],
-                                 DEFAULT_LENGTH_ANG_PID_PARAM[2], DEFAULT_LENGTH_ANG_PID_PARAM[3],
-                                 DEFAULT_LENGTH_ANG_PID_PARAM[4], DEFAULT_LENGTH_ANG_PID_PARAM[5],
-                                 DEFAULT_LENGTH_ANG_PID_PARAM[6] };
-    PositionalPid lengthVelPid_{ DEFAULT_LENGTH_VEL_PID_PARAM[0], DEFAULT_LENGTH_VEL_PID_PARAM[1],
-                                 DEFAULT_LENGTH_VEL_PID_PARAM[2], DEFAULT_LENGTH_VEL_PID_PARAM[3],
-                                 DEFAULT_LENGTH_VEL_PID_PARAM[4], DEFAULT_LENGTH_VEL_PID_PARAM[5],
-                                 DEFAULT_LENGTH_VEL_PID_PARAM[6] };
+    PositionalPid lengthAngPid_{ FLOAT_LENGTH_ANG_PID_PARAM[0], FLOAT_LENGTH_ANG_PID_PARAM[1],
+                                 FLOAT_LENGTH_ANG_PID_PARAM[2], FLOAT_LENGTH_ANG_PID_PARAM[3],
+                                 FLOAT_LENGTH_ANG_PID_PARAM[4], FLOAT_LENGTH_ANG_PID_PARAM[5],
+                                 FLOAT_LENGTH_ANG_PID_PARAM[6] };
+    PositionalPid lengthVelPid_{ FLOAT_LENGTH_VEL_PID_PARAM[0], FLOAT_LENGTH_VEL_PID_PARAM[1],
+                                 FLOAT_LENGTH_VEL_PID_PARAM[2], FLOAT_LENGTH_VEL_PID_PARAM[3],
+                                 FLOAT_LENGTH_VEL_PID_PARAM[4], FLOAT_LENGTH_VEL_PID_PARAM[5],
+                                 FLOAT_LENGTH_VEL_PID_PARAM[6] };
 
     PINYMOTOR::IMotor *hip1_;
     PINYMOTOR::IMotor *hip4_;

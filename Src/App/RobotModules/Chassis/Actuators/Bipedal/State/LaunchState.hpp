@@ -8,15 +8,14 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_L = 0.2f;
 
     static constexpr float LAUNCH_ROT_TO_PHI1 = 0.1f;
-    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.1f;
+    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.001f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
 
     void enter() final
     {
-        isLaunchFinish_ = false;
-        stop_ = false;
+        isRotFinish_[0] = isRotFinish_[1] = false;
         chassis_->enter();
         refPhiL_ = chassis_->phiL();
         refPhiR_ = chassis_->phiR();
@@ -26,43 +25,33 @@ public:
     void run() final
     {
         chassis_->setLength(LAUNCH_L);
-        bool rotFinish[2] = { false, false };
 
         // 定方向旋到指定角度再复位
         if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
-            rotFinish[0] = true;
-            refPhiL_ = chassis_->phiL();
+            isRotFinish_[0] = true;
         } else {
             if (chassis_->phiL() > 0) {
                 refPhiL_ -= LAUNCH_DPHI;
             } else {
                 refPhiL_ += LAUNCH_DPHI;
             }
-            chassis_->setHipPhiL(refPhiL_);
-            rotFinish[0] = false;
         }
+        chassis_->setHipPhiL(refPhiL_);
+
         if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
-            rotFinish[1] = true;
-            refPhiR_ = chassis_->phiR();
+            isRotFinish_[1] = true;
         } else {
             if (chassis_->phiR() > 0) {
                 refPhiR_ -= LAUNCH_DPHI;
             } else {
                 refPhiR_ += LAUNCH_DPHI;
             }
-            chassis_->setHipPhiR(refPhiR_);
-            rotFinish[1] = false;
         }
-
-        // 若都在范围内即可运作
-        if (rotFinish[0] && rotFinish[1]) {
-            isLaunchFinish_ = true;
-        }
+        chassis_->setHipPhiR(refPhiR_);
 
         chassis_->noBal(chassis_->msg.vx, 0);
 
         chassis_->ctrl();
-        // isLaunchFinish_ = true; // debug
     }
 
     void exit() final { LOG::info("ChassisLaunch", " exit"); }
@@ -72,7 +61,7 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (isLaunchFinish_)
+        else if (isRotFinish_[0] && isRotFinish_[1])
             return FSMState_e::STAND;
         // TODO: the other state
         else
@@ -81,10 +70,9 @@ public:
 
 private:
     Bipedal *chassis_;
-    bool isLaunchFinish_ = false;
-    bool stop_ = false;
     float refPhiL_ = 0;
     float refPhiR_ = 0;
+    bool isRotFinish_[2] = { false, false };
 };
 
 } // namespace CHASSIS

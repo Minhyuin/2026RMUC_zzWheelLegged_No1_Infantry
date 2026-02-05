@@ -106,15 +106,15 @@ public:
     void setHipPhiRotL(float _dphi);
     void setHipPhiRotR(float _dphi);
 
-    void setHipPhiSmooth(float _phi, float _step);
-    void setHipPhiSmooth(float _phiL, float _phiR, float _step);
-    void setHipPhiSmoothL(float _phi, float _step);
-    void setHipPhiSmoothR(float _phi, float _step);
-
     void setHipPhi(float _phi);
     void setHipPhi(float _phiL, float _phiR);
     void setHipPhiL(float _phi);
     void setHipPhiR(float _phi);
+
+    void setHipPhiGlobal(float _phi);
+    void setHipPhiGlobal(float _phiL, float _phiR);
+    void setHipPhiGlobalL(float _phi);
+    void setHipPhiGlobalR(float _phi);
 
     void setHipTp(float _tp);
     void setHipTp(float _tpL, float _tpR);
@@ -137,9 +137,11 @@ public:
     bool isFloating() const;
     bool detectFloating();
     bool detectNeedStop(float _expVel);
-    bool detectPitchRange(float _ang1, float _ang2) const;
-    bool detectPhiLRange(float _ang1, float _ang2) const;
-    bool detectPhiRRange(float _ang1, float _ang2) const;
+    bool detectPitchRange(float _endAng, float _startAng) const;
+    bool detectPhiLRange(float _endAng, float _startAng) const;
+    bool detectPhiRRange(float _endAng, float _startAng) const;
+    bool detectPhiGlobalLRange(float _endAng, float _startAng) const;
+    bool detectPhiGlobalRRange(float _endAng, float _startAng) const;
     bool detectLengthRange(float _l, float _threthold = 0.05f) const;
     bool detectLengthLRange(float _l, float _threthold = 0.05f) const;
     bool detectLengthRRange(float _l, float _threthold = 0.05f) const;
@@ -150,6 +152,8 @@ public:
 
     float phiL() const;
     float phiR() const;
+    float phiGlobalL() const;
+    float phiGlobalR() const;
     float lengthL() const;
     float lengthR() const;
     float vel() const; // m/s
@@ -178,11 +182,11 @@ private:
 
     Axis1Odom odom_;
 
-    PositionalPid rollAngPid_{ 60.f, 90.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
-    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.15f, 0.f };
+    PositionalPid rollAngPid_{ 90.f, 90.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
+    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
 
-    PositionalPid hipAngPidL_{ 15.f, 1.f, 1.f, 0.001f, 1.f, 2.5f, 0.f };
-    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 45.f, 0.f, 1.f, 0.001f, 0.f, 2.5f, 0.f };
+    PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
@@ -215,6 +219,7 @@ private:
     uint32_t dtCnt_ = 0;
 
     void loadDeltaYaw();
+    bool detectAng(float _input, float _startAng, float _endAng) const;
 
     // Observe functions
     void updateVel();

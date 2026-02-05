@@ -7,18 +7,16 @@ using namespace PINYMOTOR;
 
 void Bipedal::bal(const WBRController::States_u &_ref)
 {
-    WBRController ::States_u errData = {
-        .s = _ref.s - s_,
-        .ds = _ref.ds - ds_,
-        .yaw = getMinorArc(_ref.yaw, insData_.yaw),
-        .dyaw = _ref.dyaw - insData_.body.gz,
-        .phil = getMinorArc(_ref.phil, rangeMap(legL_.state().phi0 + insData_.pitch, -PI, PI)),
-        .dphil = _ref.dphil - (legL_.state().dphi0 + insData_.body.gy),
-        .phir = getMinorArc(_ref.phir, rangeMap(legR_.state().phi0 + insData_.pitch, -PI, PI)),
-        .dphir = _ref.dphir - (legR_.state().dphi0 + insData_.body.gy),
-        .q = getMinorArc(_ref.q, insData_.pitch),
-        .dq = _ref.dq - insData_.body.gy
-    };
+    WBRController ::States_u errData = { .s = _ref.s - s_,
+                                         .ds = _ref.ds - ds_,
+                                         .yaw = getMinorArc(_ref.yaw, insData_.yaw),
+                                         .dyaw = _ref.dyaw - insData_.body.gz,
+                                         .phil = getMinorArc(_ref.phil, phiGlobalL()),
+                                         .dphil = _ref.dphil - (legL_.state().dphi0 + insData_.body.gy),
+                                         .phir = getMinorArc(_ref.phir, phiGlobalR()),
+                                         .dphir = _ref.dphir - (legR_.state().dphi0 + insData_.body.gy),
+                                         .q = getMinorArc(_ref.q, insData_.pitch),
+                                         .dq = _ref.dq - insData_.body.gy };
     Matrix<10, 1> err{ errData._ };
     Matrix<4, 1> u = WBRController::solve(err, legL_.state().L0, legR_.state().L0, legL_.floatFlag, legR_.floatFlag);
     legL_.setTw(u(0, 0));
@@ -32,7 +30,7 @@ void Bipedal::bal(const WLController::States_u &_ref, float _yaw) { bal(_ref, _r
 void Bipedal::bal(const WLController::States_u &_refL, const WLController::States_u &_refR, float _yaw)
 {
     WLController::States_u errDataL = {
-        .phi = getMinorArc(_refL.phi, rangeMap(legL_.state().phi0 + insData_.pitch, -PI, PI)),
+        .phi = getMinorArc(_refL.phi, phiGlobalL()),
         .dphi = _refL.dphi - (legL_.state().dphi0 + insData_.body.gy),
         .s = _refL.s - s_,
         .ds = _refL.ds - ds_,
@@ -41,7 +39,7 @@ void Bipedal::bal(const WLController::States_u &_refL, const WLController::State
     };
     Matrix<6, 1> errL{ errDataL._ };
     WLController::States_u errDataR = {
-        .phi = getMinorArc(_refR.phi, rangeMap(legR_.state().phi0 + insData_.pitch, -PI, PI)),
+        .phi = getMinorArc(_refR.phi, phiGlobalR()),
         .dphi = _refR.dphi - (legR_.state().dphi0 + insData_.body.gy),
         .s = _refR.s - s_,
         .ds = _refR.ds - ds_,

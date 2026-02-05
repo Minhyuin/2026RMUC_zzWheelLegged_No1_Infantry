@@ -33,7 +33,7 @@ public:
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
 
-        if ((chassis_->phiL() + chassis_->phiR()) / 2.f >= 0.05f) {
+        if ((chassis_->phiGlobalL() + chassis_->phiGlobalR()) / 2.f >= 0.05f) {
             // 腿在后面
             sFeedforward_ = S_FEEDBACK_FORWARD;
             targetBalancePitch_ = TARGET_PITCH_FORWARD;

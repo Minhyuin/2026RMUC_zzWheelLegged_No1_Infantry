@@ -301,26 +301,6 @@ void Bipedal::setHipPhiRotR(float _dphi)
     setHipPhiR(legR_.state().phi0 + _dphi);
 }
 
-void Bipedal::setHipPhiSmooth(float _phi, float _step) { setHipPhiSmooth(_phi, _phi, _step); }
-void Bipedal::setHipPhiSmooth(float _phiL, float _phiR, float _step)
-{
-    setHipPhiSmoothL(_phiL, _step);
-    setHipPhiSmoothR(_phiR, _step);
-}
-
-void Bipedal::setHipPhiSmoothL(float _phi, float _step)
-{
-    float deltaL = getMinorArc(_phi, legL_.state().phi0);
-    deltaL = clamp(deltaL, -_step, _step);
-    setHipPhiL(legL_.state().phi0 + deltaL);
-}
-void Bipedal::setHipPhiSmoothR(float _phi, float _step)
-{
-    float deltaR = getMinorArc(_phi, legR_.state().phi0);
-    deltaR = clamp(deltaR, -_step, _step);
-    setHipPhiR(legR_.state().phi0 + deltaR);
-}
-
 void Bipedal::setHipPhi(float _phi) { setHipPhi(_phi, _phi); }
 
 void Bipedal::setHipPhi(float _phiL, float _phiR)
@@ -331,15 +311,37 @@ void Bipedal::setHipPhi(float _phiL, float _phiR)
 
 void Bipedal::setHipPhiL(float _phi)
 {
-    float hipVelL = hipAngPidL_.calc(getMinorArc(_phi, legL_.state().phi0), 0);
+    float hipVelL = hipAngPidL_.calc(getMinorArc(_phi, phiL()), 0);
     float tpL = hipVelPidL_.calc(hipVelL, legL_.state().dphi0);
     legL_.setTp(tpL);
 }
 
 void Bipedal::setHipPhiR(float _phi)
 {
-    float hipVelR = hipAngPidR_.calc(getMinorArc(_phi, legR_.state().phi0), 0);
+    float hipVelR = hipAngPidR_.calc(getMinorArc(_phi, phiR()), 0);
     float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0);
+    legR_.setTp(tpR);
+}
+
+void Bipedal::setHipPhiGlobal(float _phi) { setHipPhiGlobal(_phi, _phi); }
+
+void Bipedal::setHipPhiGlobal(float _phiL, float _phiR)
+{
+    setHipPhiGlobalL(_phiL);
+    setHipPhiGlobalR(_phiR);
+}
+
+void Bipedal::setHipPhiGlobalL(float _phi)
+{
+    float hipVelL = hipAngPidL_.calc(getMinorArc(_phi, phiGlobalL()), 0);
+    float tpL = hipVelPidL_.calc(hipVelL, legL_.state().dphi0 + insData_.body.gy);
+    legL_.setTp(tpL);
+}
+
+void Bipedal::setHipPhiGlobalR(float _phi)
+{
+    float hipVelR = hipAngPidR_.calc(getMinorArc(_phi, phiGlobalR()), 0);
+    float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0 + insData_.body.gy);
     legR_.setTp(tpR);
 }
 
@@ -360,6 +362,10 @@ float Bipedal::roll() const { return insData_.roll; }
 float Bipedal::phiL() const { return legL_.state().phi0; }
 
 float Bipedal::phiR() const { return legR_.state().phi0; }
+
+float Bipedal::phiGlobalL() const { return rangeMap(legL_.state().phi0 + insData_.pitch, -PI, PI); }
+
+float Bipedal::phiGlobalR() const { return rangeMap(legR_.state().phi0 + insData_.pitch, -PI, PI); }
 
 float Bipedal::lengthL() const { return legL_.state().L0; }
 

@@ -14,7 +14,7 @@ class ClimbState : public FSMState<FSMState_e> {
     static constexpr float MAX_ACC_FRONT = 2.f;
 
     static constexpr float CLIMB_PHI = 1.6f;
-    static constexpr float CLIMB_DPHI = 10.f * 0.001f;
+    static constexpr float CLIMB_DPHI = 3.f * 0.001f;
     static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.2f;
 
 public:
@@ -26,7 +26,8 @@ public:
         refYaw_ = chassis_->yaw();
         chassis_->setRoll(0);
         refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
-        isClimbReady_ = false;
+        isClimbReady_[0] = isClimbReady_[1] = false;
+        floatFlag_ = false;
         LOG::info("ChassisClimb", " enter");
     }
 
@@ -37,18 +38,28 @@ public:
         chassis_->setFdForward();
 
         if (chassis_->isFloating()) {
-            refPhiL_ += CLIMB_DPHI;
+            floatFlag_ = true;
+
             refPhiR_ += CLIMB_DPHI;
+            if (chassis_->detectPhiGlobalLRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
+                                                CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD)) {
+                isClimbReady_[0] = true;
+            } else {
+                refPhiL_ += CLIMB_DPHI;
+            }
+            if (chassis_->detectPhiGlobalRRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
+                                                CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD)) {
+                isClimbReady_[1] = true;
+            } else {
+                refPhiR_ += CLIMB_DPHI;
+            }
+
             chassis_->setHipPhiL(refPhiL_);
             chassis_->setHipPhiR(refPhiR_);
-            if (chassis_->detectPhiLRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
-                                          CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) &&
-                chassis_->detectPhiRRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
-                                          CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD)) {
-                isClimbReady_ = true;
-            }
             chassis_->noBal(chassis_->msg.vx, 0);
-        } else {
+        }
+
+        if (!floatFlag_) {
             refPhiL_ = chassis_->phiL();
             refPhiR_ = chassis_->phiR();
 
@@ -74,7 +85,7 @@ public:
 
     FSMState_e checkChange() final
     {
-        if (isClimbReady_)
+        if (isClimbReady_[0] && isClimbReady_[1])
             return FSMState_e::LAUNCH;
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
@@ -95,7 +106,8 @@ private:
     float refLength_ = Bipedal::DEFAULT_L;
     float refPhiL_ = 0.f;
     float refPhiR_ = 0.f;
-    bool isClimbReady_ = false;
+    bool isClimbReady_[2] = { false, false };
+    bool floatFlag_ = false;
 };
 
 } // namespace CHASSIS
