@@ -71,7 +71,7 @@ private:
         void run() final
         {
             parent_.chassis_->setLength(PREPARE_LENGTH);
-            parent_.chassis_->setFdForward();
+            parent_.chassis_->setFdFeedforward();
         }
         void exit() final { LOG::info("JumpPrepare", " exit"); }
         JumpFSMState_e checkChange() final
@@ -96,7 +96,7 @@ private:
         void run() final
         {
             parent_.chassis_->enableJump();
-            parent_.chassis_->setFdForward(JUMP_FD);
+            parent_.chassis_->setFdFeedforward(JUMP_FD);
         }
         void exit() final { LOG::info("Jumping", " exit"); }
         JumpFSMState_e checkChange() final
@@ -120,7 +120,7 @@ private:
         {
             parent_.chassis_->disbaleJump();
             parent_.chassis_->setLength(PREPARE_LENGTH);
-            parent_.chassis_->setFdForward(-WheelLegged::MASS * WheelLegged::GRAVITY);
+            parent_.chassis_->setFdFeedforward(-WheelLegged::MASS * WheelLegged::GRAVITY);
         }
         void exit() final { LOG::info("JumpSoar", " exit"); }
         JumpFSMState_e checkChange() final
@@ -144,7 +144,7 @@ private:
         {
             parent_.chassis_->disbaleJump();
             parent_.chassis_->setLength(PREPARE_LENGTH);
-            parent_.chassis_->setFdForward(0.f);
+            parent_.chassis_->setFdFeedforward(0.f);
         }
         void exit() final { LOG::info("JumpLand", " exit"); }
         JumpFSMState_e checkChange() final

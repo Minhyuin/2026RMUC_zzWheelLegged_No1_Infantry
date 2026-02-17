@@ -13,10 +13,7 @@ class RescueState : public FSMState<FSMState_e> {
     static constexpr uint16_t MAX_RESCUE_COUNT = 1000; // 1s
 
 public:
-    RescueState(Bipedal *_chassis)
-            : FSMState<FSMState_e>(FSMState_e::RESCUE), chassis_(_chassis)
-    {
-    }
+    RescueState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::RESCUE), chassis_(_chassis) {}
 
     void enter() final
     {
@@ -28,7 +25,7 @@ public:
     {
         if (chassis_->isOverturn()) {
             chassis_->setLengthSmooth(RESCUE_L, 0.05f);
-            chassis_->setHipPhi(RESCUE_DPHI);
+            chassis_->setHipPhiRot(RESCUE_DPHI);
             rescueFinishCount_ = 0;
         } else {
             rescueFinishCount_++;

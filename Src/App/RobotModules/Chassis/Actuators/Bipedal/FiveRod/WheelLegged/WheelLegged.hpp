@@ -25,23 +25,82 @@ public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
 
-    static constexpr float FN_THRESHOLD = MASS_WHEEL * GRAVITY;
+    static constexpr float FLOATING_THRESHOLD = MASS_WHEEL * GRAVITY;
 
+    /**
+     * @brief WheelLegged singleton initialize
+     * 
+     * @param _hip1 input the pointer of motor which is responsible for hip1
+     * @param _hip4  input the pointer of motor which is responsible for hip4
+     * @param _wheel 
+     */
     void init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4, PINYMOTOR::IMotor *_wheel);
+    /**
+     * @brief disable all motors and reset PIDs
+     */
     void stop();
+    /**
+     * @brief enable all motors
+     */
     void enter();
 
+    /**
+     * @brief run the vmc solver, update leg state
+     * 
+     * @param _dt unit: s
+     */
     void stateUpdate(float _dt);
 
+    /**
+     * @brief override the length PIDs with custom parameters
+     * 
+     * @param _angPID 
+     * @param _velPID 
+     */
     void overrideLengthPid(const PositionalPid &_angPID, const PositionalPid &_velPID);
+    /**
+     * @brief override the length PIDs with default parameters
+     */
     void overrideLengthPid();
+    /**
+     * @brief set the leg length, automatically clamp to the range [MIN_L, MAX_L]
+     * 
+     * @param _l unit: m
+     */
     void setL(float _l);
-    void setFdForward(float _fd);
+    /**
+     * @brief Set the additional feedforward force
+     * 
+     * @param _fd unit: N
+     */
+    void setFdFeedforward(float _fd);
+    /**
+     * @brief Set the expected Tp, which is used to control the leg swinging
+     * 
+     * @param _tp unit: Nm
+     */
     void setTp(float _tp);
+    /**
+     * @brief Set the expected Tw, which is used to control the wheel rolling
+     * 
+     * @param _tw unit: Nm
+     */
     void setTw(float _tw);
 
+    /**
+     * @brief support fn calculation, check if the leg is floating (i.e., not in contact with ground)
+     * 
+     * @param _az vertical acceleration of the body (counteract with gravitational acceleration), unit: m/s^2
+     * @param _q pitch angle of chassis, unit: rad
+     * @return true 
+     * @return false 
+     */
     bool isFloating(float _az, float _q);
 
+    /**
+     * @brief calc pid, publish control commands to motors
+     * @note should be called after stateUpdate() in each control loop
+     */
     void ctrl();
 
     const LegState_s &state() const { return legState_; }
@@ -54,14 +113,12 @@ private:
 
     float tp_ = 0.f;
     float fd_ = 0.f;
-    float fdForward_ = 0.f;
+    float fdFeedforward_ = 0.f;
     float tw_ = 0.f;
-
-    FILTER::LPF fdLPF_{ 1000.f, 100.f };
 
     float fn_ = 0.f;
     FILTER::LPF fnLPF_{ 1000.f, 5.f };
-    float fnThreshold_ = FN_THRESHOLD;
+    float fnThreshold_ = FLOATING_THRESHOLD;
     float rawFn_ = 0.f;
     float fp_ = 0.f;
     float nWheel_ = 0.f;
@@ -71,7 +128,6 @@ private:
 
     float setL_ = 0.f;
 
-    // TODO: 位置环积分饱和会影响离地检测
     PositionalPid lengthAngPid_{ FLOAT_LENGTH_ANG_PID_PARAM[0], FLOAT_LENGTH_ANG_PID_PARAM[1],
                                  FLOAT_LENGTH_ANG_PID_PARAM[2], FLOAT_LENGTH_ANG_PID_PARAM[3],
                                  FLOAT_LENGTH_ANG_PID_PARAM[4], FLOAT_LENGTH_ANG_PID_PARAM[5],

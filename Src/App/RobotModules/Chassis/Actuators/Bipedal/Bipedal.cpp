@@ -48,7 +48,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .isReverse = true,
     };
     motors_.HipRF = new DMMOTOR::DM8009("HipRF", rfDM8009Config); // 右HIP4控制电机
-    motors_.HipRF->setZeroAng(RF_HIP_ZERO_ANG);
+    motors_.HipRF->setZeroAng(RF_HIP_CALIBRATED_ANG);
 
     InitConfig_s lfDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -61,7 +61,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .isReverse = false,
     };
     motors_.HipLF = new DMMOTOR::DM8009("HipLF", lfDM8009Config); // 左HIP4控制电机
-    motors_.HipLF->setZeroAng(LF_HIP_ZERO_ANG);
+    motors_.HipLF->setZeroAng(LF_HIP_CALIBRATED_ANG);
 
     InitConfig_s lbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -74,7 +74,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .isReverse = false,
     };
     motors_.HipLB = new DMMOTOR::DM8009("HipLB", lbDM8009Config); // 左HIP1控制电机
-    motors_.HipLB->setZeroAng(rangeMap(LB_HIP_ZERO_ANG - PI));
+    motors_.HipLB->setZeroAng(rangeMap(LB_HIP_CALIBRATED_ANG - PI));
 
     InitConfig_s rbDM8009Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&HIP_HANDLE),
@@ -87,7 +87,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
         .isReverse = true,
     };
     motors_.HipRB = new DMMOTOR::DM8009("HipRB", rbDM8009Config); // 右HIP1控制电机
-    motors_.HipRB->setZeroAng(rangeMap(RB_HIP_ZERO_ANG - PI));
+    motors_.HipRB->setZeroAng(rangeMap(RB_HIP_CALIBRATED_ANG - PI));
 
     InitConfig_s lM3508Config = {
         .pComHandle = reinterpret_cast<uint32_t *>(&WHEEL_HANDLE),
@@ -223,8 +223,6 @@ void Bipedal::disbaleJump()
     legR_.needJumping = false;
 }
 
-void Bipedal::setYawZero(float _yawZero) { yawZero_ = _yawZero; }
-
 void Bipedal::feedS(float _s, float _acc) { SMOOTH::slopeFollowing(&_s, &s_, _acc); }
 
 void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
@@ -271,14 +269,23 @@ void Bipedal::setLengthPID(const PositionalPid &_angPID, const PositionalPid &_v
     legR_.overrideLengthPid(_angPID, _velPID);
 }
 
-void Bipedal::setFdForward() { setFdForward(calcFdForwardL(), calcFdForwardR()); }
-
-void Bipedal::setFdForward(float _fd) { setFdForward(_fd, _fd); }
-
-void Bipedal::setFdForward(float _fdL, float _fdR)
+void Bipedal::setFdFeedforward()
 {
-    legL_.setFdForward(_fdL);
-    legR_.setFdForward(_fdR);
+    float angL = phiGlobalL();
+    bool flagL = getMinorArc(PI / 2.5f, angL) > 0 && getMinorArc(-PI / 2.5f, angL) < 0;
+    float fdL = flagL ? MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(angL) : 0.f;
+    float angR = phiGlobalR();
+    bool flagR = getMinorArc(PI / 2.5f, angR) > 0 && getMinorArc(-PI / 2.5f, angR) < 0;
+    float fdR = flagR ? MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(angR) : 0.f;
+    setFdFeedforward(fdL, fdR);
+}
+
+void Bipedal::setFdFeedforward(float _fd) { setFdFeedforward(_fd, _fd); }
+
+void Bipedal::setFdFeedforward(float _fdL, float _fdR)
+{
+    legL_.setFdFeedforward(_fdL);
+    legR_.setFdFeedforward(_fdR);
 }
 
 void Bipedal::setHipPhiRot(float _dphi) { setHipPhiRot(_dphi, _dphi); }
@@ -292,13 +299,13 @@ void Bipedal::setHipPhiRotL(float _dphi)
 {
     if (_dphi == 0)
         hipAngPidL_.reset();
-    setHipPhiL(legL_.state().phi0 + _dphi);
+    setHipPhiL(legL_.state().phi0 + (_dphi * 0.001f));
 }
 void Bipedal::setHipPhiRotR(float _dphi)
 {
     if (_dphi == 0)
         hipAngPidR_.reset();
-    setHipPhiR(legR_.state().phi0 + _dphi);
+    setHipPhiR(legR_.state().phi0 + (_dphi * 0.001f));
 }
 
 void Bipedal::setHipPhi(float _phi) { setHipPhi(_phi, _phi); }
@@ -372,17 +379,3 @@ float Bipedal::lengthL() const { return legL_.state().L0; }
 float Bipedal::lengthR() const { return legR_.state().L0; }
 
 float Bipedal::vel() const { return ds_; }
-
-float Bipedal::calcFdForwardL()
-{
-    float ang = legL_.state().phi0 + insData_.pitch;
-    bool flag = getMinorArc(PI / 2.5f, ang) > 0 && getMinorArc(-PI / 2.5f, ang) < 0;
-    return flag ? FdForward_ / 2.f * arm_cos_f32(ang) : 0.f;
-}
-
-float Bipedal::calcFdForwardR()
-{
-    float ang = legR_.state().phi0 + insData_.pitch;
-    bool flag = getMinorArc(PI / 2.5f, ang) > 0 && getMinorArc(-PI / 2.5f, ang) < 0;
-    return flag ? FdForward_ / 2.f * arm_cos_f32(ang) : 0.f;
-}

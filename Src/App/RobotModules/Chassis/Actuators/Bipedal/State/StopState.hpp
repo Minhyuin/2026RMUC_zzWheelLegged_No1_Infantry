@@ -12,7 +12,7 @@ public:
     void enter() final
     {
         chassis_->stop();
-        chassis_->setFdForward(0, 0);
+        chassis_->setFdFeedforward(0, 0);
         freezeFlag_ = false;
         LOG::info("ChassisStop", " enter");
     }

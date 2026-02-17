@@ -74,15 +74,6 @@ bool Bipedal::detectPhiGlobalRRange(float _endAng, float _startAng) const
     return detectAng(phiGlobalR(), _startAng, _endAng);
 }
 
-/**
- * @brief detect if the leg is in the target length
- * 
- * @param _l target length
- * @param _threthold tolerance
- * @return true if the leg is in the target length
- * @return false if the leg is in the target length
- */
-
 bool Bipedal::detectLengthRange(float _l, float _threthold) const
 {
     return detectLengthLRange(_l, _threthold) && detectLengthRRange(_l, _threthold);
@@ -97,16 +88,6 @@ bool Bipedal::detectLengthRRange(float _l, float _threthold) const
     return legR_.state().L0 < _l + _threthold && legR_.state().L0 > _l - _threthold;
 }
 
-
-/**
- * @brief detect if an angle is in the target range
- * 
- * @param _input input angle
- * @param _startAng start angle
- * @param _endAng end angle (counter-clockwise relative to start angle)
- * @return true if the input is in the range
- * @return false if the input is not in the range
- */
 bool Bipedal::detectAng(float _input, float _startAng, float _endAng) const
 {
     // NOLINTBEGIN(readability-suspicious-call-argument)
@@ -158,9 +139,9 @@ void Bipedal::updateVel()
         if (ds_ < 0.1f && !slowSpeedFlag) {
             slowSpeedFlag = true;
             if (dsCmdBeforeStop_ > 0.f)
-                s_ = S_FEEDBACK_FORWARD;
+                s_ = S_FEEDFORWARD_FORWARD;
             else
-                s_ = S_FEEDBACK_BACKWARD;
+                s_ = S_FEEDFORWARD_BACKWARD;
         }
     } else {
         s_ = 0;

@@ -35,7 +35,7 @@ public:
     {
         refLength_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(refLength_);
-        chassis_->setFdForward();
+        chassis_->setFdFeedforward();
 
         if (chassis_->isFloating()) {
             floatFlag_ = true;

@@ -29,7 +29,7 @@ public:
     {
         refLength_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(refLength_);
-        chassis_->setFdForward();
+        chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
         chassis_->setRoll(refRoll_);
 

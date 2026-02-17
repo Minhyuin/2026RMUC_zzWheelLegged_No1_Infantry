@@ -18,8 +18,8 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float TARGET_PITCH_FORWARD = 0.13f;
     static constexpr float TARGET_PITCH_BACKWARD = 0.f;
 
-    static constexpr float S_FEEDBACK_FORWARD = -1.0f;
-    static constexpr float S_FEEDBACK_BACKWARD = -0.9f;
+    static constexpr float S_FEEDFORWARD_FORWARD = -1.0f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.9f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 500; // ms
 
 public:
@@ -35,12 +35,12 @@ public:
 
         if ((chassis_->phiGlobalL() + chassis_->phiGlobalR()) / 2.f >= 0.05f) {
             // 腿在后面
-            sFeedforward_ = S_FEEDBACK_FORWARD;
+            sFeedforward_ = S_FEEDFORWARD_FORWARD;
             targetBalancePitch_ = TARGET_PITCH_FORWARD;
             model_ = Model_e::WBR;
         } else {
             // 腿在前面
-            sFeedforward_ = S_FEEDBACK_BACKWARD;
+            sFeedforward_ = S_FEEDFORWARD_BACKWARD;
             targetBalancePitch_ = TARGET_PITCH_BACKWARD;
             model_ = Model_e::ST;
         }

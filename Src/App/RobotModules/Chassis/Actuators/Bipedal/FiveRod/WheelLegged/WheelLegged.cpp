@@ -16,12 +16,10 @@ void WheelLegged::init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4, PINYM
 
 void WheelLegged::stop()
 {
-    tp_ = fd_ = fdForward_ = tw_ = 0.f;
+    tp_ = fd_ = fdFeedforward_ = tw_ = 0.f;
 
     lengthAngPid_.reset();
     lengthVelPid_.reset();
-
-    fdLPF_.reset();
 
     hip1_->cmd(MotorCmdType_e::OFF);
     hip4_->cmd(MotorCmdType_e::OFF);
@@ -62,7 +60,7 @@ bool WheelLegged::isFloating(float _az, float _q)
     if (!isnan(rawFn_)) {
         fn_ = fnLPF_.process(rawFn_);
     }
-    fnThreshold_ = FN_THRESHOLD +
+    fnThreshold_ = FLOATING_THRESHOLD +
                    ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) * OFFSET_THRESHOLD);
     return floatFlag = fn_ < fnThreshold_;
 }
@@ -70,13 +68,13 @@ bool WheelLegged::isFloating(float _az, float _q)
 void WheelLegged::ctrl()
 {
     if (needJumping) {
-        fd_ = fdForward_;
+        fd_ = fdFeedforward_;
     } else {
         float setVd = lengthAngPid_.calc(setL_, legState_.L0);
-        fd_ = lengthVelPid_.calc(setVd, legState_.vd) + fdForward_;
+        fd_ = lengthVelPid_.calc(setVd, legState_.vd) + (floatFlag ? 0.f : fdFeedforward_);
     }
 
-    Matrix<2, 1> u = vmc_.forwardTorq(tp_, fdLPF_.process(fd_));
+    Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
 
     u(0, 0) = std::fmin(std::fmax(u(0, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
     u(1, 0) = std::fmin(std::fmax(u(1, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
@@ -123,6 +121,6 @@ void WheelLegged::overrideLengthPid()
 void WheelLegged::setL(float _l) { setL_ = fmin(fmax(_l, minL(legState_.phi0)), MAX_L); }
 
 
-void WheelLegged::setFdForward(float _fd) { fdForward_ = _fd; }
+void WheelLegged::setFdFeedforward(float _fd) { fdFeedforward_ = _fd; }
 void WheelLegged::setTp(float _tp) { tp_ = _tp; }
 void WheelLegged::setTw(float _tw) { tw_ = _tw; }
