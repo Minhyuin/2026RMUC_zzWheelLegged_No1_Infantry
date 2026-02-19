@@ -1,10 +1,11 @@
 #ifdef BSP_USE_UART
-#define RC_UART huart5
-#define REFEREE_UART huart1
+#define SBUS_UART huart5
+#define VT03_UART huart7
+#define REFEREE_UART huart10
 #define UI_UART REFEREE_UART
-// #define TFMINIS_LEFT_UART huart9
-#define TFMINIS_LEFT_UART huart7
-#define TFMINIS_RIGHT_UART huart8
+
+#define TFMINIS_LEFT_UART huart8
+#define TFMINIS_RIGHT_UART huart9
 #endif
 
 #ifdef BSP_USE_TIM

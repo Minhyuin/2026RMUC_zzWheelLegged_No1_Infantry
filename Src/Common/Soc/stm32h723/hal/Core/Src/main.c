@@ -71,7 +71,6 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart10;
 DMA_HandleTypeDef hdma_uart5_rx;
-DMA_HandleTypeDef hdma_uart7_tx;
 DMA_HandleTypeDef hdma_uart7_rx;
 DMA_HandleTypeDef hdma_uart8_rx;
 DMA_HandleTypeDef hdma_uart9_rx;
@@ -80,6 +79,7 @@ DMA_HandleTypeDef hdma_usart1_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
 DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart10_rx;
+DMA_HandleTypeDef hdma_usart10_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -151,8 +151,8 @@ int main(void)
   MX_ADC1_Init();
   MX_SPI6_Init();
   MX_UART9_Init();
-  MX_USB_DEVICE_Init();
   MX_UART8_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
     initPinyCore();
   /* USER CODE END 2 */
@@ -1008,11 +1008,11 @@ void MX_UART7_Init(void)
 
   /* USER CODE END UART7_Init 1 */
   huart7.Instance = UART7;
-  huart7.Init.BaudRate = 115200;
+  huart7.Init.BaudRate = 921600;
   huart7.Init.WordLength = UART_WORDLENGTH_8B;
   huart7.Init.StopBits = UART_STOPBITS_1;
   huart7.Init.Parity = UART_PARITY_NONE;
-  huart7.Init.Mode = UART_MODE_TX_RX;
+  huart7.Init.Mode = UART_MODE_RX;
   huart7.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart7.Init.OverSampling = UART_OVERSAMPLING_16;
   huart7.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -1061,7 +1061,7 @@ static void MX_UART8_Init(void)
   huart8.Init.WordLength = UART_WORDLENGTH_8B;
   huart8.Init.StopBits = UART_STOPBITS_1;
   huart8.Init.Parity = UART_PARITY_NONE;
-  huart8.Init.Mode = UART_MODE_TX_RX;
+  huart8.Init.Mode = UART_MODE_RX;
   huart8.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart8.Init.OverSampling = UART_OVERSAMPLING_16;
   huart8.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -1110,7 +1110,7 @@ void MX_UART9_Init(void)
   huart9.Init.WordLength = UART_WORDLENGTH_8B;
   huart9.Init.StopBits = UART_STOPBITS_1;
   huart9.Init.Parity = UART_PARITY_NONE;
-  huart9.Init.Mode = UART_MODE_TX_RX;
+  huart9.Init.Mode = UART_MODE_RX;
   huart9.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart9.Init.OverSampling = UART_OVERSAMPLING_16;
   huart9.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -1257,7 +1257,7 @@ void MX_USART10_UART_Init(void)
   huart10.Init.WordLength = UART_WORDLENGTH_8B;
   huart10.Init.StopBits = UART_STOPBITS_1;
   huart10.Init.Parity = UART_PARITY_NONE;
-  huart10.Init.Mode = UART_MODE_RX;
+  huart10.Init.Mode = UART_MODE_TX_RX;
   huart10.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart10.Init.OverSampling = UART_OVERSAMPLING_16;
   huart10.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -1323,7 +1323,7 @@ void MX_DMA_Init(void)
   HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
   /* DMA1_Stream3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
   /* DMA1_Stream4_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 6, 0);
@@ -1332,7 +1332,7 @@ void MX_DMA_Init(void)
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA1_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
   /* DMA1_Stream7_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 5, 0);
