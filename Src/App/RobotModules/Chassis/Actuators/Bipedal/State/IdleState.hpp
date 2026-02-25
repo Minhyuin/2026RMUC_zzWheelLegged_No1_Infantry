@@ -10,7 +10,7 @@
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 0.4f;
+    static constexpr float MAX_ACC_BACK = 0.3f;
     static constexpr float MAX_ACC_FRONT = 2.f;
 
 public:
@@ -61,8 +61,8 @@ public:
             return FSMState_e::IDLE;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
-        else if (chassis_->msg.state == FSMState_e::CLIMB)
-            return FSMState_e::CLIMB;
+        else if (chassis_->msg.state == FSMState_e::CLIMB_PREPARE)
+            return FSMState_e::CLIMB_PREPARE;
         else
             return FSMState_e::IDLE;
     }

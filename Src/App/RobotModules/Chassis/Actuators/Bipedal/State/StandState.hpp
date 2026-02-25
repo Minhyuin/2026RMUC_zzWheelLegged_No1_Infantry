@@ -19,7 +19,7 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float TARGET_PITCH_BACKWARD = 0.f;
 
     static constexpr float S_FEEDFORWARD_FORWARD = -1.0f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -0.9f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.8f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 500; // ms
 
 public:
@@ -42,7 +42,7 @@ public:
             // 腿在前面
             sFeedforward_ = S_FEEDFORWARD_BACKWARD;
             targetBalancePitch_ = TARGET_PITCH_BACKWARD;
-            model_ = Model_e::ST;
+            model_ = Model_e::WBR; // 太重时切WBR的小位移自启会更好
         }
 
         LOG::info("ChassisStand", "enter");

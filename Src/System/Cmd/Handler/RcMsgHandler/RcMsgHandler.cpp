@@ -104,7 +104,7 @@ void RcMsgHandler::masterHandle()
         cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
         alMsg_.fire = false;
         if (sl == SW::DOWN) {
-            cMsg_.state = CHASSIS::FSMState_e::CLIMB;
+            cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
         } else {
             cMsg_.state = CHASSIS::FSMState_e::SPIN;
         }
@@ -159,7 +159,7 @@ void RcMsgHandler::masterHandle()
         gMsg_.wYaw = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_YAW_MAX;
         alMsg_.fire = false;
         // if (sl == SW::DOWN) {
-        //     cMsg_.state = CHASSIS::FSMState_e::CLIMB;
+        //     cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
         // } else {
         //     cMsg_.state = CHASSIS::FSMState_e::SPIN;
         // }
