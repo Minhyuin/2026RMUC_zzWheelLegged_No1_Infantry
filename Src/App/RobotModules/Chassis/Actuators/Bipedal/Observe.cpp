@@ -1,6 +1,5 @@
 #include "Bipedal.hpp"
 #include "MotorCommonMacros.hpp"
-
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
@@ -14,7 +13,7 @@ bool Bipedal::isGimbalReset() const
 bool Bipedal::isTumble() const
 {
     // TODO: maybe this is a weighted linear regression
-    return fabs(phiL()) > 1.f || fabs(phiR()) > 1.f;
+    return fabs(phiL()) > 1.f || fabs(phiR()) > 1.f || fabs(phiL()) < -1.f || fabs(phiR()) < -1.f;
 }
 
 bool Bipedal::isFreeze() const
@@ -123,8 +122,8 @@ void Bipedal::updateVel()
     if (!isnan(vxFromWheel))
         odom_.update(dt_, vxFromWheel, insData_.earth.ax, yaw_);
 
-    // ds_ = odom_.normVel();
-    ds_ = vxFromWheel;
+    ds_ = odom_.normVel();
+    // ds_ = vxFromWheel;
     as_ = odom_.normAcc();
 
     // stop detect

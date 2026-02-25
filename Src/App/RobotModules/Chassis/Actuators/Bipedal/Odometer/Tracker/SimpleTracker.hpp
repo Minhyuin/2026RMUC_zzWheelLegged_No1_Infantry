@@ -82,7 +82,7 @@ private:
     WelFordData_s accData_{};
     WelFordData_s velData_{};
 
-    float sigmaQ_ = 10.f;
+    float sigmaQ_ = 3e6f;
     float sigmaR_ = 1.f;
 };
 

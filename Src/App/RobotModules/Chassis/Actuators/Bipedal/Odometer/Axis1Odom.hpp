@@ -3,7 +3,6 @@
 #include "Odometry.hpp"
 #include "SimpleTracker.hpp"
 #include "dsp/fast_math_functions.h"
-
 namespace CHASSIS {
 
 class Axis1Odom : public Odometry {
