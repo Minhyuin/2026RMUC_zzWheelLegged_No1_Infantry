@@ -8,17 +8,16 @@ STController::STController() = default;
 
 Matrix<1, 1> STController::solve(const Matrix<4, 1> &_errX, float _l, bool _isFloating)
 {
-    const float &x = _l;
-    float pow2f = x * x;
-    float pow3f = pow2f * x;
-    float arrayK[1 * 4] = {
-        (121.435796f * powf(x, 2)) - (37.38054996f * x) - (128.1384775f * powf(x, 3)) - (13.86213762f),
-        (497.2703763f * x) - (1294.546407f * powf(x, 2)) + (1361.131721f * powf(x, 3)) + (306.6259867f),
-        (248.5920119f * powf(x, 2)) - (81.35609083f * x) - (261.7798166f * powf(x, 3)) - (28.33483983f),
-        (91.47644933f * x) - (89.03366037f * powf(x, 2)) + (101.159991f * powf(x, 3)) + (11.3614279f)
-    };
-
-    Matrix<1, 4> k(arrayK);
+    const float &x1 = _l;
+    float x1x1 = x1 * x1;
+    float x1x1x1 = x1x1 * x1;
+    // NOLINTBEGIN(readability-math-missing-parentheses, readability-identifier-naming)
+    float LQR_K_DATA[1 * 4] = { 26.49948f * x1x1x1 - 6.6872392f * x1x1 - 9.9054291f * x1 - 24.145107f,
+                                44.050147f * x1 + 211.04259f * x1x1 - 372.75205f * x1x1x1 + 223.71706f,
+                                54.104345f * x1x1x1 - 21.582604f * x1x1 - 13.754285f * x1 - 35.921195f,
+                                2.0270105f * x1 + 90.698775f * x1x1 - 130.72475f * x1x1x1 + 23.421487f };
+    // NOLINTEND(readability-math-missing-parentheses, readability-identifier-naming)
+    Matrix<1, 4> k(LQR_K_DATA);
     Matrix<1, 1> u;
     // if (!_isFloating)
     //     u = k * _errX;

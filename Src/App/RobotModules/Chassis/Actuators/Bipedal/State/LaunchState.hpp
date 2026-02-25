@@ -2,9 +2,11 @@
 #include "Bipedal.hpp"
 #include "FSMState.hpp"
 #include "StmLog.hpp"
+float refPhiL_ = 0;
+float refPhiR_ = 0;
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr float LAUNCH_DPHI = 5.f * 0.001f; // per ms
+    static constexpr float LAUNCH_DPHI = 3.f * 0.001f; // per ms
     static constexpr float LAUNCH_L = 0.2f;
 
     static constexpr float LAUNCH_ROT_TO_PHI1 = 0.1f;
@@ -29,6 +31,7 @@ public:
         // 定方向旋到指定角度再复位
         if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
             isRotFinish_[0] = true;
+            refPhiL_ = chassis_->phiL();
         } else {
             if (chassis_->phiL() > 0) {
                 refPhiL_ -= LAUNCH_DPHI;
@@ -40,6 +43,7 @@ public:
 
         if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
             isRotFinish_[1] = true;
+            refPhiR_ = chassis_->phiR();
         } else {
             if (chassis_->phiR() > 0) {
                 refPhiR_ -= LAUNCH_DPHI;
@@ -70,8 +74,8 @@ public:
 
 private:
     Bipedal *chassis_;
-    float refPhiL_ = 0;
-    float refPhiR_ = 0;
+    // float refPhiL_ = 0;
+    // float refPhiR_ = 0;
     bool isRotFinish_[2] = { false, false };
 };
 

@@ -36,12 +36,12 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_CALIBRATED_ANG = 0.531173289f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 2.17838573f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 4.08025455f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 3.65915108f;
+    static constexpr float LF_HIP_CALIBRATED_ANG = 0.444114566f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 2.08902597f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 3.29442501f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 5.28258514f;
 
-    static constexpr float MASS_BODY = 16.245f;
+    static constexpr float MASS_BODY = 19.285f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -329,8 +329,8 @@ private:
     PositionalPid rollAngPid_{ 90.f, 90.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
 
-    PositionalPid hipAngPidL_{ 45.f, 0.f, 1.f, 0.001f, 0.f, 2.5f, 0.f };
-    PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 50.f, 0.f, 1.f, 0.001f, 0.f, 3.14f, 0.f };
+    PositionalPid hipVelPidL_{ 20.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };

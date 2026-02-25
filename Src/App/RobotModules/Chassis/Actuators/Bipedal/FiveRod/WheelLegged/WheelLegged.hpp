@@ -16,7 +16,7 @@ class WheelLegged {
 
     static constexpr float MAX_FD = 120.f;
     static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 30.f, 0.f, 1.f, 0.001f, 0.f, 3.f, 0.f };
-    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, MAX_FD, 0.f };
+    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 40.f, 0.f, 0.f, 0.001f, 0.f, MAX_FD, 0.f };
 
 public:
     static constexpr float MAX_L = 0.36f; // 0.36998937
