@@ -7,8 +7,9 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_DPHI = 3.f * 0.001f; // per ms
     static constexpr float LAUNCH_L = 0.2f;
 
-    static constexpr float LAUNCH_ROT_TO_PHI1 = 0.1f;
-    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.001f;
+    static constexpr float LAUNCH_ROT_TO_PHI1 = 0.3f;
+    static constexpr float LAUNCH_ROT_TO_PHI2 = 0.f;
+    static constexpr float LAUNCH_ROT_CENTER = (LAUNCH_ROT_TO_PHI1 + LAUNCH_ROT_TO_PHI2) / 2.f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
@@ -28,11 +29,11 @@ public:
         chassis_->setFdFeedforward();
 
         // 定方向旋到指定角度再复位
-        if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
+        if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2) || isRotFinish_[0]) {
             isRotFinish_[0] = true;
             refPhiL_ = chassis_->phiL();
         } else {
-            if (chassis_->phiL() > 0) {
+            if (chassis_->phiL() > LAUNCH_ROT_CENTER) {
                 refPhiL_ -= LAUNCH_DPHI;
             } else {
                 refPhiL_ += LAUNCH_DPHI;
@@ -40,11 +41,11 @@ public:
         }
         chassis_->setHipPhiL(refPhiL_);
 
-        if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2)) {
+        if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2) || isRotFinish_[1]) {
             isRotFinish_[1] = true;
             refPhiR_ = chassis_->phiR();
         } else {
-            if (chassis_->phiR() > 0) {
+            if (chassis_->phiR() > LAUNCH_ROT_CENTER) {
                 refPhiR_ -= LAUNCH_DPHI;
             } else {
                 refPhiR_ += LAUNCH_DPHI;

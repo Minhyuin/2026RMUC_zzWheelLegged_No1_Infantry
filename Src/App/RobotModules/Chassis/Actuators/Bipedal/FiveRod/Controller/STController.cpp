@@ -12,10 +12,10 @@ Matrix<1, 1> STController::solve(const Matrix<4, 1> &_errX, float _l, bool _isFl
     float x1x1 = x1 * x1;
     float x1x1x1 = x1x1 * x1;
     // NOLINTBEGIN(readability-math-missing-parentheses, readability-identifier-naming)
-    float LQR_K_DATA[1 * 4] = { 26.49948f * x1x1x1 - 6.6872392f * x1x1 - 9.9054291f * x1 - 24.145107f,
-                                44.050147f * x1 + 211.04259f * x1x1 - 372.75205f * x1x1x1 + 223.71706f,
-                                54.104345f * x1x1x1 - 21.582604f * x1x1 - 13.754285f * x1 - 35.921195f,
-                                2.0270105f * x1 + 90.698775f * x1x1 - 130.72475f * x1x1x1 + 23.421487f };
+    float LQR_K_DATA[1 * 4] = { 83.778534f * x1x1x1 - 21.220596f * x1x1 - 31.251938f * x1 - 76.20426f,
+                                68.233096f * x1 + 336.69113f * x1x1 - 590.76774f * x1x1x1 + 305.27392f,
+                                111.60892f * x1x1x1 - 50.600176f * x1x1 - 23.421736f * x1 - 63.892864f,
+                                149.24717f * x1x1 - 1.6880261f * x1 - 206.49895f * x1x1x1 + 26.661677f };
     // NOLINTEND(readability-math-missing-parentheses, readability-identifier-naming)
     Matrix<1, 4> k(LQR_K_DATA);
     Matrix<1, 1> u;

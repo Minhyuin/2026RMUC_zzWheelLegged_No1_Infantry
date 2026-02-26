@@ -56,9 +56,9 @@ class Bipedal : public Chassis {
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.45f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -1.10f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.95f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
 public:
     static constexpr float DEFAULT_L = 0.25f; // the length for all feedforward param

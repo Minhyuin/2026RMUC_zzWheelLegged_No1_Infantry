@@ -31,7 +31,8 @@ public:
 
         refPhiR_ += CLIMB_DPHI;
         if (chassis_->detectPhiGlobalLRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
-                                            CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD)) {
+                                            CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
+            isClimbReady_[0]) {
             isClimbReady_[0] = true;
             refPhiL_ = chassis_->phiL();
         } else {
@@ -40,7 +41,8 @@ public:
         chassis_->setHipPhiL(refPhiL_);
 
         if (chassis_->detectPhiGlobalRRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
-                                            CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD)) {
+                                            CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
+            isClimbReady_[1]) {
             isClimbReady_[1] = true;
             refPhiR_ = chassis_->phiR();
         } else {

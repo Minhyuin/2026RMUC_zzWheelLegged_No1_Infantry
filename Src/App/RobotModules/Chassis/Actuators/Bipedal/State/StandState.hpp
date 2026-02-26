@@ -6,7 +6,9 @@
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
-    static constexpr float STAND_PHI = 0.f;
+    static constexpr float JUDGE_PHI = 0.15f; // 用于判断站立策略
+
+    static constexpr float STAND_PHI = 0.0f;
     static constexpr float STAND_L = 0.2f;
 
     static constexpr float MAX_ACC_BACK = 0.4f;
@@ -15,11 +17,11 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float BALANCE_DETECT_THESHOLD = 0.2f;
     static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 100;
 
-    static constexpr float TARGET_PITCH_FORWARD = 0.13f;
-    static constexpr float TARGET_PITCH_BACKWARD = 0.f;
+    static constexpr float TARGET_PITCH_FORWARD = 0.f;
+    static constexpr float TARGET_PITCH_BACKWARD = 0.2f;
 
     static constexpr float S_FEEDFORWARD_FORWARD = -1.0f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -0.8f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.9f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 500; // ms
 
 public:
@@ -33,7 +35,7 @@ public:
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
 
-        if ((chassis_->phiGlobalL() + chassis_->phiGlobalR()) / 2.f >= 0.05f) {
+        if ((chassis_->phiGlobalL() + chassis_->phiGlobalR()) / 2.f >= JUDGE_PHI) {
             // 腿在后面
             sFeedforward_ = S_FEEDFORWARD_FORWARD;
             targetBalancePitch_ = TARGET_PITCH_FORWARD;
@@ -42,7 +44,7 @@ public:
             // 腿在前面
             sFeedforward_ = S_FEEDFORWARD_BACKWARD;
             targetBalancePitch_ = TARGET_PITCH_BACKWARD;
-            model_ = Model_e::WBR; // 太重时切WBR的小位移自启会更好
+            model_ = Model_e::ST;
         }
 
         LOG::info("ChassisStand", "enter");
