@@ -4,10 +4,9 @@
 
 Cmd::Cmd()
         : Task<Cmd, 256>("CmdTask", TaskPriority_e::LOW2)
-        , eventGroup_(xEventGroupCreate())
-        , rcHandler_(&RC_UART, eventGroup_)
         , tofLeftHandler_(&TFMINIS_LEFT_UART, eventGroup_, msgBus_.tofLefDistQueue)
         , tofRightHandler_(&TFMINIS_RIGHT_UART, eventGroup_, msgBus_.tofRigDistQueue)
+
 {
     msgBus_.chassisQueue = xQueueCreate(10, sizeof(ChassisMsg_s));
     msgBus_.gimbalQueue = xQueueCreate(10, sizeof(GimbalMsg_s));
