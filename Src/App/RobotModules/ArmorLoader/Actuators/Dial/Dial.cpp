@@ -4,7 +4,7 @@
 
 #include "Bsp_can.hpp"
 
-#include "M3508.hpp"
+#include "MG4005.hpp"
 
 #include "./State/AutoState.hpp"
 #include "./State/BlockState.hpp"
@@ -16,12 +16,10 @@ using namespace PINYMOTOR;
 
 void ShooterCtrlRxPacket::registerCallback()
 {
-    Can::instance().registerCallback(
-            &HCAN3, uid(), [this](const uint8_t *_rxBuf) {
-                xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
-            });
-    LOG::info("ShooterCtrlRxPacket", " Receive cb registered, uId:0x%hx",
-              uid());
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("ShooterCtrlRxPacket", " Receive cb registered, uId:0x%hx", uid());
 }
 
 Dial::Dial()
@@ -30,26 +28,20 @@ Dial::Dial()
         .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::QUAD_CURR,
-        .offsetId = 7,
+        .offsetId = 1,
         .txFreq = DIAL_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .isReverse = DIAL_REVERSE,
     };
-    motors_.dial = new DJIMOTOR::M3508("M3508", dialConfig);
-    motors_.dial->overrideReductionRatio(DJIMOTOR::M3508::ORIGINAL_GEARBOX_RR *
-                                         OUTER_RR);
+    motors_.dial = new LKMOTOR::MG4005("MG4005", dialConfig);
+    motors_.dial->overrideReductionRatio(LKMOTOR::MG4005::REDUCTION_RATIO * OUTER_RR);
 
-    this->stateFactory_.addState(FSMState_e::AUTO,
-                                 std::make_unique<AutoState>(this));
-    this->stateFactory_.addState(FSMState_e::BLOCK,
-                                 std::make_unique<BlockState>(this));
-    this->stateFactory_.addState(FSMState_e::SINGLE,
-                                 std::make_unique<SingleState>(this));
-    this->stateFactory_.addState(FSMState_e::STOP,
-                                 std::make_unique<StopState>(this));
-    this->stateFactory_.init(
-            this->stateFactory_.getNextState(FSMState_e::STOP));
+    this->stateFactory_.addState(FSMState_e::AUTO, std::make_unique<AutoState>(this));
+    this->stateFactory_.addState(FSMState_e::BLOCK, std::make_unique<BlockState>(this));
+    this->stateFactory_.addState(FSMState_e::SINGLE, std::make_unique<SingleState>(this));
+    this->stateFactory_.addState(FSMState_e::STOP, std::make_unique<StopState>(this));
+    this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
 }
 
 void Dial::stop()
@@ -68,13 +60,15 @@ void Dial::enter()
 
 void Dial::update(void *_param)
 {
-    msg.state = static_cast<FSMState_e>(shooterCtrlRxPacket_.data().state);
-    msg.fire = shooterCtrlRxPacket_.data().fire;
+    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &msg, 0) == pdTRUE) {
+    };
+    // msg.state = static_cast<FSMState_e>(shooterCtrlRxPacket_.data().state);
+    // msg.fire = shooterCtrlRxPacket_.data().fire;
 
     vel_ = velFltr_.process(dial()->vel());
+    curr_ = dial()->data().curr;
 
-    if (std::fabs(dial()->data().curr) > BLOCK_CURRENT &&
-        std::fabs(dial()->vel()) < BLOCK_SPEED_MIN) {
+    if (std::fabs(curr_) > BLOCK_CURRENT && std::fabs(vel_) < BLOCK_SPEED_MIN) {
         blockCnt = blockCnt < BLOCK_CNT_MAX ? blockCnt + 1 : BLOCK_CNT_MAX;
     } else {
         blockCnt = blockCnt > 0 ? blockCnt - 1 : 0;
@@ -88,10 +82,7 @@ IMotor *Dial::dial() const { return motors_.dial; }
 
 void Dial::ctrl(float _torq) { dial()->cmdTorq(_torq); }
 
-void Dial::ctrl(PID *_velPID, float _vel)
-{
-    dial()->cmdTorq(_velPID->calc(_vel, vel_));
-}
+void Dial::ctrl(PID *_velPID, float _vel) { dial()->cmdTorq(_velPID->calc(_vel, vel_)); }
 
 void Dial::ctrl(PID *_posPID, PID *_velPID, float _ang)
 {

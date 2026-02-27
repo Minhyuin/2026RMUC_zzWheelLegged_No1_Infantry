@@ -4,15 +4,14 @@
 
 #include "IMotor.hpp"
 
-#include "IIR.hpp"
+#include "LPF.hpp"
 
 #include "RxPacket.hpp"
 #include "PacketImpl.hpp"
 
 namespace ARMORLOADER {
 
-class ShooterCtrlRxPacket
-        : public COMM::RxPacket<COMM::ArmorBoosterPacketType, 1> {
+class ShooterCtrlRxPacket : public COMM::RxPacket<COMM::ArmorBoosterPacketType, 1> {
     friend class Dial;
     ShooterCtrlRxPacket() { registerCallback(); }
     void registerCallback() final;
@@ -27,15 +26,15 @@ class Dial : public ArmorLoader {
     };
 
 public:
-    static constexpr float OUTER_RR = 54.f / 24.f;
+    static constexpr float OUTER_RR = 1.f;
 
-    static constexpr uint8_t BULLET_NUM_ROUND = 8;
+    static constexpr uint8_t BULLET_NUM_ROUND = 10;
 
     static constexpr float DIAL_MOTOR_FREQ = 500.f;
 
     static constexpr bool DIAL_REVERSE = false;
 
-    static constexpr float BLOCK_CURRENT = 1.f;   // A
+    static constexpr float BLOCK_CURRENT = 2.f;   // A
     static constexpr float BLOCK_SPEED_MIN = 1.f; // rad/s
     static constexpr uint16_t BLOCK_CNT_MAX = 300.f;
 
@@ -78,11 +77,12 @@ public:
 private:
     Motors_u motors_;
 
-    FILTER::IIR2 velFltr_;
+    FILTER::LPF velFltr_{ DIAL_MOTOR_FREQ, 50.f };
 
     ShooterCtrlRxPacket shooterCtrlRxPacket_;
 
-    float vel_; // rad/s
+    float vel_;  // rad/s
+    float curr_; // A
 
     uint16_t blockCnt = 0.f;
 };
