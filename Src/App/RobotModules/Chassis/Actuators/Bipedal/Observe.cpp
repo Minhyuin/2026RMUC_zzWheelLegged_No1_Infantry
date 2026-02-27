@@ -96,13 +96,6 @@ bool Bipedal::detectAng(float _input, float _startAng, float _endAng) const
 
 void Bipedal::updateVel()
 {
-    // update ax az
-    float sinPitch = arm_sin_f32(insData_.pitch);
-    float cosPitch = arm_cos_f32(insData_.pitch);
-    float cosRoll = arm_cos_f32(insData_.roll);
-
-    az_ = insData_.earth.az + WheelLegged::GRAVITY;
-
     // update odom
     // w = w_eb + dq + w_ecd
     float wheelOmega[2]{};
@@ -125,6 +118,8 @@ void Bipedal::updateVel()
     ds_ = odom_.normVel();
     // ds_ = vxFromWheel;
     as_ = odom_.normAcc();
+
+    az_ = insData_.earth.az + WheelLegged::GRAVITY;
 
     // stop detect
     if (lockSCount_ > 0)

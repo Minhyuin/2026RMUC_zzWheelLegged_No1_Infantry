@@ -11,12 +11,9 @@
 namespace ARMORBOOSTER {
 
 class DualFric : public ArmorBooster {
-    union Motors_u {
-        struct {
-            PINYMOTOR::IMotor *fricL;
-            PINYMOTOR::IMotor *fricR;
-        };
-        PINYMOTOR::IMotor *_[2];
+    struct Motors_s {
+        PINYMOTOR::IMotor *fricL;
+        PINYMOTOR::IMotor *fricR;
     };
 
 public:
@@ -41,7 +38,7 @@ public:
     void update(void *_param);
 
 private:
-    Motors_u motors_;
+    Motors_s motors_;
 
     FILTER::IIR3 velFltr_[2];
 

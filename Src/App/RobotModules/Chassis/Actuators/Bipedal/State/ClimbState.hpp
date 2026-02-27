@@ -3,8 +3,6 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
-#include "MotorCommonMacros.hpp"
-
 #include "PidBasic.hpp"
 
 namespace CHASSIS {

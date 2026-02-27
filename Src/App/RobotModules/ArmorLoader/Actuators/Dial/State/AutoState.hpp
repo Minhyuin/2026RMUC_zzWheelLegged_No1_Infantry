@@ -11,11 +11,8 @@ static PositionalPid autoDialVelPID(0.15f, 0.1f, 0.002f, 0.002f, 0.2f, 2.49f);
 namespace ARMORLOADER {
 
 class AutoState : public FSMState<FSMState_e> {
-    union Pids_u {
-        struct {
-            PID *dialVelPid;
-        };
-        PID *_[1];
+    struct Pids_s {
+        PID *dialVelPid;
     };
 
     static constexpr float getDialVel(float _rate)
@@ -45,9 +42,7 @@ public:
 
     void exit() final
     {
-        for (auto &i : pids_._) {
-            i->reset();
-        }
+        pids_.dialVelPid->reset();
         loader_->lastState = FSMState_e::AUTO;
         LOG::info("ArmorLoaderAuto", " exit");
     }
@@ -69,6 +64,6 @@ public:
 private:
     Dial *loader_;
 
-    Pids_u pids_;
+    Pids_s pids_;
 };
 } // namespace ARMORLOADER

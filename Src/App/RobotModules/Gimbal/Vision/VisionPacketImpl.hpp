@@ -64,7 +64,11 @@ public:
         d.timestamp = _protoData.timestamp;
         d.checksum = Get_CRC16_Check_Sum(_data.bytes, LEN - 2, CRC16_INIT);
     }
-    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData) {}
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        (void)_data;
+        (void)_protoData;
+    }
 };
 
 class VisionRxPacket {
@@ -112,7 +116,11 @@ public:
         uint8_t bytes[LEN];
     } data;
 #pragma pack(pop)
-    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data) {}
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        (void)_protoData;
+        (void)_data;
+    }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
         if (_data.content.header == ID && Verify_CRC16_Check_Sum(_data.bytes, LEN)) {

@@ -29,6 +29,7 @@ bool TFminiS::checksum()
 
 void TFminiS::callBackFromISR(UART_HandleTypeDef *_huart, uint16_t _dataLength, uint32_t _eventBit)
 {
+    (void)_dataLength;
     uint16_t size = _huart->RxXferCount;
     // NOLINTBEGIN(readability-redundant-casting)
     if (((((DMA_Stream_TypeDef *)_huart->hdmarx->Instance)->CR) & DMA_SxCR_CT) == RESET) {

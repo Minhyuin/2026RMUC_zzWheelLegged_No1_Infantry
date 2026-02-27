@@ -16,37 +16,24 @@
 
 namespace GIMBAL {
 
-union Motors_u {
-    struct {
-        PINYMOTOR::IMotor *pitch;
-        PINYMOTOR::IMotor *yaw;
-    };
-    PINYMOTOR::IMotor *_[2];
-};
-
-union States_u {
-    struct {
-        float pos;
-        float vel;
-        float torq;
-    };
-    float _[2];
-};
-
 class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
     friend class Standard;
     ChassisCtrlTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
-class ShooterCtrlTxPacket
-        : public COMM::TxPacket<COMM::ArmorBoosterPacketType> {
+class ShooterCtrlTxPacket : public COMM::TxPacket<COMM::ArmorBoosterPacketType> {
     friend class Standard;
     ShooterCtrlTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class Standard : public Gimbal {
+    struct Motors_s {
+        PINYMOTOR::IMotor *pitch;
+        PINYMOTOR::IMotor *yaw;
+    };
+
 public:
     static constexpr float PITCH_LAUNCH_ANG = 4.68467999f;
     static constexpr float YAW_LAUNCH_ANG = 3.04590487f;
@@ -80,7 +67,7 @@ public:
     void loadResetState(bool _state);
 
 private:
-    Motors_u motors_;
+    Motors_s motors_;
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
     ShooterCtrlTxPacket shooterCtrlTxPacket_;

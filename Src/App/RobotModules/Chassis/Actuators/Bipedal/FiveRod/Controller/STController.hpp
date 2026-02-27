@@ -6,25 +6,22 @@ namespace CHASSIS {
 
 class STController {
 public:
-    union States_u {
-        struct {
-            float s, q;
-            float ds, dq;
-        };
-        float _[4];
+    struct States_s {
+        float data[4];
+        float &s = data[0];
+        float &q = data[1];
+        float &ds = data[2];
+        float &dq = data[3];
     };
 
-    union Controls_u {
-        struct {
-            float tw;
-        };
-        float _[1];
+    struct Controls_s {
+        float data[1];
+        float &tw = data[0];
     };
 
     STController();
 
-    static Matrix<1, 1> solve(const Matrix<4, 1> &_errX, float _l,
-                              bool _isFloating);
+    static Matrix<1, 1> solve(const Matrix<4, 1> &_errX, float _l, bool _isFloating);
 };
 
 } // namespace CHASSIS

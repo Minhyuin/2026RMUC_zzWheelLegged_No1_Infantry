@@ -33,7 +33,7 @@ public:
     void run() final
     {
         jumpFSMFactory_.update();
-        WBRController::States_u ref{};
+        WBRController::States_s ref{};
         ref.ds = chassis_->vel();
         ref.yaw = chassis_->yaw();
         chassis_->bal(ref);

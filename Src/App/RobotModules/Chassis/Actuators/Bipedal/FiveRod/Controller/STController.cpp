@@ -19,6 +19,7 @@ Matrix<1, 1> STController::solve(const Matrix<4, 1> &_errX, float _l, bool _isFl
     // NOLINTEND(readability-math-missing-parentheses, readability-identifier-naming)
     Matrix<1, 4> k(LQR_K_DATA);
     Matrix<1, 1> u;
+    (void)_isFloating;
     // if (!_isFloating)
     //     u = k * _errX;
     // else
