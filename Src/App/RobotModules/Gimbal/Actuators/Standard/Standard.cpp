@@ -66,16 +66,14 @@ void Standard::stop()
     outFilrYaw_.reset();
     outFilrPitch_.reset();
 
-    for (auto &i : motors_._) {
-        i->cmd(PINYMOTOR::MotorCmdType_e::OFF);
-    }
+    motors_.pitch->cmd(MotorCmdType_e::OFF);
+    motors_.yaw->cmd(MotorCmdType_e::OFF);
 }
 
 void Standard::enter()
 {
-    for (auto &i : motors_._) {
-        i->cmd(PINYMOTOR::MotorCmdType_e::ON);
-    }
+    motors_.pitch->cmd(MotorCmdType_e::ON);
+    motors_.yaw->cmd(MotorCmdType_e::ON);
 }
 
 void Standard::update(void *_param)
@@ -175,10 +173,15 @@ void Standard::loadResetState(bool _state) { chassisCtrlTxPacket_.setData().gimb
 
 float Standard::calcPitchTorq(float _ang, float _vel, float _acc)
 {
+    (void)_ang;
+    (void)_vel;
+    (void)_acc;
     return 0.f; // TODO:
 }
 
 float Standard::calcYawTorq(float _vel, float _acc)
 {
+    (void)_vel;
+    (void)_acc;
     return 0.f; // TODO:
 }

@@ -33,7 +33,7 @@ public:
         chassis_->setFdFeedforward();
 
         // WBR
-        WBRController::States_u ref{};
+        WBRController::States_s ref{};
         float wz = chassis_->msg.wz * 0.001f;
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
         ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);

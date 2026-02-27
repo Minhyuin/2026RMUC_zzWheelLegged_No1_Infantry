@@ -30,7 +30,7 @@ public:
         chassis_->setFdFeedforward();
 
         // WBR
-        WBRController::States_u ref{};
+        WBRController::States_s ref{};
         float wz = getSpinVel(spinCnt_++) * 0.001f;
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
         ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_VX_ACC, chassis_->vel() + MAX_VX_ACC);

@@ -19,6 +19,7 @@ void PinyCore::bspInit()
 
     /* we need lazy init firstly */
     auto &usb = Usb::instance();
+    (void)usb;
 }
 
 void PinyCore::coreInit()

@@ -125,16 +125,16 @@ void INS::task()
         // Yaw: Clockwise decrease(-) when viewed from above
         auto &data = rawDat_;
 #if !APP_USE_COMM || TARGET_SLAVE
-        data = {
-            .a = { .x = -cali.getOutput().ay, .y = -cali.getOutput().ax, .z = cali.getOutput().az },
-            .g = { .x = cali.getOutput().gy, .y = cali.getOutput().gx, .z = -cali.getOutput().gz },
-        };
+        data = { .a = { .x = -cali.getOutput().ay, .y = -cali.getOutput().ax, .z = cali.getOutput().az },
+                 .g = { .x = cali.getOutput().gy, .y = cali.getOutput().gx, .z = -cali.getOutput().gz },
+                 .m = { .x = 0, .y = 0, .z = 0 },
+                 .temperature = bmi088.getTemperature() };
 #endif
 #if TARGET_MASTER
-        data = {
-            .a = { .x = cali.getOutput().ay, .y = -cali.getOutput().ax, .z = -cali.getOutput().az },
-            .g = { .x = -cali.getOutput().gy, .y = cali.getOutput().gx, .z = cali.getOutput().gz },
-        };
+        data = { .a = { .x = cali.getOutput().ay, .y = -cali.getOutput().ax, .z = -cali.getOutput().az },
+                 .g = { .x = -cali.getOutput().gy, .y = cali.getOutput().gx, .z = cali.getOutput().gz },
+                 .m = { .x = 0, .y = 0, .z = 0 },
+                 .temperature = bmi088.getTemperature() };
 #endif
         data.a.x = data.a.x - (data.g.y * data.g.z * IMU_OFFSET_Y - data.g.z * data.g.z * IMU_OFFSET_X);
         data.a.y = data.a.y - (data.g.z * data.g.x * IMU_OFFSET_X - data.g.x * data.g.z * IMU_OFFSET_Y);
@@ -156,7 +156,6 @@ void INS::update(float _dt)
 
     // Quaternion data
     DCM_.getQuaternion(insDat_.q);
-    float w = insDat_.q[0], x = insDat_.q[1], y = insDat_.q[2], z = insDat_.q[3];
 
     // Get the Euler angles
     insDat_.roll = DCM_.getRoll();
@@ -196,6 +195,7 @@ void INS::update(float _dt)
     R_(2, 1) = cp * sr;
     R_(2, 2) = cp * cr;
 #else
+    float w = insDat_.q[0], x = insDat_.q[1], y = insDat_.q[2], z = insDat_.q[3];
     R_(0, 0) = 1.f - 2.f * y * y - 2.f * z * z; // 1-2y^2-2z^2
     R_(0, 1) = 2.f * x * y - 2.f * w * z;       // 2xy - 2wz
     R_(0, 2) = 2.f * x * z + 2.f * w * y;       // 2xz + 2wy

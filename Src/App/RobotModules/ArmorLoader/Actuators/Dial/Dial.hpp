@@ -18,11 +18,8 @@ class ShooterCtrlRxPacket : public COMM::RxPacket<COMM::ArmorBoosterPacketType, 
 };
 
 class Dial : public ArmorLoader {
-    union Motors_u {
-        struct {
-            PINYMOTOR::IMotor *dial;
-        };
-        PINYMOTOR::IMotor *_[1];
+    struct Motors_s {
+        PINYMOTOR::IMotor *dial;
     };
 
 public:
@@ -75,7 +72,7 @@ public:
     bool isBlock() const;
 
 private:
-    Motors_u motors_;
+    Motors_s motors_;
 
     FILTER::LPF velFltr_{ DIAL_MOTOR_FREQ, 50.f };
 

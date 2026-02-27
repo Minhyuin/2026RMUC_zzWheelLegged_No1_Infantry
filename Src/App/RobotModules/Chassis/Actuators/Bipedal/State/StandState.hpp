@@ -57,14 +57,14 @@ public:
         // ST
         if (model_ == Model_e::ST) {
             chassis_->setHipPhi(STAND_PHI);
-            STController::States_u ref{};
+            STController::States_s ref{};
             ref.q = targetBalancePitch_;
             ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
             chassis_->bal(ref, startYaw_);
         }
         // WBR
         else {
-            WBRController::States_u ref{};
+            WBRController::States_s ref{};
             float wz = chassis_->msg.wz * 0.001f;
             ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
             ref.yaw = startYaw_;

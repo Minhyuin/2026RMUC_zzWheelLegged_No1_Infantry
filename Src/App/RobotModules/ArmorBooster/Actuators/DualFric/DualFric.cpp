@@ -47,16 +47,14 @@ DualFric::DualFric()
 
 void DualFric::stop()
 {
-    for (auto &i : motors_._) {
-        i->cmd(MotorCmdType_e::OFF);
-    }
+    motors_.fricL->cmd(MotorCmdType_e::OFF);
+    motors_.fricR->cmd(MotorCmdType_e::OFF);
 }
 
 void DualFric::enter()
 {
-    for (auto &i : motors_._) {
-        i->cmd(MotorCmdType_e::ON);
-    }
+    motors_.fricL->cmd(MotorCmdType_e::ON);
+    motors_.fricR->cmd(MotorCmdType_e::ON);
 }
 
 void DualFric::update(void *_param)
@@ -70,11 +68,12 @@ void DualFric::update(void *_param)
 
 void DualFric::ctrl(float _vel)
 {
-    for (uint8_t i = 0; i < 2; ++i) {
-        float velErr = _vel - velFltr_[i].process(motors_._[i]->vel());
-        float pidOut = fricPid_[i].calc(velErr, 0);
-        motors_._[i]->cmdTorq(pidOut);
-    }
+    float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
+    float pidOut = fricPid_[0].calc(velErr, 0);
+    motors_.fricL->cmdTorq(pidOut);
+    velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
+    pidOut = fricPid_[1].calc(velErr, 0);
+    motors_.fricR->cmdTorq(pidOut);
 }
 
 void DualFric::on()

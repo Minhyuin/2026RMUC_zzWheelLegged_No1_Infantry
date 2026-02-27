@@ -44,19 +44,9 @@ Dial::Dial()
     this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
 }
 
-void Dial::stop()
-{
-    for (auto &i : motors_._) {
-        i->cmd(MotorCmdType_e::OFF);
-    }
-}
+void Dial::stop() { motors_.dial->cmd(MotorCmdType_e::OFF); }
 
-void Dial::enter()
-{
-    for (auto &i : motors_._) {
-        i->cmd(MotorCmdType_e::ON);
-    }
-}
+void Dial::enter() { motors_.dial->cmd(MotorCmdType_e::ON); }
 
 void Dial::update(void *_param)
 {

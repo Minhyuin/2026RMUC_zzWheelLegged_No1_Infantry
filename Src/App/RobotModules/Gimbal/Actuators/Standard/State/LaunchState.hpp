@@ -18,15 +18,12 @@ static PositionalPid launchYawVelPID(0.3f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 namespace GIMBAL {
 
 class LaunchState : public FSMState<FSMState_e> {
-    union Pids_u {
-        struct {
-            PositionalPid *pitchAngPid;
-            PositionalPid *pitchVelPid;
+    struct Pids_s {
+        PositionalPid *pitchAngPid;
+        PositionalPid *pitchVelPid;
 
-            PositionalPid *yawAngPid;
-            PositionalPid *yawVelPid;
-        };
-        PID *_[4];
+        PositionalPid *yawAngPid;
+        PositionalPid *yawVelPid;
     };
 
     static constexpr uint16_t MAX_LAUNCH_TIME = 300; // 0.3s
@@ -94,9 +91,10 @@ public:
         finishLaunching_ = true;
         gimbal_->loadResetState(true);
 
-        for (auto &i : pids_._) {
-            i->reset();
-        }
+        pids_.pitchAngPid->reset();
+        pids_.pitchVelPid->reset();
+        pids_.yawAngPid->reset();
+        pids_.yawVelPid->reset();
 
         LOG::info("GimbalLaunch", "exit");
     }
@@ -116,7 +114,7 @@ public:
 private:
     Standard *gimbal_;
 
-    Pids_u pids_;
+    Pids_s pids_;
 
     float cmdMotorPitchAng_;
     float cmdMotorYawAng_;

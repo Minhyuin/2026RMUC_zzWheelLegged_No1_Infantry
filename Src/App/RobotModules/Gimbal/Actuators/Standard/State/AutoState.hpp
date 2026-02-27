@@ -15,15 +15,11 @@ static PositionalPid autoYawVelPID(0.9f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 namespace GIMBAL {
 
 class AutoState : public FSMState<FSMState_e> {
-    union Pids_u {
-        struct {
-            PositionalPid *pitchAngPid;
-            PositionalPid *pitchVelPid;
-
-            PositionalPid *yawAngPid;
-            PositionalPid *yawVelPid;
-        };
-        PID *_[4];
+    struct Pids_s {
+        PositionalPid *pitchAngPid;
+        PositionalPid *pitchVelPid;
+        PositionalPid *yawAngPid;
+        PositionalPid *yawVelPid;
     };
 
     static constexpr float IMU_PITCH_START_ANG = -0.44f;
@@ -68,9 +64,10 @@ public:
 
     void exit() final
     {
-        for (auto &i : pids_._) {
-            i->reset();
-        }
+        pids_.pitchAngPid->reset();
+        pids_.pitchVelPid->reset();
+        pids_.yawAngPid->reset();
+        pids_.yawVelPid->reset();
         LOG::info("GimbalAuto", "exit");
     }
     FSMState_e checkChange() final
@@ -87,7 +84,7 @@ public:
 private:
     Standard *gimbal_;
 
-    Pids_u pids_;
+    Pids_s pids_;
 
     float imuYawMinAng_ = IMU_YAW_START_ANG;
     float imuYawMaxAng_ = IMU_YAW_END_ANG;

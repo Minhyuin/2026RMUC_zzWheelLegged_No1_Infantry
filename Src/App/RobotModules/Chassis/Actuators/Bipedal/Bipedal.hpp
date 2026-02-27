@@ -16,16 +16,13 @@
 #include "PacketImpl.hpp"
 
 namespace CHASSIS {
-union Motors_u {
-    struct {
-        PINYMOTOR::IMotor *WheelR;
-        PINYMOTOR::IMotor *HipRF;
-        PINYMOTOR::IMotor *HipRB;
-        PINYMOTOR::IMotor *WheelL;
-        PINYMOTOR::IMotor *HipLF;
-        PINYMOTOR::IMotor *HipLB;
-    };
-    PINYMOTOR::IMotor *_[6];
+struct Motors_s {
+    PINYMOTOR::IMotor *WheelR;
+    PINYMOTOR::IMotor *HipRF;
+    PINYMOTOR::IMotor *HipRB;
+    PINYMOTOR::IMotor *WheelL;
+    PINYMOTOR::IMotor *HipLF;
+    PINYMOTOR::IMotor *HipLB;
 };
 
 class ChassisCtrlRxPacket : public COMM::RxPacket<COMM::ChassisCtrlPacketType, 1> {
@@ -196,15 +193,15 @@ public:
      * @param _ref 6D reference state in WL model
      * @param _yaw should be clamped in [-PI, PI]
      */
-    void bal(const WLController::States_u &_ref, float _yaw);
-    void bal(const WLController::States_u &_refL, const WLController::States_u &_refR, float _yaw);
+    void bal(const WLController::States_s &_ref, float _yaw);
+    void bal(const WLController::States_s &_refL, const WLController::States_s &_refR, float _yaw);
 
     /**
      * @brief base on WBR Model, balance the chassis with the given reference state
      * 
      * @param _ref 10D reference state in WBR model
      */
-    void bal(const WBRController::States_u &_ref);
+    void bal(const WBRController::States_s &_ref);
 
     /**
      * @brief base on ST Model, balance the chassis with the given reference state and yaw
@@ -212,7 +209,7 @@ public:
      * @param _ref 4D reference state in ST model
      * @param _yaw should be clamped in [-PI, PI]
      */
-    void bal(const STController::States_u &_ref, float _yaw);
+    void bal(const STController::States_s &_ref, float _yaw);
 
     /**
      * @brief disable balancing and set the expected velocity and angular velocity
@@ -309,7 +306,7 @@ public:
     float deltaYaw = 0.f;
 
 private:
-    Motors_u motors_;
+    Motors_s motors_;
 
     WheelLegged legL_;
     WheelLegged legR_;

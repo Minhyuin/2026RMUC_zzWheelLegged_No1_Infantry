@@ -93,6 +93,7 @@ void WheelLegged::ctrl()
 float WheelLegged::minL(float _phi) const
 {
     // TODO: a fitted polynomial : minL = f(phi)
+    (void)_phi;
     return MIN_L;
 }
 

@@ -11,12 +11,9 @@ static PositionalPid singleDialVelPID(4.f, 0, 0, 0.001f, 0, 4.5f, 0);
 namespace ARMORLOADER {
 
 class SingleState : public FSMState<FSMState_e> {
-    union Pids_u {
-        struct {
-            PID *dialAngPid;
-            PID *dialVelPid;
-        };
-        PID *_[2];
+    struct Pids_s {
+        PID *dialAngPid;
+        PID *dialVelPid;
     };
 
     enum class SingleFSMState_e : uint8_t { BOOST, FINISH };
@@ -26,20 +23,16 @@ class SingleState : public FSMState<FSMState_e> {
     static constexpr float DEADBAND = 0.02f;
 
 public:
-    SingleState(Dial *_armorLoader)
-            : FSMState<FSMState_e>(FSMState_e::SINGLE), loader_(_armorLoader)
+    SingleState(Dial *_armorLoader) : FSMState<FSMState_e>(FSMState_e::SINGLE), loader_(_armorLoader)
     {
-        singleFSMFactory_.addState(SingleFSMState_e::BOOST,
-                                   std::make_unique<BoostState>(*this));
-        singleFSMFactory_.addState(SingleFSMState_e::FINISH,
-                                   std::make_unique<FinishState>(*this));
+        singleFSMFactory_.addState(SingleFSMState_e::BOOST, std::make_unique<BoostState>(*this));
+        singleFSMFactory_.addState(SingleFSMState_e::FINISH, std::make_unique<FinishState>(*this));
     }
 
     void enter() final
     {
         loader_->enter();
-        singleFSMFactory_.init(
-                singleFSMFactory_.getNextState(SingleFSMState_e::FINISH));
+        singleFSMFactory_.init(singleFSMFactory_.getNextState(SingleFSMState_e::FINISH));
         LOG::info("ArmorLoaderSingle", " enter");
     }
 
@@ -77,8 +70,7 @@ private:
     class BoostState : public FSMState<SingleFSMState_e> {
     public:
         explicit BoostState(SingleState &_parent)
-                : FSMState<SingleFSMState_e>(SingleFSMState_e::BOOST)
-                , parent_(_parent)
+                : FSMState<SingleFSMState_e>(SingleFSMState_e::BOOST), parent_(_parent)
         {
             pids_.dialAngPid = &singleDialAngPID;
             pids_.dialVelPid = &singleDialVelPID;
@@ -90,15 +82,12 @@ private:
             LOG::info("", "fire");
         }
 
-        void run() final
-        {
-            parent_.loader_->ctrl(pids_.dialAngPid, pids_.dialVelPid, fixAng_);
-        }
+        void run() final { parent_.loader_->ctrl(pids_.dialAngPid, pids_.dialVelPid, fixAng_); }
 
         void exit() final
         {
-            for (auto i : pids_._)
-                i->reset();
+            pids_.dialAngPid->reset();
+            pids_.dialVelPid->reset();
         }
 
         SingleFSMState_e checkChange() final
@@ -111,7 +100,7 @@ private:
 
     private:
         SingleState &parent_;
-        Pids_u pids_;
+        Pids_s pids_;
         float fixAng_;
 
         bool isShootFinish() const
@@ -125,8 +114,7 @@ private:
     class FinishState : public FSMState<SingleFSMState_e> {
     public:
         explicit FinishState(SingleState &_parent)
-                : FSMState<SingleFSMState_e>(SingleFSMState_e::FINISH)
-                , parent_(_parent)
+                : FSMState<SingleFSMState_e>(SingleFSMState_e::FINISH), parent_(_parent)
         {
         }
         void enter() final
