@@ -130,5 +130,5 @@ CONFIG_USE_LAZY=y
 # Kernel hacking
 #
 CONFIG_RTOS_DEBUG=y
-# CONFIG_USE_VSCODE_XRTOS is not set
+CONFIG_USE_VSCODE_XRTOS=y
 # end of Kernel hacking
