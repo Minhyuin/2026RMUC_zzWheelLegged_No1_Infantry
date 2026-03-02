@@ -65,8 +65,15 @@
       "executable": "./build/PinyCore.elf",
       "name": "DebugSTM32",
       "request": "launch",
-      "type": "cortex-debug",
+      "type": "cortex-debug", 
       "servertype": "openocd",
+
+      "overrideLaunchCommands": [
+        "monitor halt"
+      ],
+      "overrideResetCommands": [
+        "monitor halt"
+      ],
       
       "configFiles": [
         //"${workspaceFolder}/tools/openocd/stlink.cfg",
