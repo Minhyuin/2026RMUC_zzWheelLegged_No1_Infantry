@@ -9,7 +9,7 @@ namespace CHASSIS {
 class ClimbState : public FSMState<FSMState_e> {
     static constexpr float CLIMB_PHI = 1.6f;
     static constexpr float CLIMB_DPHI = 3.f * 0.001f;
-    static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.2f;
+    static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.1f;
 
 public:
     ClimbState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB), chassis_(_chassis) {}
@@ -17,6 +17,7 @@ public:
     void enter() final
     {
         chassis_->enter();
+        chassis_->disableRoll();
         refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
         isClimbReady_[0] = isClimbReady_[1] = false;
         LOG::info("ChassisClimb", " enter");
@@ -25,9 +26,7 @@ public:
     void run() final
     {
         chassis_->setLength(refLength_);
-        chassis_->setFdFeedforward();
 
-        refPhiR_ += CLIMB_DPHI;
         if (chassis_->detectPhiGlobalLRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
                                             CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
             isClimbReady_[0]) {

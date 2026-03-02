@@ -5,8 +5,6 @@
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
-float OFFSET_THRESHOLD = 40.f;
-
 void WheelLegged::init(PINYMOTOR::IMotor *_hip1, PINYMOTOR::IMotor *_hip4, PINYMOTOR::IMotor *_wheel)
 {
     hip1_ = _hip1;
@@ -48,11 +46,12 @@ void WheelLegged::stateUpdate(float _dt)
     vmc_.update(legState_, _dt);
 }
 
+float OFFSET_THRESHOLD = 30.f;
 bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
     float sinPhi0 = arm_sin_f32(legState_.phi0 + _q);
-    fp_ = (legState_.fd * cosPhi0) + (legState_.tp * sinPhi0 / legState_.L0);
+    fp_ = ((legState_.fd + fdFromSpring_) * cosPhi0) + (legState_.tp * sinPhi0 / legState_.L0);
     float azWheel = _az - (legState_.ad * cosPhi0) + (2.f * legState_.vd * legState_.dphi0 * sinPhi0) +
                     (legState_.L0 * legState_.ap * sinPhi0) + (legState_.L0 * powf(legState_.dphi0, 2) * cosPhi0);
     nWheel_ = ((azWheel + GRAVITY) * MASS_WHEEL);
@@ -73,6 +72,15 @@ void WheelLegged::ctrl()
         float setVd = lengthAngPid_.calc(setL_, legState_.L0);
         fd_ = lengthVelPid_.calc(setVd, legState_.vd) + (floatFlag ? 0.f : fdFeedforward_);
     }
+
+    // spring
+    float &l = legState_.L0;
+    float ll = l * l;
+    float lll = ll * l;
+    float alpha = 2.883970f - (11.390346f * l) + (21.033344f * ll) - (18.549776f * lll);
+    float cosAlpha = arm_cos_f32(alpha);
+    fdFromSpring_ = spring_.computeForce(legState_.vd / cosAlpha); //* cosAlpha;
+    fd_ -= fdFromSpring_;
 
     Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
 

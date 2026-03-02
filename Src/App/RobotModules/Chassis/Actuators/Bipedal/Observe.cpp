@@ -3,7 +3,6 @@
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
-
 bool Bipedal::isGimbalReset() const
 {
     // return chassisCtrlRxPacket_.data().gimbalReset;
@@ -13,13 +12,14 @@ bool Bipedal::isGimbalReset() const
 bool Bipedal::isTumble() const
 {
     // TODO: maybe this is a weighted linear regression
-    return fabs(phiL()) > 1.f || fabs(phiR()) > 1.f || fabs(phiL()) < -1.f || fabs(phiR()) < -1.f;
+    return fabs(phiGlobalL()) > 0.7f || fabs(phiGlobalR()) > 0.7f || fabs(phiGlobalL()) < -0.7f ||
+           fabs(phiGlobalR()) < -0.7f;
 }
 
+static constexpr float DANG_FREEZE_THRESHOLD = 0.2f;
+static constexpr uint16_t FREEZE_MAX_TIME = 350;
 bool Bipedal::isFreeze() const
 {
-    static constexpr float DANG_FREEZE_THRESHOLD = 0.2f;
-    static constexpr uint16_t FREEZE_MAX_TIME = 700;
     static uint16_t freezeTime = 0;
     if (fabs(insData_.body.gx) < DANG_FREEZE_THRESHOLD && fabs(insData_.body.gy) < DANG_FREEZE_THRESHOLD &&
         fabs(insData_.body.gz) < DANG_FREEZE_THRESHOLD)
@@ -34,7 +34,7 @@ bool Bipedal::isFreeze() const
     }
 }
 
-bool Bipedal::isOverturn() const { return insData_.body.az > 0.1f; }
+bool Bipedal::isOverturn() const { return azBody_ > -3.f; }
 
 bool Bipedal::isFloating() const { return legL_.floatFlag || legR_.floatFlag; }
 
@@ -55,6 +55,31 @@ bool Bipedal::detectNeedStop(float _expVel)
         dsCmdBeforeStop_ = _expVel;
         return false;
     }
+}
+
+void Bipedal::detectStop()
+{
+    if (lockSCount_ > 0)
+        lockSCount_--;
+    static bool slowSpeedFlag = false;
+    if (detectNeedStop(this->msg.vx)) {
+        s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
+        if (fabs(insData_.earth.ax) < 0.0025f && !slowSpeedFlag) {
+            // LOG::info("sForward", "%f", s_);
+        }
+        if (ds_ < 0.1f && !slowSpeedFlag) {
+            slowSpeedFlag = true;
+            if (dsCmdBeforeStop_ > 0.f)
+                s_ = S_FEEDFORWARD_FORWARD;
+            else
+                s_ = S_FEEDFORWARD_BACKWARD;
+        }
+    } else {
+        s_ = 0;
+        slowSpeedFlag = false;
+    }
+    if (isFloating() && lockSCount_ == 0)
+        s_ = 0;
 }
 
 bool Bipedal::detectPitchRange(float _endAng, float _startAng) const { return detectAng(pitch(), _startAng, _endAng); }
@@ -94,7 +119,7 @@ bool Bipedal::detectAng(float _input, float _startAng, float _endAng) const
     // NOLINTEND(readability-suspicious-call-argument)
 }
 
-void Bipedal::updateVel()
+void Bipedal::updateBody()
 {
     // update odom
     // w = w_eb + dq + w_ecd
@@ -120,27 +145,10 @@ void Bipedal::updateVel()
     as_ = odom_.normAcc();
 
     az_ = insData_.earth.az + WheelLegged::GRAVITY;
+    azBody_ = azBodyFilter_.process(insData_.body.az);
 
-    // stop detect
-    if (lockSCount_ > 0)
-        lockSCount_--;
-    static bool slowSpeedFlag = false;
-    if (detectNeedStop(this->msg.vx)) {
-        s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
-        if (fabs(insData_.earth.ax) < 0.0025f && !slowSpeedFlag) {
-            // LOG::info("sForward", "%f", s_);
-        }
-        if (ds_ < 0.1f && !slowSpeedFlag) {
-            slowSpeedFlag = true;
-            if (dsCmdBeforeStop_ > 0.f)
-                s_ = S_FEEDFORWARD_FORWARD;
-            else
-                s_ = S_FEEDFORWARD_BACKWARD;
-        }
-    } else {
-        s_ = 0;
-        slowSpeedFlag = false;
-    }
-    if (isFloating() && lockSCount_ == 0)
-        s_ = 0;
+    yaw_ = insData_.yaw;
+
+    wz_ = insData_.earth.gz;
+    wx_ = insData_.earth.gx;
 }

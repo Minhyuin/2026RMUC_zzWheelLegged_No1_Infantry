@@ -19,8 +19,9 @@ public:
     void enter() final
     {
         chassis_->enter();
+        chassis_->enableRoll();
         refYaw_ = chassis_->yaw();
-        refRoll_ = chassis_->roll();
+        refRoll_ = 0.f;
         refLength_ = Bipedal::DEFAULT_L;
         LOG::info("ChassisIdle", " enter");
     }

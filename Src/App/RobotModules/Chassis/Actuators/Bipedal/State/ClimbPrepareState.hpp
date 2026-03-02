@@ -20,6 +20,7 @@ public:
     void enter() final
     {
         chassis_->enter();
+        isPrepareFinish_ = false;
         refYaw_ = chassis_->yaw();
         chassis_->setRoll(0);
         refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
@@ -31,6 +32,9 @@ public:
         refLength_ += chassis_->msg.dl * 0.001f;
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
+
+        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.55f)
+            isPrepareFinish_ = true;
 
         // WBR
         WBRController::States_s ref{};
@@ -56,7 +60,7 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        if (chassis_->isFloating())
+        if (isPrepareFinish_)
             return FSMState_e::CLIMB;
         else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::IDLE;
@@ -71,6 +75,7 @@ private:
     PositionalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
     float refYaw_ = 0;
     float refLength_ = Bipedal::DEFAULT_L;
+    bool isPrepareFinish_ = false;
 };
 
 } // namespace CHASSIS

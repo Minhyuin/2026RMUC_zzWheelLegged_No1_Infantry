@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VMC.hpp"
+#include "GasSpring.hpp"
 #include "IMotor.hpp"
 #include "PidBasic.hpp"
 #include "LPF.hpp"
@@ -11,12 +12,12 @@ class WheelLegged {
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
 
-    static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
+    static constexpr float MAX_HIP_CTRL_TORQ = 39.f;
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
-    static constexpr float MAX_FD = 120.f;
-    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 30.f, 0.f, 1.f, 0.001f, 0.f, 3.f, 0.f };
-    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 40.f, 0.f, 0.f, 0.001f, 0.f, MAX_FD, 0.f };
+    // 太硬会导致电机输出超过电池可承受荷载，影响tp分量
+    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 40.f, 0.f, 1.5f, 0.001f, 0.f, 3.f, 0.f };
+    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, 250.f, 0.f };
 
 public:
     static constexpr float MAX_L = 0.36f; // 0.36998937
@@ -125,6 +126,9 @@ private:
 
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
+
+    GasSpring spring_{ 100.f, 0.f };
+    float fdFromSpring_ = 0;
 
     float setL_ = 0.f;
 

@@ -6,10 +6,10 @@
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
-    static constexpr float JUDGE_PHI = 0.15f; // 用于判断站立策略
+    static constexpr float JUDGE_PHI = 0.05f; // 用于判断站立策略
 
     static constexpr float STAND_PHI = 0.0f;
-    static constexpr float STAND_L = 0.2f;
+    static constexpr float STAND_L = Bipedal::DEFAULT_L;
 
     static constexpr float MAX_ACC_BACK = 0.4f;
     static constexpr float MAX_ACC_FRONT = 2.f;
@@ -34,6 +34,7 @@ public:
         chassis_->enter();
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
+        chassis_->enableRoll();
 
         if ((chassis_->phiGlobalL() + chassis_->phiGlobalR()) / 2.f >= JUDGE_PHI) {
             // 腿在后面
@@ -53,6 +54,8 @@ public:
     void run() final
     {
         chassis_->setLength(startLength_);
+        chassis_->setFdFeedforward();
+        chassis_->setRoll(chassis_->roll());
 
         // ST
         if (model_ == Model_e::ST) {

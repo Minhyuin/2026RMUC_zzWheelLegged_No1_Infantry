@@ -179,19 +179,21 @@ void Bipedal::update(void *_param)
     // update leg
     legL_.stateUpdate(dt_);
     legR_.stateUpdate(dt_);
+    phiGlobalL_ = rangeMap(legL_.state().phi0 + insData_.pitch, -PI, PI);
+    phiGlobalR_ = rangeMap(legR_.state().phi0 + insData_.pitch, -PI, PI);
     detectFloating();
 
     // update vel
-    updateVel();
+    updateBody();
 
     // update roll
-    lengthOffset_ = rollVelPid_.calc(rollAngPid_.calc(getMinorArc(setRoll_, insData_.roll), 0), wx_);
+    if (rollControlFlag)
+        lengthOffset_ = rollVelPid_.calc(rollAngPid_.calc(getMinorArc(setRoll_, insData_.roll), 0), wx_);
+    else
+        lengthOffset_ = 0.f;
 
-    // update other state
-    yaw_ = insData_.yaw;
-
-    wz_ = insData_.earth.gz;
-    wx_ = insData_.earth.gx;
+    // stop detect
+    detectStop();
 
     // update state
     this->stateFactory_.update();
@@ -224,6 +226,10 @@ void Bipedal::disbaleJump()
     legL_.needJumping = false;
     legR_.needJumping = false;
 }
+
+void Bipedal::enableRoll() { rollControlFlag = true; }
+
+void Bipedal::disableRoll() { rollControlFlag = false; }
 
 void Bipedal::feedS(float _s, float _acc) { SMOOTH::slopeFollowing(&_s, &s_, _acc); }
 
@@ -372,9 +378,9 @@ float Bipedal::phiL() const { return legL_.state().phi0; }
 
 float Bipedal::phiR() const { return legR_.state().phi0; }
 
-float Bipedal::phiGlobalL() const { return rangeMap(legL_.state().phi0 + insData_.pitch, -PI, PI); }
+float Bipedal::phiGlobalL() const { return phiGlobalL_; }
 
-float Bipedal::phiGlobalR() const { return rangeMap(legR_.state().phi0 + insData_.pitch, -PI, PI); }
+float Bipedal::phiGlobalR() const { return phiGlobalR_; }
 
 float Bipedal::lengthL() const { return legL_.state().L0; }
 

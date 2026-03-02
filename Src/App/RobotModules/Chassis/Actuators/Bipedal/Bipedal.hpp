@@ -33,10 +33,10 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_CALIBRATED_ANG = 0.444114566f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 2.08902597f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 3.29442501f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 5.28258514f;
+    static constexpr float LF_HIP_CALIBRATED_ANG = 6.14588954f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 0.77125597f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 3.35348678f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 5.09964705f;
 
     static constexpr float MASS_BODY = 19.285f;
 
@@ -58,7 +58,7 @@ class Bipedal : public Chassis {
             -0.95f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
 public:
-    static constexpr float DEFAULT_L = 0.25f; // the length for all feedforward param
+    static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
 
     Bipedal();
 
@@ -85,6 +85,16 @@ public:
      * @brief turn off the jump flag
      */
     void disbaleJump();
+
+    /**
+     * @brief turn on roll control
+     */
+    void enableRoll();
+
+    /**
+     * @brief turn off roll control
+     */
+    void disableRoll();
 
     /**
      * @brief check if the gimbal is resetting (i.e., the pitch or yaw angle is in a certain range)
@@ -324,11 +334,11 @@ private:
 
     Axis1Odom odom_;
 
-    PositionalPid rollAngPid_{ 90.f, 90.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
+    PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
 
-    PositionalPid hipAngPidL_{ 50.f, 0.f, 1.f, 0.001f, 0.f, 3.14f, 0.f };
-    PositionalPid hipVelPidL_{ 20.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 3.14f, 0.f };
+    PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
@@ -340,6 +350,7 @@ private:
 
     float setRoll_ = 0.f;
     float lengthOffset_ = 0.f;
+    bool rollControlFlag = false;
 
     float yawZero_ = 0.f; // used to sync with gimbal
 
@@ -355,13 +366,20 @@ private:
     float az_ = 0.f;
     float as_ = 0.f;
 
+    float azBody_ = 0.f;
+    FILTER::LPF azBodyFilter_{ CTRL_FREQ, 1.f };
+
     float dt_ = 0.001f;
     uint32_t dtCnt_ = 0;
 
     void loadDeltaYaw();
 
     // Observe functions
-    void updateVel();
+    void updateBody();
+    /**
+     * @brief judge body is in the low displacement state
+     */
+    void detectStop();
 
     /**
      * @brief detect if an angle is in the target range
@@ -374,6 +392,9 @@ private:
 
     float cosYaw_ = 0.f;
     float sinYaw_ = 0.f;
+
+    float phiGlobalL_ = 0.f;
+    float phiGlobalR_ = 0.f;
 };
 
 } // namespace CHASSIS
