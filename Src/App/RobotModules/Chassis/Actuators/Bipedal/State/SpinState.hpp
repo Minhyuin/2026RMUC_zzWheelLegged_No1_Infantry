@@ -8,8 +8,8 @@
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float MAX_SPIN_SPEED = 5.0f;
-    static constexpr float MAX_VX_ACC = 1.4f;
+    static constexpr float SPIN_SPEED_BASE = 3.0f;
+    static constexpr float MAX_VX_ACC = 1.f;
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -67,7 +67,7 @@ public:
     float getSpinVel(uint32_t _cnt)
     {
         float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
-        float rslt = (MAX_SPIN_SPEED * sinf(x) * sinf(x)) + 2.5f;
+        float rslt = (SPIN_SPEED_BASE * sinf(x) * sinf(x)) + 4.f;
         return spinDir_ ? rslt : -rslt;
     }
 

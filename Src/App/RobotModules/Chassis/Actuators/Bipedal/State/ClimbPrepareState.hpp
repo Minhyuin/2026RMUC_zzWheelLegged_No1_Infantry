@@ -12,6 +12,9 @@
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
+    static constexpr float MAX_ACC_BACK = 0.1f;
+    static constexpr float MAX_ACC_FRONT = 0.7f;
+    static constexpr float MAX_SPEED = 1.5f;
     static constexpr float CLIMB_PREPARE_LENGTH = 0.36f;
 
 public:
@@ -29,19 +32,20 @@ public:
 
     void run() final
     {
-        // refLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(CLIMB_PREPARE_LENGTH, refLength_, 0.0002f);
+        refLength_ += chassis_->msg.dl * 0.001f;
+        // refLength_ = SMOOTH::slopeFollowing(CLIMB_PREPARE_LENGTH, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating())
+        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.2f)
             isPrepareFinish_ = true;
 
         // WBR
         WBRController::States_s ref{};
         float wz = chassis_->msg.wz * 0.001f;
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
-        ref.ds = std::clamp(chassis_->msg.vx, -1.f, 1.f);
+        chassis_->msg.vx = std::clamp(chassis_->msg.vx, -MAX_SPEED, MAX_SPEED);
+        ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.dyaw = wz;
         ref.q = OFFSET_Q;

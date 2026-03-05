@@ -36,7 +36,7 @@ bool Bipedal::isFreeze() const
 
 bool Bipedal::isOverturn() const { return azBody_ > -3.f; }
 
-bool Bipedal::isFloating() const { return legL_.floatFlag || legR_.floatFlag; }
+bool Bipedal::isFloating() const { return legL_.floatFlag && legR_.floatFlag; }
 
 bool Bipedal::detectFloating()
 {

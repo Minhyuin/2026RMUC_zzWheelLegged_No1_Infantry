@@ -11,17 +11,17 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float STAND_PHI = 0.0f;
     static constexpr float STAND_L = Bipedal::DEFAULT_L;
 
-    static constexpr float MAX_ACC_BACK = 0.4f;
-    static constexpr float MAX_ACC_FRONT = 2.f;
+    static constexpr float MAX_ACC_BACK = 0.7f;
+    static constexpr float MAX_ACC_FRONT = 1.2f;
 
-    static constexpr float BALANCE_DETECT_THESHOLD = 0.2f;
+    static constexpr float BALANCE_DETECT_THESHOLD = 0.3f;
     static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 100;
 
     static constexpr float TARGET_PITCH_FORWARD = 0.f;
     static constexpr float TARGET_PITCH_BACKWARD = 0.2f;
 
-    static constexpr float S_FEEDFORWARD_FORWARD = -1.0f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -0.9f;
+    static constexpr float S_FEEDFORWARD_FORWARD = -0.35f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = 0.3f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 500; // ms
 
 public:

@@ -7,8 +7,7 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_DPHI = 4.f * 0.001f; // per ms
     static constexpr float LAUNCH_L = Bipedal::DEFAULT_L;
 
-    static constexpr float LAUNCH_ROT_TO_PHI1 = 0.01f;
-    static constexpr float LAUNCH_ROT_TO_PHI2 = -0.1f;
+    static constexpr float LAUNCH_PHI = -0.1f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
@@ -44,21 +43,21 @@ public:
         if (legInFront_[0])
             isLengthFinish_[0] = true;
         else {
-            if (chassis_->detectLengthLRange(LAUNCH_L, 0.015f) || isLengthFinish_[0]) {
+            if (chassis_->detectLengthLRange(LAUNCH_L, 0.02f) || isLengthFinish_[0]) {
                 isLengthFinish_[0] = true;
             }
         }
         if (legInFront_[1])
             isLengthFinish_[1] = true;
         else {
-            if (chassis_->detectLengthRRange(LAUNCH_L, 0.015f) || isLengthFinish_[1]) {
+            if (chassis_->detectLengthRRange(LAUNCH_L, 0.02f) || isLengthFinish_[1]) {
                 isLengthFinish_[1] = true;
             }
         }
 
         // 定方向旋到指定角度再复位
         if (isLengthFinish_[0]) {
-            if (chassis_->detectPhiLRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2) || isRotFinish_[0]) {
+            if (chassis_->detectPhiLRange(LAUNCH_PHI + 0.1f, LAUNCH_PHI - 0.1f) || isRotFinish_[0]) {
                 isRotFinish_[0] = true;
                 refPhiL_ = chassis_->phiL();
             } else {
@@ -68,7 +67,7 @@ public:
         chassis_->setHipPhiL(refPhiL_);
 
         if (isLengthFinish_[1]) {
-            if (chassis_->detectPhiRRange(LAUNCH_ROT_TO_PHI1, LAUNCH_ROT_TO_PHI2) || isRotFinish_[1]) {
+            if (chassis_->detectPhiRRange(LAUNCH_PHI + 0.1f, LAUNCH_PHI - 0.1f) || isRotFinish_[1]) {
                 isRotFinish_[1] = true;
                 refPhiR_ = chassis_->phiR();
             } else {

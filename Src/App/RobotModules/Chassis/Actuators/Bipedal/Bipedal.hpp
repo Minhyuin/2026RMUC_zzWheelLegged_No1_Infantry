@@ -48,14 +48,14 @@ class Bipedal : public Chassis {
 
     static constexpr float W_DISTANCE = 0.4611f / 2.f; // half of the left-right wheelbase
 
-    static constexpr float MAX_S = 5.f; // maximum displacement allowed for credit accumulation
+    static constexpr float MAX_S = 2.5f; // maximum displacement allowed for credit accumulation
 
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            -0.45f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            0.4f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.95f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.35f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
 public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
