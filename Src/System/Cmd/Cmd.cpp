@@ -4,8 +4,10 @@
 
 Cmd::Cmd()
         : Task<Cmd, 256>("CmdTask", TaskPriority_e::LOW2)
+#if EXTENSION_TOF
         , tofLeftHandler_(&TFMINIS_LEFT_UART, eventGroup_, msgBus_.tofLefDistQueue)
         , tofRightHandler_(&TFMINIS_RIGHT_UART, eventGroup_, msgBus_.tofRigDistQueue)
+#endif
 
 {
     msgBus_.chassisQueue = xQueueCreate(10, sizeof(ChassisMsg_s));
