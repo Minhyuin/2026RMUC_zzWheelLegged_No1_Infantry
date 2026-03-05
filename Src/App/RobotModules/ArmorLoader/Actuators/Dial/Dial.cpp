@@ -11,6 +11,8 @@
 #include "./State/SingleState.hpp"
 #include "./State/StopState.hpp"
 
+#include "referee.hpp"
+
 using namespace ARMORLOADER;
 using namespace PINYMOTOR;
 
@@ -50,10 +52,20 @@ void Dial::enter() { motors_.dial->cmd(MotorCmdType_e::ON); }
 
 void Dial::update(void *_param)
 {
+    const auto &refereeData = referee->receiver.getRefereeData();
+
     if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &msg, 0) == pdTRUE) {
     };
     // msg.state = static_cast<FSMState_e>(shooterCtrlRxPacket_.data().state);
     // msg.fire = shooterCtrlRxPacket_.data().fire;
+    if (lastBarrelHeatFromReferee_ != refereeData.powerHeatData.shooter_17mmBarrelHeat) {
+        barrelHeat_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;
+        lastBarrelHeatFromReferee_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;
+    }
+    if (barrelHeat_ > 0)
+        barrelHeat_ -= static_cast<float>(refereeData.gameRobotStatus.shooterCoolingValue) * 0.001f;
+
+    msg.fire &= barrelHeat_ <= static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit);
 
     vel_ = velFltr_.process(dial()->vel());
     curr_ = dial()->data().curr;

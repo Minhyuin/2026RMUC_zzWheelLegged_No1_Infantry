@@ -81,6 +81,9 @@ private:
     float vel_;  // rad/s
     float curr_; // A
 
+    float barrelHeat_ = 0.f;
+    uint16_t lastBarrelHeatFromReferee_ = 0.f;
+
     uint16_t blockCnt = 0.f;
 };
 
