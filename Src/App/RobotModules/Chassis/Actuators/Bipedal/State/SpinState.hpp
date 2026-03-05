@@ -18,7 +18,7 @@ public:
     {
         chassis_->enter();
         refYaw_ = chassis_->yaw();
-        refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
+        refLength_ = chassis_->length();
         chassis_->setRoll(0);
         LOG::info("ChassisSpin", " enter");
     }

@@ -6,12 +6,14 @@
 #include "MotorCommonMacros.hpp"
 
 #include "PidBasic.hpp"
+#include "Smooth.hpp"
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 0.3f;
-    static constexpr float MAX_ACC_FRONT = 2.f;
+    static constexpr float MAX_ACC_BACK = 1.f;
+    static constexpr float MAX_ACC_FRONT = 1.5f;
+    static constexpr float IDLE_L = 0.25f;
 
 public:
     IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
@@ -22,13 +24,14 @@ public:
         chassis_->enableRoll();
         refYaw_ = chassis_->yaw();
         refRoll_ = 0.f;
-        refLength_ = Bipedal::DEFAULT_L;
+        refLength_ = chassis_->length();
         LOG::info("ChassisIdle", " enter");
     }
 
     void run() final
     {
-        refLength_ += chassis_->msg.dl * 0.001f;
+        // refLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(IDLE_L, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;

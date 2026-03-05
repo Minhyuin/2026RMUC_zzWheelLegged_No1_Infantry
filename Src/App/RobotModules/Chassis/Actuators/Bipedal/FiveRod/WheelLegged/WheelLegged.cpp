@@ -46,7 +46,7 @@ void WheelLegged::stateUpdate(float _dt)
     vmc_.update(legState_, _dt);
 }
 
-float OFFSET_THRESHOLD = 30.f;
+float OFFSET_THRESHOLD = 60.f;
 bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
@@ -84,11 +84,11 @@ void WheelLegged::ctrl()
 
     Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
 
-    u(0, 0) = std::fmin(std::fmax(u(0, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
-    u(1, 0) = std::fmin(std::fmax(u(1, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
+    tau1_ = std::fmin(std::fmax(u(0, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
+    tau4_ = std::fmin(std::fmax(u(1, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
 
-    hip1_->cmdTorq(u(0, 0));
-    hip4_->cmdTorq(u(1, 0));
+    hip1_->cmdTorq(tau1_);
+    hip4_->cmdTorq(tau4_);
 
     tw_ = std::fmin(std::fmax(tw_, -MAX_WHEEL_CTRL_TORQ), MAX_WHEEL_CTRL_TORQ);
     wheel_->cmdTorq(tw_);

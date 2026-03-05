@@ -7,12 +7,12 @@
 #include "MotorCommonMacros.hpp"
 
 #include "PidBasic.hpp"
+#include "Smooth.hpp"
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 0.4f;
-    static constexpr float MAX_ACC_FRONT = 2.f;
+    static constexpr float CLIMB_PREPARE_LENGTH = 0.36f;
 
 public:
     ClimbPrepareState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis) {}
@@ -23,24 +23,25 @@ public:
         isPrepareFinish_ = false;
         refYaw_ = chassis_->yaw();
         chassis_->setRoll(0);
-        refLength_ = (chassis_->lengthL() + chassis_->lengthR()) / 2.f;
+        refLength_ = chassis_->length();
         LOG::info("ChassisClimbPrepare", " enter");
     }
 
     void run() final
     {
-        refLength_ += chassis_->msg.dl * 0.001f;
+        // refLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(CLIMB_PREPARE_LENGTH, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.55f)
+        if (chassis_->isFloating())
             isPrepareFinish_ = true;
 
         // WBR
         WBRController::States_s ref{};
         float wz = chassis_->msg.wz * 0.001f;
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
-        ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
+        ref.ds = std::clamp(chassis_->msg.vx, -1.f, 1.f);
         ref.yaw = refYaw_;
         ref.dyaw = wz;
         ref.q = OFFSET_Q;

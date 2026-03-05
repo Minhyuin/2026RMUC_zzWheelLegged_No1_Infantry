@@ -33,10 +33,10 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_CALIBRATED_ANG = 6.14588954f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 0.77125597f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 3.35348678f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 5.09964705f;
+    static constexpr float LF_HIP_CALIBRATED_ANG = 2.78702974f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 4.46185541f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 5.68527985f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 2.97495389f;
 
     static constexpr float MASS_BODY = 19.285f;
 
@@ -311,6 +311,7 @@ public:
     float phiGlobalR() const;
     float lengthL() const;
     float lengthR() const;
+    float length() const;
     float vel() const; // m/s
 
     float deltaYaw = 0.f;
@@ -337,7 +338,7 @@ private:
     PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
 
-    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 3.14f, 0.f };
+    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 4.3f, 0.f };
     PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
@@ -367,7 +368,7 @@ private:
     float as_ = 0.f;
 
     float azBody_ = 0.f;
-    FILTER::LPF azBodyFilter_{ CTRL_FREQ, 1.f };
+    FILTER::LPF azBodyFilter_{ 1000.f, 1.f };
 
     float dt_ = 0.001f;
     uint32_t dtCnt_ = 0;

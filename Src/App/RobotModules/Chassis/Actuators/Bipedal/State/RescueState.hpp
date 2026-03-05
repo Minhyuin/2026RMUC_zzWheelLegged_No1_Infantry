@@ -7,7 +7,7 @@ namespace CHASSIS {
 
 class RescueState : public FSMState<FSMState_e> {
     static constexpr float RESCUE_L = 0.35f;
-    static constexpr float RESCUE_DPHI = 3.f * 0.001f;
+    static constexpr float RESCUE_DPHI = 4.f * 0.001f;
 
     static constexpr float SYNC_PHI = -PI / 2.f;
     static constexpr float RESTORE_PHI = PI / 2.f;

@@ -12,16 +12,18 @@ class WheelLegged {
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
 
-    static constexpr float MAX_HIP_CTRL_TORQ = 39.f;
+    // 4个电机输出电流过大会出现“抢占电流”现象，影响姿态
+    // 增大电机最近邻外接电容容值可增大该电流限制
+    static constexpr float MAX_HIP_CTRL_TORQ = 25.f; // 220uf * 4
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
     // 太硬会导致电机输出超过电池可承受荷载，影响tp分量
-    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 40.f, 0.f, 1.5f, 0.001f, 0.f, 3.f, 0.f };
-    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, 250.f, 0.f };
+    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 60.f, 0.f, 1.5f, 0.001f, 0.f, 10.f, 0.f };
+    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 25.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
 
 public:
-    static constexpr float MAX_L = 0.36f; // 0.36998937
-    static constexpr float MIN_L = 0.17f; // 0.16051326
+    static constexpr float MAX_L = 0.369f; // 0.36998937
+    static constexpr float MIN_L = 0.17f;  // 0.16051326
 
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
@@ -116,6 +118,8 @@ private:
     float fd_ = 0.f;
     float fdFeedforward_ = 0.f;
     float tw_ = 0.f;
+    float tau1_ = 0.f;
+    float tau4_ = 0.f;
 
     float fn_ = 0.f;
     FILTER::LPF fnLPF_{ 1000.f, 5.f };

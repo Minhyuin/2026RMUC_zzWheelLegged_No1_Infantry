@@ -386,4 +386,6 @@ float Bipedal::lengthL() const { return legL_.state().L0; }
 
 float Bipedal::lengthR() const { return legR_.state().L0; }
 
+float Bipedal::length() const { return (legL_.state().L0 + legR_.state().L0) / 2.f; }
+
 float Bipedal::vel() const { return ds_; }
