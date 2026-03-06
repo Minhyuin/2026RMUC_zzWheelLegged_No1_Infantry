@@ -33,10 +33,10 @@ public:
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_CALIBRATED_ANG = 2.78702974f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 4.46185541f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 5.68527985f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 2.97495389f;
+    static constexpr float LF_HIP_CALIBRATED_ANG = 2.860530f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 4.403488f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 5.665203f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 3.005563f;
 
     static constexpr float MASS_BODY = 19.285f;
 
