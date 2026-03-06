@@ -11,23 +11,25 @@
 #include "./State/RunState.hpp"
 #include "./State/AutoState.hpp"
 
+#include "Referee.hpp"
+
 using namespace GIMBAL;
 using namespace PINYMOTOR;
 
 void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
 }
 
 void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
 }
 
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 2,
@@ -41,7 +43,7 @@ Standard::Standard()
     LOG::info("Gimbal", "Pitch zeros has set to %f", motors_.pitch->data().zeroAng);
 
     InitConfig_s yawConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,
@@ -80,28 +82,38 @@ void Standard::update(void *_param)
 {
     this->insSub_->receive();
 
+    const auto &refereeData = referee->receiver.getRefereeData();
+
     if (xQueueReceive((((MsgBus_s *)_param)->gimbalQueue), &msg, 0) == pdTRUE) {
     };
 
-    ChassisMsg_s cmsg{};
-    if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg, 0) == pdTRUE) {
-        chassisCtrlTxPacket_.setData().state = static_cast<uint8_t>(cmsg.state);
-        chassisCtrlTxPacket_.setData().vx = cmsg.vx;
+    if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
+        chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
+        chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
-    ArmorLoaderMsg_s almsg{};
-    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg, 0) == pdTRUE) {
-        shooterCtrlTxPacket_.setData().state = static_cast<uint8_t>(almsg.state);
-        shooterCtrlTxPacket_.setData().fire = almsg.fire;
+    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg_, 0) == pdTRUE) {
+        shooterCtrlTxPacket_.setData().armorBoosterExptState = static_cast<uint8_t>(almsg_.state);
+        shooterCtrlTxPacket_.setData().fire = almsg_.fire;
     }
     shooterCtrlTxPacket_.setData().fire &= true; // TODO: vision fire
 
     // vision send
+    uint8_t targetMode = 0;
+    if (refereeData.gameStatus.gameProgress == 4 && almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
+        if (refereeData.gameStatus.stageRemainTime < 240)
+            targetMode = 2;
+        else
+            targetMode = 1;
+    }
+    vision.setData().detectColor = refereeData.gameRobotStatus.robotId >= 101 ? 1 : 0;
+    vision.setData().taskMode = targetMode;
+    vision.setData().isPlay = refereeData.gameStatus.gameProgress == 4;
+    vision.setData().changeTarget = false;
     vision.setData().roll = insData_.roll;
     vision.setData().pitch = insData_.pitch;
     vision.setData().yaw = insData_.yaw;
-    vision.setData().timestamp = xTaskGetTickCount();
 
     this->stateFactory_.update();
 }

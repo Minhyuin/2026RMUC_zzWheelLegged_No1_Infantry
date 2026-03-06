@@ -4,28 +4,14 @@ CONFIG_TARGET_MASTER=y
 #
 # Soc config
 #
-# CONFIG_TARGET_STM32F407 is not set
-CONFIG_TARGET_STM32H723=y
+CONFIG_TARGET_STM32F407=y
+# CONFIG_TARGET_STM32H723 is not set
 # end of Soc config
 
 #
 # app config
 #
-CONFIG_APP_USE_CHASSIS=y
-
-#
-# chassis config
-#
-# CONFIG_APP_USE_MECANUM is not set
-# CONFIG_APP_USE_OMNI is not set
-CONFIG_APP_USE_BIPEDAL=y
-# CONFIG_APP_USE_SWERVE is not set
-CONFIG_CHASSIS_TYPE="Bipedal"
-CONFIG_CHASSIS_FILE="\"Bipedal.hpp\""
-# CONFIG_APP_USE_POWERCTRL is not set
-# CONFIG_APP_USE_ODOMETER is not set
-# end of chassis config
-
+# CONFIG_APP_USE_CHASSIS is not set
 CONFIG_APP_USE_GIMBAL=y
 
 #
@@ -37,16 +23,7 @@ CONFIG_GIMBAL_TYPE="Standard"
 CONFIG_GIMBAL_FILE="\"Standard.hpp\""
 # end of gimbal config
 
-CONFIG_APP_USE_ARMORLOADER=y
-
-#
-# ArmorLoader config
-#
-CONFIG_APP_USE_DIAL=y
-CONFIG_ARMORLOADER_TYPE="Dial"
-CONFIG_ARMORLOADER_FILE="\"Dial.hpp\""
-# end of ArmorLoader config
-
+# CONFIG_APP_USE_ARMORLOADER is not set
 CONFIG_APP_USE_ARMORBOOSTER=y
 
 #
@@ -68,7 +45,19 @@ CONFIG_APP_USE_INS=y
 
 CONFIG_APP_USE_DAEMONS=y
 CONFIG_APP_USE_COMM=y
-# CONFIG_APP_USE_REFEREE is not set
+CONFIG_APP_USE_REFEREE=y
+
+#
+# UI config
+#
+# CONFIG_APP_USE_UI is not set
+
+#
+# UI config
+#
+CONFIG_UI_ROBOT_ID=0
+# end of UI config
+# end of UI config
 # end of app config
 
 #
@@ -89,15 +78,15 @@ CONFIG_BSP_USE_USB=y
 #
 CONFIG_EXTENSION_DT7=y
 # CONFIG_EXTENSION_ET08A is not set
-# CONFIG_EXTENSION_VT13 is not set
+CONFIG_EXTENSION_VT13=y
 CONFIG_EXTENSION_BUZZER=y
 CONFIG_EXTENSION_LED=y
 
 #
 # LEDDriver config
 #
-CONFIG_LED_WS2812_SPI=y
-# CONFIG_LED_WS2812_PWM is not set
+# CONFIG_LED_WS2812_SPI is not set
+CONFIG_LED_WS2812_PWM=y
 # CONFIG_LED_RGBLED is not set
 # end of LEDDriver config
 
@@ -105,13 +94,7 @@ CONFIG_EXTENSION_MOTOR=y
 CONFIG_EXTENSION_REFEREE=y
 CONFIG_EXTENSION_SENSOR=y
 # CONFIG_EXTENSION_SUPERCAP is not set
-CONFIG_EXTENSION_TOF=y
-
-#
-# TOF config
-#
-CONFIG_TOF_TFMINIS=y
-# end of TOF config
+# CONFIG_EXTENSION_TOF is not set
 # end of extension config
 
 #
@@ -130,5 +113,5 @@ CONFIG_USE_LAZY=y
 # Kernel hacking
 #
 CONFIG_RTOS_DEBUG=y
-# CONFIG_USE_VSCODE_XRTOS is not set
+CONFIG_USE_VSCODE_XRTOS=y
 # end of Kernel hacking

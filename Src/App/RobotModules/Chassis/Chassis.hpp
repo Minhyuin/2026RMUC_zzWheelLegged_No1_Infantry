@@ -2,9 +2,7 @@
 
 #include "FSMState.hpp"
 #include "TopicRouter.hpp"
-namespace CHASSIS {
-enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, SPIN, CLIMB_PREPARE, CLIMB, JUMP, TEST };
-}
+
 class Chassis {
 public:
     ChassisMsg_s msg = {};

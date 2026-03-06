@@ -72,6 +72,9 @@ private:
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
     ShooterCtrlTxPacket shooterCtrlTxPacket_;
 
+    ChassisMsg_s cmsg_{};      // master keep it temporary
+    ArmorLoaderMsg_s almsg_{}; // master keep it temporary
+
     FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
     FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
 

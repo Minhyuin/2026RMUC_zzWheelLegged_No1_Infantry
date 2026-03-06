@@ -6,19 +6,19 @@
 
 
 namespace CHASSIS {
-enum class FSMState_e : uint8_t;
+enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, SPIN, CLIMB_PREPARE, CLIMB, JUMP, TEST };
 }
 
 namespace GIMBAL {
-enum class FSMState_e : uint8_t;
+enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN, AUTO };
 }
 
 namespace ARMORBOOSTER {
-enum class FSMState_e : uint8_t;
+enum class FSMState_e : uint8_t { OFF = 0, ON };
 }
 
 namespace ARMORLOADER {
-enum class FSMState_e : uint8_t;
+enum class FSMState_e : uint8_t { STOP = 0, SINGLE, AUTO, BLOCK };
 }
 
 struct MsgBus_s {
