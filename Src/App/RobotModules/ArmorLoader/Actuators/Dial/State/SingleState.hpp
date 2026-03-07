@@ -6,7 +6,7 @@
 #include "PidBasic.hpp"
 
 static PositionalPid singleDialAngPID(17.f, 3.f, 0.1f, 0.001f, 0.3f, 30.f, 0);
-static PositionalPid singleDialVelPID(4.f, 0, 0, 0.001f, 0, 4.5f, 0);
+static PositionalPid singleDialVelPID(4.f, 0, 0, 0.001f, 0, 0.f, 0);
 
 namespace ARMORLOADER {
 

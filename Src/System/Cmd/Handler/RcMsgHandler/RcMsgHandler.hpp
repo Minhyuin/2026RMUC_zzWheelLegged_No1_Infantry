@@ -19,6 +19,9 @@ template <RCDevType_e DEV_TYPE> class RcMsgHandler final : public Handler {
     static constexpr float INPUT_PITCH_MAX = 4.f;
     static constexpr float INPUT_YAW_MAX = 3.f;
 
+    static constexpr float GAIN_MOUSE_X = 0.1f;
+    static constexpr float GAIN_MOUSE_Y = 0.1f;
+
 public:
     RcMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event);
     void init(MsgBus_s *_bus, EventGroupHandle_t _event) final;
@@ -32,6 +35,10 @@ private:
     ChassisMsg_s cMsg_ = {};
     ArmorLoaderMsg_s alMsg_ = {};
     ArmorBoosterMsg_s abMsg_ = {};
+
+    bool keyBoardCtrlFlag_ = false;
+    bool ctrlFlag_ = false;
+    uint8_t lastSwitch_ = 0;
 
     std::unique_ptr<RemoteControl> rc_ = nullptr;
 

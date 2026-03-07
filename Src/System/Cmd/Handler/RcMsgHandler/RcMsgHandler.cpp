@@ -26,6 +26,8 @@
 #include <cmath>
 #include <cstring>
 
+#include "Smooth.hpp"
+
 template <RCDevType_e DEV_TYPE>
 RcMsgHandler<DEV_TYPE>::RcMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event)
 {
@@ -145,7 +147,111 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
     } else if constexpr (DEV_TYPE == RCDevType_e::ET08A) {
         ET08A::RcData_s *rcData = static_cast<ET08A::RcData_s *>(rc_->getData());
     } else if constexpr (DEV_TYPE == RCDevType_e::VT13) {
+        static constexpr float CH_RANGE = VT13::CH_VALUE_MAX - VT13::CH_VALUE_OFFSET;
         VT13::RcData_s *rcData = static_cast<VT13::RcData_s *>(rc_->getData());
+        static VT13::RcData_s rcDataPrev = {};
+        keyBoardCtrlFlag_ = (rcData->gamepad.sw == VT13::Sw_e::C);
+        ctrlFlag_ = (keyBoardCtrlFlag_ ?
+                             ((IS_KEY_PRESS(rcData->KBM.key, VT13::A) && IS_KEY_PRESS(rcData->KBM.key, VT13::S) &&
+                               IS_KEY_PRESS(rcData->KBM.key, VT13::Z)) ?
+                                      ([&]() {
+                                          cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                                          gMsg_.state = GIMBAL::FSMState_e::RUN;
+                                          return true;
+                                      }()) :
+                              (IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::C) &&
+                               IS_KEY_PRESS(rcData->KBM.key, VT13::B)) ?
+                                      false :
+                              (lastSwitch_ != static_cast<uint8_t>(VT13::Sw_e::C)) ? false :
+                                                                                     ctrlFlag_) :
+                             true);
+        lastSwitch_ = static_cast<uint8_t>(rcData->gamepad.sw);
+        if (!ctrlFlag_) {
+            gMsg_.state = GIMBAL::FSMState_e::STOP;
+            gMsg_.wPitch = gMsg_.wYaw = 0.f;
+            cMsg_.state = CHASSIS::FSMState_e::STOP;
+            cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
+            alMsg_.state = ARMORLOADER::FSMState_e::STOP;
+            alMsg_.fire = false;
+            abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+        } else {
+            if (!keyBoardCtrlFlag_) {
+                if (rcData->gamepad.sw == VT13::Sw_e::N) {
+                    gMsg_.state = GIMBAL::FSMState_e::RUN;
+                    cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                    alMsg_.state = ARMORLOADER::FSMState_e::STOP;
+                    abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+                } else if (rcData->gamepad.sw == VT13::Sw_e::S) {
+                    gMsg_.state = GIMBAL::FSMState_e::AUTO;
+                    cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                    alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
+                    abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+                }
+
+                if (rcData->gamepad.trigger)
+                    cMsg_.state = CHASSIS::FSMState_e::SPIN;
+                if (rcData->gamepad.pause)
+                    cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
+
+                cMsg_.vx = static_cast<float>(rcData->gamepad.ch[1]) / CH_RANGE * INPUT_VX_MAX;
+                cMsg_.vy = -static_cast<float>(rcData->gamepad.ch[0]) / CH_RANGE * INPUT_VX_MAX;
+                gMsg_.wPitch = -static_cast<float>(rcData->gamepad.ch[2]) / CH_RANGE * INPUT_PITCH_MAX;
+                gMsg_.wYaw = -static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_YAW_MAX;
+                alMsg_.fire = rcData->gamepad.wheel != 0;
+            } else {
+                static constexpr float KEYBOARD_ENABLE_ACC = 0.05f;
+                static constexpr float KEYBOARD_RESTORE_ACC = 1.f;
+                // WASD
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::W)) {
+                    cMsg_.vx = SMOOTH::slopeFollowing(INPUT_VX_MAX, cMsg_.vx, KEYBOARD_ENABLE_ACC);
+                } else {
+                    cMsg_.vx = SMOOTH::slopeFollowing(0.f, cMsg_.vx, KEYBOARD_RESTORE_ACC);
+                }
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::S)) {
+                    cMsg_.vx = SMOOTH::slopeFollowing(-INPUT_VX_MAX, cMsg_.vx, KEYBOARD_ENABLE_ACC);
+                } else {
+                    cMsg_.vx = SMOOTH::slopeFollowing(0.f, cMsg_.vx, KEYBOARD_RESTORE_ACC);
+                }
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
+                    cMsg_.vy = SMOOTH::slopeFollowing(INPUT_VX_MAX, cMsg_.vy, KEYBOARD_ENABLE_ACC);
+                } else {
+                    cMsg_.vy = SMOOTH::slopeFollowing(0.f, cMsg_.vy, KEYBOARD_RESTORE_ACC);
+                }
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
+                    cMsg_.vy = SMOOTH::slopeFollowing(-INPUT_VX_MAX, cMsg_.vy, KEYBOARD_ENABLE_ACC);
+                } else {
+                    cMsg_.vy = SMOOTH::slopeFollowing(0.f, cMsg_.vy, KEYBOARD_RESTORE_ACC);
+                }
+
+                gMsg_.wPitch = -static_cast<float>(rcData->KBM.mouseY) * GAIN_MOUSE_Y;
+                gMsg_.wYaw = -static_cast<float>(rcData->KBM.mouseX) * GAIN_MOUSE_X;
+
+                alMsg_.fire = rcData->KBM.mouseLeft;
+
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::X) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::X))
+                    cMsg_.state = CHASSIS::FSMState_e::SPIN;
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))
+                    cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
+                    alMsg_.state = ARMORLOADER::FSMState_e::STOP;
+                    abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+                }
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::C) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::C)) {
+                    alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
+                    abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+                }
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::B) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::B)) {
+                    alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
+                    abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+                }
+                if (rcData->KBM.mouseRight) {
+                    gMsg_.state = GIMBAL::FSMState_e::AUTO;
+                } else {
+                    gMsg_.state = GIMBAL::FSMState_e::RUN;
+                }
+            }
+        }
+        memcpy(&rcDataPrev, rcData, sizeof(VT13::RcData_s));
     }
 
     notify(&gMsg_, msgBus_->gimbalQueue);
