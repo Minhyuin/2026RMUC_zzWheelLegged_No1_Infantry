@@ -174,4 +174,38 @@ public:
     }
 };
 
+class GimbalLaunchStrategyPacketType {
+public:
+    static constexpr uint8_t LEN = 8;
+    static constexpr uint16_t ID = 0x24;
+    struct ProtoData_s {
+        bool isLegLFront;
+        bool isLegRFront;
+        bool isNeedLaunch;
+    };
+    union Data_u {
+        struct Data_s {
+            uint8_t isLegLFront : 1;
+            uint8_t isLegRFront : 1;
+            uint8_t isNeedLaunch : 1;
+            uint32_t reversed1 : 29;
+            uint32_t reversed2 : 32;
+        } content;
+        uint8_t bytes[LEN];
+    } data;
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        Data_u::Data_s &d = _data.content;
+        d.isLegLFront = _protoData.isLegLFront;
+        d.isLegRFront = _protoData.isLegRFront;
+        d.isNeedLaunch = _protoData.isNeedLaunch;
+    }
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        _protoData.isLegLFront = _data.content.isLegLFront;
+        _protoData.isLegRFront = _data.content.isLegRFront;
+        _protoData.isNeedLaunch = _data.content.isNeedLaunch;
+    }
+};
+
 } // namespace COMM

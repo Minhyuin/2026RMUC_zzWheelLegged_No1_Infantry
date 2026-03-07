@@ -75,6 +75,9 @@ public:
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
 
+        if (gimbal_->isNeedLaunch())
+            return FSMState_e::LAUNCH;
+
         if (gimbal_->msg.state == FSMState_e::RUN || !gimbal_->vision.data().control)
             return FSMState_e::RUN;
         else

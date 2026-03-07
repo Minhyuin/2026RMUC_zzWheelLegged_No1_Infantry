@@ -45,6 +45,11 @@ void RefereeDataTxPacket::transmit(uint8_t *_buf, uint16_t _len)
     Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
 }
 
+void GimbalLaunchStrategyTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+}
+
 Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter::instance().insTopic, &insData_))
 {
     InitConfig_s rfDM8009Config = {
@@ -205,7 +210,7 @@ void Bipedal::update(void *_param)
     // stop detect
     detectStop();
 
-// send referee data to gimbal
+    // send referee data to gimbal
 #if APP_USE_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
     refereeDataTxPacket_.setData().color = refereeData.gameRobotStatus.robotId >= 101 ? 1 : 0;
@@ -215,6 +220,10 @@ void Bipedal::update(void *_param)
     refereeDataTxPacket_.setData().rateOfFire = refereeData.shootData.bulletFreq;
     refereeDataTxPacket_.setData().muzzleVel = refereeData.shootData.bulletSpeed;
 #endif
+
+    // send gimbal strategy to gimbal
+    updateGimbalLaunchStrategy();
+
     // update state
     this->stateFactory_.update();
 }

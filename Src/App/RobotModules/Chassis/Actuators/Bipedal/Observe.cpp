@@ -12,12 +12,12 @@ bool Bipedal::isGimbalReset() const
 bool Bipedal::isTumble() const
 {
     // TODO: maybe this is a weighted linear regression
-    return fabs(phiGlobalL()) > 0.7f || fabs(phiGlobalR()) > 0.7f || fabs(phiGlobalL()) < -0.7f ||
-           fabs(phiGlobalR()) < -0.7f;
+    return fabs(phiGlobalL()) > 0.85f || fabs(phiGlobalR()) > 0.85f || fabs(phiGlobalL()) < -0.85f ||
+           fabs(phiGlobalR()) < -0.85f;
 }
 
 static constexpr float DANG_FREEZE_THRESHOLD = 0.2f;
-static constexpr uint16_t FREEZE_MAX_TIME = 350;
+static constexpr uint16_t FREEZE_MAX_TIME = 500;
 bool Bipedal::isFreeze() const
 {
     static uint16_t freezeTime = 0;
@@ -151,4 +151,11 @@ void Bipedal::updateBody()
 
     wz_ = insData_.earth.gz;
     wx_ = insData_.earth.gx;
+}
+
+void Bipedal::updateGimbalLaunchStrategy()
+{
+    gimbalLaunchStrategyTxPacket_.setData().isLegLFront = detectPhiLRange(-3.14f, -0.1f);
+    gimbalLaunchStrategyTxPacket_.setData().isLegRFront = detectPhiRRange(-3.14f, -0.1f);
+    gimbalLaunchStrategyTxPacket_.setData().isNeedLaunch = isTumble();
 }

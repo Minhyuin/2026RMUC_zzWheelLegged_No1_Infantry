@@ -10,10 +10,10 @@
 static volatile float launchPitchStep = 0.6f;
 static volatile float launchYawStep = 0.5f;
 
-static PositionalPid launchPitchAngPID(40.f, 100.f, 1.f, 0.001f, 1.0f, 5.f, 0.f);
-static PositionalPid launchPitchVelPID(0.4f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid launchPitchAngPID(60.f, 500.f, 1.f, 0.001f, 3.0f, 7.f, 0.f);
+static PositionalPid launchPitchVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid launchYawAngPID(80.f, 600.f, 2.f, 0.001f, 3.f, 7.f, 0.f);
-static PositionalPid launchYawVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid launchYawVelPID(0.4f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
@@ -26,10 +26,12 @@ class LaunchState : public FSMState<FSMState_e> {
         PositionalPid *yawVelPid;
     };
 
-    static constexpr uint16_t MAX_LAUNCH_TIME = 300; // 0.3s
+    static constexpr uint16_t MAX_LAUNCH_TIME = 50; // 0.3s
 
-    static constexpr float PITCH_LAUNCH_ANG_DEADBAND = 0.15f;
-    static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.15f;
+    static constexpr float PITCH_LAUNCH_ANG_DEADBAND = 0.2f;
+    static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.2f;
+
+    static constexpr float PITCH_LAUNCH_ANG = -0.15f;
 
 public:
     LaunchState(Standard *_gimbal) : FSMState<FSMState_e>(FSMState_e::LAUNCH), gimbal_(_gimbal)
@@ -42,20 +44,26 @@ public:
 
     void enter() final
     {
-        launchTotalTime_ = 0;
-        launchFinishTime_ = 0;
+        launchFinish[0] = launchFinish[1] = false;
+
+        cmdImuPitchAng_ = gimbal_->ins().pitch;
+        cmdImuYawAng_ = gimbal_->ins().yaw;
 
         // pitch target
-        cmdMotorPitchAng_ = gimbal_->ins().pitch - gimbal_->pitch()->posNorm();
+        // targetPitch_ = gimbal_->ins().pitch - gimbal_->pitch()->posNorm();
+        targetPitch_ = PITCH_LAUNCH_ANG;
 
         // yaw target
         if (fabs(PINYMOTOR::getMinorArc(gimbal_->yaw()->posNorm(), 0)) > PI / 2.f) {
-            cmdMotorYawAng_ = gimbal_->ins().yaw - gimbal_->yaw()->posNorm() + PI;
+            targetYaw_ = gimbal_->ins().yaw - gimbal_->yaw()->posNorm() + PI;
         } else {
-            cmdMotorYawAng_ = gimbal_->ins().yaw - gimbal_->yaw()->posNorm();
+            targetYaw_ = gimbal_->ins().yaw - gimbal_->yaw()->posNorm();
         }
 
+        launchStrategy_ = gimbal_->generateLaunchStrategy();
+
         gimbal_->enter();
+
 
         LOG::info("GimbalLaunch", "enter");
     }
@@ -63,32 +71,50 @@ public:
     void run() final
     {
         // determine if the target position (0) has been reached
-        launchTotalTime_++;
+        float targetYawDeltaAng = 0;
 
-        float pitchAng = gimbal_->pitch()->posNorm();
-        float yawAng = gimbal_->yaw()->posNorm();
-
-        float targetAng = 0;
-        if (yawAng > PI / 2.f && yawAng < 3.f * PI / 2.f)
-            targetAng = PI;
-        else
-            targetAng = 0;
-
-        if (std::fabs(PINYMOTOR::getMinorArc(0, pitchAng)) < PITCH_LAUNCH_ANG_DEADBAND &&
-            std::fabs(PINYMOTOR::getMinorArc(targetAng, yawAng)) < YAW_LAUNCH_ANG_DEADBAND) {
-            launchFinishTime_++;
-        } else {
-            launchFinishTime_ = 0;
+        float pitchInsAng = gimbal_->ins().pitch;
+        float yawMotorAng = gimbal_->yaw()->posNorm();
+        switch (launchStrategy_) {
+        case Gimbal::LaunchStrategy_e::NORMAL: {
+            // no need to change cmd angle
+            cmdImuPitchAng_ = targetPitch_;
+            cmdImuYawAng_ = targetYaw_;
+            if (yawMotorAng > PI / 2.f && yawMotorAng < 3.f * PI / 2.f)
+                targetYawDeltaAng = PI;
+            else
+                targetYawDeltaAng = 0;
+            break;
+        }
+        case Gimbal::LaunchStrategy_e::ANTI_CLOCKWISE: {
+            cmdImuYawAng_ += launchYawStep;
+            break;
+        }
+        case Gimbal::LaunchStrategy_e::CLOCKWISE: {
+            cmdImuYawAng_ -= launchYawStep;
+            break;
+        }
         }
 
-        // ctrl (smooth)
-        gimbal_->ctrlPitchSmooth(pids_.pitchAngPid, pids_.pitchVelPid, cmdMotorPitchAng_, launchPitchStep);
-        gimbal_->ctrlYawSmooth(pids_.yawAngPid, pids_.yawVelPid, cmdMotorYawAng_, launchYawStep);
+        if (std::fabs(PINYMOTOR::getMinorArc(PITCH_LAUNCH_ANG, pitchInsAng)) < PITCH_LAUNCH_ANG_DEADBAND ||
+            launchFinish[0])
+            launchFinish[0] = true;
+        else
+            launchFinish[0] = false;
+        if (std::fabs(PINYMOTOR::getMinorArc(targetYawDeltaAng, yawMotorAng)) < YAW_LAUNCH_ANG_DEADBAND ||
+            launchFinish[1])
+            launchFinish[1] = true;
+        else
+            launchFinish[1] = false;
+
+
+        gimbal_->ctrlPitchSmooth(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAng_, launchPitchStep);
+        if (launchFinish[0])
+            gimbal_->ctrlYawSmooth(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAng_, launchYawStep);
     }
 
     void exit() final
     {
-        finishLaunching_ = true;
         gimbal_->loadResetState(true);
 
         pids_.pitchAngPid->reset();
@@ -103,9 +129,9 @@ public:
     {
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (launchFinishTime_ > MAX_LAUNCH_TIME && gimbal_->msg.state == FSMState_e::RUN)
+        else if (launchFinish[0] && launchFinish[1] && gimbal_->msg.state == FSMState_e::RUN)
             return FSMState_e::RUN;
-        else if (launchFinishTime_ > MAX_LAUNCH_TIME && gimbal_->msg.state == FSMState_e::AUTO)
+        else if (launchFinish[0] && launchFinish[1] && gimbal_->msg.state == FSMState_e::AUTO)
             return FSMState_e::AUTO;
         else
             return FSMState_e::LAUNCH;
@@ -116,12 +142,15 @@ private:
 
     Pids_s pids_;
 
-    float cmdMotorPitchAng_;
-    float cmdMotorYawAng_;
+    Gimbal::LaunchStrategy_e launchStrategy_ = Gimbal::LaunchStrategy_e::NORMAL;
 
-    uint16_t launchTotalTime_ = 0; // ms
-    uint16_t launchFinishTime_ = 0;
-    bool finishLaunching_ = false;
+    float cmdImuPitchAng_;
+    float cmdImuYawAng_;
+
+    float targetPitch_;
+    float targetYaw_;
+
+    bool launchFinish[2] = { false, false };
 };
 
 } // namespace GIMBAL

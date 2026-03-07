@@ -39,6 +39,12 @@ class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
+class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
+    friend class Bipedal;
+    GimbalLaunchStrategyTxPacket() : TxPacket(10.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
+};
+
 class Bipedal : public Chassis {
     static constexpr float LF_HIP_CALIBRATED_ANG = 2.860530f;
     static constexpr float LB_HIP_CALIBRATED_ANG = 4.403488f;
@@ -340,7 +346,9 @@ private:
 #endif
 
     ChassisCtrlRxPacket chassisCtrlRxPacket_;
+
     RefereeDataTxPacket refereeDataTxPacket_;
+    GimbalLaunchStrategyTxPacket gimbalLaunchStrategyTxPacket_;
 
     Axis1Odom odom_;
 
@@ -386,6 +394,9 @@ private:
 
     // Observe functions
     void updateBody();
+
+    void updateGimbalLaunchStrategy();
+
     /**
      * @brief judge body is in the low displacement state
      */

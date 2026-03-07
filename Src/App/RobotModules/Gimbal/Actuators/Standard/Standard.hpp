@@ -34,6 +34,12 @@ public:
     void registerCallback() final;
 };
 
+class GimbalLaunchStrategyRxPacket : public COMM::RxPacket<COMM::GimbalLaunchStrategyPacketType, 1> {
+public:
+    GimbalLaunchStrategyRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
 class Standard : public Gimbal {
     struct Motors_s {
         PINYMOTOR::IMotor *pitch;
@@ -66,11 +72,15 @@ public:
     void ctrlYawAuto(PID *_angPID, PID *_velPID, float _pos);
     void ctrlYaw(PID *_angPID, PID *_velPID, float _pos);
 
+    LaunchStrategy_e generateLaunchStrategy();
+
     void stop();
     void enter();
     void update(void *_param);
 
     void loadResetState(bool _state);
+
+    bool isNeedLaunch();
 
 private:
     Motors_s motors_;
@@ -79,6 +89,7 @@ private:
     ShooterCtrlTxPacket shooterCtrlTxPacket_;
 
     RefereeDataRxPacket refereeDataRxPacket_;
+    GimbalLaunchStrategyRxPacket gimbalLaunchStrategyRxPacket_;
 
     ChassisMsg_s cmsg_{};      // master keep it temporary
     ArmorLoaderMsg_s almsg_{}; // master keep it temporary

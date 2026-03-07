@@ -35,6 +35,14 @@ void RefereeDataRxPacket::registerCallback()
     LOG::info("RefereeDataRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
+void GimbalLaunchStrategyRxPacket ::registerCallback()
+{
+    Can::instance().registerCallback(&COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("GimbalLaunchStrategyRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
+}
+
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
@@ -97,7 +105,6 @@ void Standard::update(void *_param)
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         // chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(CHASSIS::FSMState_e::STOP);
-
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
@@ -215,3 +222,38 @@ float Standard::calcYawTorq(float _vel, float _acc)
     (void)_acc;
     return 0.f; // TODO:
 }
+
+Gimbal::LaunchStrategy_e Standard::generateLaunchStrategy()
+{
+    // TODO: Currently all launch strategies are set to normal
+    float yawAng = yaw()->posNorm();
+    Gimbal::LaunchStrategy_e strategy = Gimbal::LaunchStrategy_e::NORMAL;
+    bool legLFront = gimbalLaunchStrategyRxPacket_.data().isLegLFront;
+    bool legRFront = gimbalLaunchStrategyRxPacket_.data().isLegRFront;
+    if (yawAng > PI / 2.f && yawAng < 3.f * PI / 2.f) {
+        // the head is in the back
+        if (legLFront && legRFront) {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        } else if (legLFront && !legRFront) {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        } else if (!legLFront && legRFront) {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        } else {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        }
+    } else {
+        // the head is in the front
+        if (legLFront && legRFront) {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        } else if (legLFront && !legRFront) {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        } else if (!legLFront && legRFront) {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        } else {
+            strategy = Gimbal::LaunchStrategy_e::NORMAL;
+        }
+    }
+    return strategy;
+}
+
+bool Standard::isNeedLaunch() { return gimbalLaunchStrategyRxPacket_.data().isNeedLaunch; }

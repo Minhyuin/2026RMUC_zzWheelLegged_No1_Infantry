@@ -24,7 +24,7 @@ public:
     {
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (gimbal_->msg.state == FSMState_e::RUN)
+        else if (gimbal_->msg.state == FSMState_e::RUN || gimbal_->msg.state == FSMState_e::LAUNCH)
             return FSMState_e::LAUNCH;
         else
             return FSMState_e::STOP;

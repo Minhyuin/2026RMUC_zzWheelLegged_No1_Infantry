@@ -5,11 +5,9 @@
 
 class Gimbal {
 public:
-    Gimbal()
-            : insSub_(new Subscriber<INS_SYS::INSData_s>(
-                      4, &TopicRouter::instance().insTopic, &insData_))
-    {
-    }
+    enum class LaunchStrategy_e : uint8_t { NORMAL = 0, ANTI_CLOCKWISE, CLOCKWISE };
+
+    Gimbal() : insSub_(new Subscriber<INS_SYS::INSData_s>(4, &TopicRouter::instance().insTopic, &insData_)) {}
 
     const INS_SYS::INSData_s &ins() const { return insData_; }
 
