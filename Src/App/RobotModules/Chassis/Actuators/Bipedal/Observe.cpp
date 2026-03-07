@@ -157,5 +157,5 @@ void Bipedal::updateGimbalLaunchStrategy()
 {
     gimbalLaunchStrategyTxPacket_.setData().isLegLFront = detectPhiLRange(-3.14f, -0.1f);
     gimbalLaunchStrategyTxPacket_.setData().isLegRFront = detectPhiRRange(-3.14f, -0.1f);
-    gimbalLaunchStrategyTxPacket_.setData().isNeedLaunch = isTumble();
+    gimbalLaunchStrategyTxPacket_.setData().isNeedLaunch = (isTumble() && msg.state != FSMState_e::STOP);
 }
