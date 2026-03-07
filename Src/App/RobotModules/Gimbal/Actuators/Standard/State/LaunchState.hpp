@@ -10,10 +10,10 @@
 static volatile float launchPitchStep = 0.6f;
 static volatile float launchYawStep = 0.5f;
 
-static PositionalPid launchPitchAngPID(40.f, 100.f, 0.5f, 0.001f, 1.0f, 5.f, 0.f);
-static PositionalPid launchPitchVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
-static PositionalPid launchYawAngPID(100.f, 600.f, 1.5f, 0.001f, 3.f, 7.f, 0.f);
-static PositionalPid launchYawVelPID(0.3f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid launchPitchAngPID(40.f, 100.f, 1.f, 0.001f, 1.0f, 5.f, 0.f);
+static PositionalPid launchPitchVelPID(0.4f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid launchYawAngPID(80.f, 600.f, 2.f, 0.001f, 3.f, 7.f, 0.f);
+static PositionalPid launchYawVelPID(0.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
@@ -28,8 +28,8 @@ class LaunchState : public FSMState<FSMState_e> {
 
     static constexpr uint16_t MAX_LAUNCH_TIME = 300; // 0.3s
 
-    static constexpr float PITCH_LAUNCH_ANG_DEADBAND = 0.1f;
-    static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.1f;
+    static constexpr float PITCH_LAUNCH_ANG_DEADBAND = 0.15f;
+    static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.15f;
 
 public:
     LaunchState(Standard *_gimbal) : FSMState<FSMState_e>(FSMState_e::LAUNCH), gimbal_(_gimbal)

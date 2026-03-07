@@ -18,13 +18,13 @@ namespace GIMBAL {
 
 class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
     friend class Standard;
-    ChassisCtrlTxPacket() : TxPacket(200.f) {}
+    ChassisCtrlTxPacket() : TxPacket(500.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class ShooterCtrlTxPacket : public COMM::TxPacket<COMM::ArmorLoaderPacketType> {
     friend class Standard;
-    ShooterCtrlTxPacket() : TxPacket(200.f) {}
+    ShooterCtrlTxPacket() : TxPacket(500.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
