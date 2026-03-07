@@ -68,18 +68,20 @@ void DualFric::update(void *_param)
 
 void DualFric::ctrl(float _vel)
 {
-    float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
-    float pidOut = fricPid_[0].calc(velErr, 0);
-    motors_.fricL->cmdTorq(pidOut);
-    velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
-    pidOut = fricPid_[1].calc(velErr, 0);
-    motors_.fricR->cmdTorq(pidOut);
+    // float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
+    // float pidOut = fricPid_[0].calc(velErr, 0);
+    // motors_.fricL->cmdTorq(pidOut);
+    // velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
+    // pidOut = fricPid_[1].calc(velErr, 0);
+    // motors_.fricR->cmdTorq(pidOut);
+    motors_.fricR->cmdVel(_vel);
+    motors_.fricL->cmdVel(_vel);
 }
 
 void DualFric::on()
 {
-    float constTarget = SLOW_FRIC_RATE;
-    SMOOTH::slopeFollowing(&constTarget, &targetVel_, 1.f);
+    float constTarget = FAST_FRIC_RATE;
+    SMOOTH::slopeFollowing(&constTarget, &targetVel_, 0.35f);
     ctrl(targetVel_);
 }
 
@@ -89,7 +91,7 @@ void DualFric::off()
         stop();
     } else {
         float constZero = 0;
-        SMOOTH::slopeFollowing(&constZero, &targetVel_, 1.f);
+        SMOOTH::slopeFollowing(&constZero, &targetVel_, 0.35f);
         ctrl(targetVel_);
     }
 }

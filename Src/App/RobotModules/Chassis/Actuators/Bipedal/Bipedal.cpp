@@ -206,6 +206,8 @@ void Bipedal::update(void *_param)
     refereeDataTxPacket_.setData().isPlay = refereeData.gameStatus.gameProgress == 4;
     refereeDataTxPacket_.setData().isAlive = refereeData.gameRobotStatus.currentHP > 0;
     refereeDataTxPacket_.setData().stageRemainTime = refereeData.gameStatus.stageRemainTime;
+    refereeDataTxPacket_.setData().rateOfFire = refereeData.shootData.bulletFreq;
+    refereeDataTxPacket_.setData().muzzleVel = refereeData.shootData.bulletSpeed;
 #endif
     // update state
     this->stateFactory_.update();

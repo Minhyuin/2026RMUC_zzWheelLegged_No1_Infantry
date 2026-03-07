@@ -4,8 +4,6 @@
 
 #include "IMotor.hpp"
 
-#include "IIR.hpp"
-
 #include "PidBasic.hpp"
 
 namespace ARMORBOOSTER {
@@ -24,7 +22,7 @@ public:
 
     static constexpr float FRIC_MOTOR_FREQ = 10.f;
 
-    static constexpr bool FRIC_REVERSE = false;
+    static constexpr bool FRIC_REVERSE = true;
 
     DualFric();
 
@@ -40,9 +38,7 @@ public:
 private:
     Motors_s motors_;
 
-    FILTER::IIR3 velFltr_[2];
-
-    IncrementalPid fricPid_[2]{ { 0.0003f, 1e-6f, 0.f, 0.157f }, { 0.0003f, 1e-6f, 0.f, 0.157f } };
+    // IncrementalPid fricPid_[2]{ { 0.0003f, 1e-6f, 0.f, 0.157f }, { 0.0003f, 1e-6f, 0.f, 0.157f } };
 
     float targetVel_ = SLOW_FRIC_RATE;
 };
