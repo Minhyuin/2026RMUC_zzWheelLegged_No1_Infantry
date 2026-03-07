@@ -45,7 +45,7 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.665203f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.005563f;
 
-    static constexpr float MASS_BODY = 19.285f;
+    static constexpr float MASS_BODY = 22.6110f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -322,6 +322,8 @@ public:
     float vel() const; // m/s
 
     float deltaYaw = 0.f;
+    float cosYaw = 0.f;
+    float sinYaw = 0.f;
 
 private:
     Motors_s motors_;
@@ -397,9 +399,6 @@ private:
      * @param _endAng end angle (counter-clockwise relative to start angle)
      */
     bool detectAng(float _input, float _startAng, float _endAng) const;
-
-    float cosYaw_ = 0.f;
-    float sinYaw_ = 0.f;
 
     float phiGlobalL_ = 0.f;
     float phiGlobalR_ = 0.f;

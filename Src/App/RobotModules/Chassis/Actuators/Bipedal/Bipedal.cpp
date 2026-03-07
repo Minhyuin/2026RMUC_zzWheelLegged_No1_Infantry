@@ -40,6 +40,11 @@ void ChassisCtrlRxPacket::registerCallback()
     LOG::info("ChassisCtrlRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
+void RefereeDataTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+}
+
 Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter::instance().insTopic, &insData_))
 {
     InitConfig_s rfDM8009Config = {
@@ -168,11 +173,12 @@ void Bipedal::enter()
 
 void Bipedal::update(void *_param)
 {
-    if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &msg, 0) == pdTRUE) {
-    };
-    // msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().state);
-    // msg.vx = chassisCtrlRxPacket_.data().vx;
-    // msg.vy = chassisCtrlRxPacket_.data().vy;
+    // if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &msg, 0) == pdTRUE) {
+    // };
+    UNUSED(_param);
+    msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().chassisExptState);
+    msg.vx = chassisCtrlRxPacket_.data().vx;
+    msg.vy = chassisCtrlRxPacket_.data().vy;
 
     // update dt
     dt_ = Dwt::instance().getDt(&dtCnt_);
@@ -219,8 +225,8 @@ void Bipedal::loadDeltaYaw()
     insSub_->receive();
     deltaYaw = getMinorArc(chassisCtrlRxPacket_.data().deltaYaw, 0.f);
 
-    cosYaw_ = arm_cos_f32(deltaYaw);
-    sinYaw_ = arm_sin_f32(deltaYaw);
+    cosYaw = arm_cos_f32(deltaYaw);
+    sinYaw = arm_sin_f32(deltaYaw);
 };
 
 void Bipedal::ctrl()

@@ -98,12 +98,13 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             gMsg_.state = GIMBAL::FSMState_e::STOP;
             gMsg_.wPitch = gMsg_.wYaw = 0.f;
             cMsg_.state = CHASSIS::FSMState_e::STOP;
-            cMsg_.vx = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
+            cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
             alMsg_.state = ARMORLOADER::FSMState_e::STOP;
             alMsg_.fire = false;
             abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
         } else if (sr == SW::MID) {
             cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
+            cMsg_.vy = -static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_VX_MAX;
             cMsg_.dphi = -(cMsg_.droll = static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_ROLL_MAX);
             cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
             cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
@@ -124,6 +125,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             }
         } else if (sr == SW::UP) {
             cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
+            cMsg_.vy = -static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_VX_MAX;
             cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
             cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
             alMsg_.fire = false;

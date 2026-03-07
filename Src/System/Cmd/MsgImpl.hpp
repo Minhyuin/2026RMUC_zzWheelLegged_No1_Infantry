@@ -34,7 +34,7 @@ struct MsgBus_s {
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ctrl msg ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 struct ChassisMsg_s : public Msg {
     CHASSIS::FSMState_e state;
-    float vx, wz;
+    float vx, vy, wz;
     float droll;
     float dl;   // only for debug
     float dphi; // only for debug

@@ -5,8 +5,8 @@ using namespace PINYMOTOR;
 
 bool Bipedal::isGimbalReset() const
 {
-    // return chassisCtrlRxPacket_.data().gimbalReset;
-    return true;
+    return chassisCtrlRxPacket_.data().gimbalReset;
+    // return true;
 }
 
 bool Bipedal::isTumble() const

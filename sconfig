@@ -26,17 +26,7 @@ CONFIG_CHASSIS_FILE="\"Bipedal.hpp\""
 # CONFIG_APP_USE_ODOMETER is not set
 # end of chassis config
 
-CONFIG_APP_USE_GIMBAL=y
-
-#
-# gimbal config
-#
-CONFIG_APP_USE_STANDARD=y
-# CONFIG_APP_USE_STACKED is not set
-CONFIG_GIMBAL_TYPE="Standard"
-CONFIG_GIMBAL_FILE="\"Standard.hpp\""
-# end of gimbal config
-
+# CONFIG_APP_USE_GIMBAL is not set
 CONFIG_APP_USE_ARMORLOADER=y
 
 #
@@ -47,16 +37,7 @@ CONFIG_ARMORLOADER_TYPE="Dial"
 CONFIG_ARMORLOADER_FILE="\"Dial.hpp\""
 # end of ArmorLoader config
 
-CONFIG_APP_USE_ARMORBOOSTER=y
-
-#
-# ArmorBooster config
-#
-CONFIG_APP_USE_DUAL=y
-CONFIG_ARMORBOOSTER_TYPE="DualFric"
-CONFIG_ARMORBOOSTER_FILE="\"DualFric.hpp\""
-# end of ArmorBooster config
-
+# CONFIG_APP_USE_ARMORBOOSTER is not set
 # CONFIG_APP_USE_TEST is not set
 CONFIG_APP_USE_INS=y
 
