@@ -22,8 +22,8 @@ class AutoState : public FSMState<FSMState_e> {
         PositionalPid *yawVelPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.44f;
-    static constexpr float IMU_PITCH_END_ANG = 0.45f;
+    static constexpr float IMU_PITCH_START_ANG = -0.292561157f;
+    static constexpr float IMU_PITCH_END_ANG = 0.207101977f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;

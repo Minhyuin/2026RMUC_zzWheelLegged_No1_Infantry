@@ -41,14 +41,14 @@ class Standard : public Gimbal {
     };
 
 public:
-    static constexpr float PITCH_LAUNCH_ANG = 4.68467999f;
-    static constexpr float YAW_LAUNCH_ANG = 3.04590487f;
+    static constexpr float PITCH_LAUNCH_ANG = 5.36695957f;
+    static constexpr float YAW_LAUNCH_ANG = 0.80500561f;
 
     static constexpr float PITCH_MOTOR_FREQ = 500.f;
     static constexpr float YAW_MOTOR_FREQ = 500.f;
 
     // "REVERSE flag" is true when imu and motor have different direction
-    static constexpr bool PITCH_REVERSE = true;
+    static constexpr bool PITCH_REVERSE = false;
     static constexpr bool YAW_REVERSE = false;
 
     Standard();

@@ -43,7 +43,7 @@ int8_t Usb::send(const uint8_t *_data, uint16_t _len)
 #endif
 
     if (status != USBD_OK) {
-        LOG::error("Usb", "send fucking failed");
+        // LOG::error("Usb", "send fucking failed");
         return -1;
     }
     return 0;
