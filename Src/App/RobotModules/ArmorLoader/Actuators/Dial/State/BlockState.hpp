@@ -8,7 +8,7 @@ uint16_t restoreCnt_ = 1;
 namespace ARMORLOADER {
 
 class BlockState : public FSMState<FSMState_e> {
-    static constexpr float BLOCK_TORQ = 1.5f;
+    static constexpr float BLOCK_TORQ = 0.8f;
 
     static constexpr uint16_t REVERSE_CNT = 100;
 

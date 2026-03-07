@@ -71,8 +71,8 @@ void Dial::update(void *_param)
     }
     if (barrelHeat_ > 0)
         barrelHeat_ -= static_cast<float>(refereeData.gameRobotStatus.shooterCoolingValue) * 0.001f;
-
-    msg.fire &= barrelHeat_ <= static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit);
+    msg.fire &= barrelHeat_ <=
+                static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit) - BARREL_HEAT_THRESHOLD_OFFSET;
 #endif
 
     vel_ = velFltr_.process(dial()->vel());
