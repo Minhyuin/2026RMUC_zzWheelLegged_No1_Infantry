@@ -62,6 +62,10 @@ void DualFric::update(void *_param)
     if (xQueueReceive((((MsgBus_s *)_param)->armorBoosterQueue), &msg, 0) == pdTRUE) {
     };
 
+    if (motors_.fricL->globalState != GlobalState_e::ONLINE || motors_.fricR->globalState != GlobalState_e::ONLINE) {
+        msg.state = FSMState_e::OFF;
+    }
+
     // update state
     this->stateFactory_.update();
 }

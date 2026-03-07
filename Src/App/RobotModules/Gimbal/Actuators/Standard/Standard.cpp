@@ -101,6 +101,9 @@ void Standard::update(void *_param)
 
     if (xQueueReceive((((MsgBus_s *)_param)->gimbalQueue), &msg, 0) == pdTRUE) {
     };
+    if (motors_.pitch->globalState != GlobalState_e::ONLINE || motors_.yaw->globalState != GlobalState_e::ONLINE) {
+        msg.state = FSMState_e::STOP;
+    }
 
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);

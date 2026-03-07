@@ -185,6 +185,12 @@ void Bipedal::update(void *_param)
     msg.vx = chassisCtrlRxPacket_.data().vx;
     msg.vy = chassisCtrlRxPacket_.data().vy;
 
+    if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
+        motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||
+        motors_.WheelL->globalState != GlobalState_e::ONLINE || motors_.WheelR->globalState != GlobalState_e::ONLINE) {
+        msg.state = FSMState_e::STOP;
+    }
+
     // update dt
     dt_ = Dwt::instance().getDt(&dtCnt_);
 

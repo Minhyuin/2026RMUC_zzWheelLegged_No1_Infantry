@@ -59,6 +59,9 @@ void Dial::update(void *_param)
     UNUSED(_param);
     msg.state = static_cast<FSMState_e>(shooterCtrlRxPacket_.data().armorLoaderExptState);
     msg.fire = shooterCtrlRxPacket_.data().fire;
+    if (motors_.dial->globalState != GlobalState_e::ONLINE) {
+        msg.state = FSMState_e::STOP;
+    }
 
 #if APP_USE_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
