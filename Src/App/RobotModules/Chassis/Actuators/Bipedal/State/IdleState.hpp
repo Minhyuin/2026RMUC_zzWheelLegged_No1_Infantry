@@ -8,7 +8,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid idleFollowVelPid{ 15.f, 0.f, 3.0f, 0.001f, 0.f, 10.f, 0.f };
+static PositionalPid idleFollowVelPid{ 15.f, 0.f, 3.0f, 0.001f, 0.f, 5.f, 0.f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {

@@ -9,6 +9,8 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
+static PositionalPid climbPrepareFollowVelPid{ 15.f, 0.f, 3.0f, 0.001f, 0.f, 5.f, 0.f };
+
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
@@ -27,25 +29,30 @@ public:
         refYaw_ = chassis_->yaw();
         chassis_->setRoll(0);
         refLength_ = chassis_->length();
+        wzAngPid_ = &climbPrepareFollowVelPid;
         LOG::info("ChassisClimbPrepare", " enter");
     }
 
     void run() final
     {
-        refLength_ += chassis_->msg.dl * 0.001f;
-        // refLength_ = SMOOTH::slopeFollowing(CLIMB_PREPARE_LENGTH, refLength_, 0.0002f);
+        // refLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(CLIMB_PREPARE_LENGTH, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
         if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.2f)
             isPrepareFinish_ = true;
 
+        float targetYaw = 0.f;
+        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw)) * 0.001f;
+        // float wz = 0;
+        float ds = (chassis_->msg.vx * chassis_->cosYaw) - (chassis_->msg.vy * chassis_->sinYaw);
+
         // WBR
         WBRController::States_s ref{};
-        float wz = chassis_->msg.wz * 0.001f;
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
         chassis_->msg.vx = std::clamp(chassis_->msg.vx, -MAX_SPEED, MAX_SPEED);
-        ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
+        ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.dyaw = wz;
         ref.q = OFFSET_Q;
@@ -56,7 +63,7 @@ public:
 
     void exit() final
     {
-        wzAngPid_.reset();
+        wzAngPid_->reset();
         LOG::info("ChassisClimbPrepare", " exit");
     }
 
@@ -77,7 +84,7 @@ public:
 
 private:
     Bipedal *chassis_;
-    PositionalPid wzAngPid_{ 0, 0, 0, 0.001f, 0, 0, 0 };
+    PositionalPid *wzAngPid_;
     float refYaw_ = 0;
     float refLength_ = Bipedal::DEFAULT_L;
     bool isPrepareFinish_ = false;

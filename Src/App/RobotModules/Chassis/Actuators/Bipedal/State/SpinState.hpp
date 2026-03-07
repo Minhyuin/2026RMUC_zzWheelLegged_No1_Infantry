@@ -4,12 +4,15 @@
 #include "StmLog.hpp"
 
 #include "MotorCommonMacros.hpp"
+                                                        
+#include "Smooth.hpp"
 
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_BASE = 3.0f;
     static constexpr float MAX_VX_ACC = 1.f;
+    static constexpr float SPIN_L = 0.25f;
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -25,7 +28,7 @@ public:
 
     void run() final
     {
-        refLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(SPIN_L, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
