@@ -124,8 +124,6 @@ void Bipedal::updateBody()
     // update odom
     // w = w_eb + dq + w_ecd
     float wheelOmega[2]{};
-    // wheelOmega[0] = wheelFltr[0].process(motors_.WheelL->vel()) + insData_.body.gy + legL_.state().dphi0;
-    // wheelOmega[1] = wheelFltr[1].process(motors_.WheelR->vel()) - insData_.body.gy + legR_.state().dphi0;
     wheelOmega[0] = motors_.WheelL->vel() + insData_.body.gy + legL_.state().dphi0;
     wheelOmega[1] = motors_.WheelR->vel() - insData_.body.gy + legR_.state().dphi0;
 

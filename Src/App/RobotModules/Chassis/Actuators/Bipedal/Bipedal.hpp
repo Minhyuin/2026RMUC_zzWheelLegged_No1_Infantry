@@ -364,8 +364,6 @@ private:
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
     PositionalPid dsPid_[2]{ { 0.6f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
-    FILTER::IIR3 wheelFltr[2];
-
     float setRoll_ = 0.f;
     float lengthOffset_ = 0.f;
     bool rollControlFlag = false;
