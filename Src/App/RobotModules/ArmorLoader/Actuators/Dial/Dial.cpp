@@ -11,7 +11,9 @@
 #include "./State/SingleState.hpp"
 #include "./State/StopState.hpp"
 
-#include "referee.hpp"
+#if APP_USE_REFEREE
+#include "Referee.hpp"
+#endif
 
 using namespace ARMORLOADER;
 using namespace PINYMOTOR;
@@ -52,12 +54,14 @@ void Dial::enter() { motors_.dial->cmd(MotorCmdType_e::ON); }
 
 void Dial::update(void *_param)
 {
-    const auto &refereeData = referee->receiver.getRefereeData();
+    // if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &msg, 0) == pdTRUE) {
+    // };
+    UNUSED(_param);
+    msg.state = static_cast<FSMState_e>(shooterCtrlRxPacket_.data().armorLoaderExptState);
+    msg.fire = shooterCtrlRxPacket_.data().fire;
 
-    if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &msg, 0) == pdTRUE) {
-    };
-    // msg.state = static_cast<FSMState_e>(shooterCtrlRxPacket_.data().state);
-    // msg.fire = shooterCtrlRxPacket_.data().fire;
+#if APP_USE_REFEREE
+    const auto &refereeData = referee->receiver.getRefereeData();
     if (lastBarrelHeatFromReferee_ != refereeData.powerHeatData.shooter_17mmBarrelHeat) {
         barrelHeat_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;
         lastBarrelHeatFromReferee_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;
@@ -66,6 +70,7 @@ void Dial::update(void *_param)
         barrelHeat_ -= static_cast<float>(refereeData.gameRobotStatus.shooterCoolingValue) * 0.001f;
 
     msg.fire &= barrelHeat_ <= static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit);
+#endif
 
     vel_ = velFltr_.process(dial()->vel());
     curr_ = dial()->data().curr;

@@ -22,10 +22,16 @@ class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
-class ShooterCtrlTxPacket : public COMM::TxPacket<COMM::ArmorBoosterPacketType> {
+class ShooterCtrlTxPacket : public COMM::TxPacket<COMM::ArmorLoaderPacketType> {
     friend class Standard;
     ShooterCtrlTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
+};
+
+class RefereeDataRxPacket : public COMM::RxPacket<COMM::RefereePacketType, 1> {
+public:
+    RefereeDataRxPacket() { registerCallback(); }
+    void registerCallback() final;
 };
 
 class Standard : public Gimbal {
@@ -71,6 +77,8 @@ private:
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
     ShooterCtrlTxPacket shooterCtrlTxPacket_;
+
+    RefereeDataRxPacket refereeDataRxPacket_;
 
     ChassisMsg_s cmsg_{};      // master keep it temporary
     ArmorLoaderMsg_s almsg_{}; // master keep it temporary

@@ -11,25 +11,34 @@
 #include "./State/RunState.hpp"
 #include "./State/AutoState.hpp"
 
-#include "Referee.hpp"
+#define GIMBAL_HANDLE HCAN1
+#define COMM_HANDLE   HCAN1
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
 
 void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
 }
 
 void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+}
+
+void RefereeDataRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(&COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("RefereeDataRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&GIMBAL_HANDLE),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 2,
@@ -43,7 +52,7 @@ Standard::Standard()
     LOG::info("Gimbal", "Pitch zeros has set to %f", motors_.pitch->data().zeroAng);
 
     InitConfig_s yawConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&GIMBAL_HANDLE),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,
@@ -82,8 +91,6 @@ void Standard::update(void *_param)
 {
     this->insSub_->receive();
 
-    const auto &refereeData = referee->receiver.getRefereeData();
-
     if (xQueueReceive((((MsgBus_s *)_param)->gimbalQueue), &msg, 0) == pdTRUE) {
     };
 
@@ -94,27 +101,36 @@ void Standard::update(void *_param)
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
     if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg_, 0) == pdTRUE) {
-        shooterCtrlTxPacket_.setData().armorBoosterExptState = static_cast<uint8_t>(almsg_.state);
+        shooterCtrlTxPacket_.setData().armorLoaderExptState = static_cast<uint8_t>(almsg_.state);
         shooterCtrlTxPacket_.setData().fire = almsg_.fire;
     }
-    shooterCtrlTxPacket_.setData().fire &= true; // TODO: vision fire
+    shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
 
     // vision send
+#if APP_USE_REFEREE
     uint8_t targetMode = 0;
-    if (refereeData.gameStatus.gameProgress == 4 && almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
-        if (refereeData.gameStatus.stageRemainTime < 240)
+    if (refereeDataRxPacket_.data().isPlay && almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
+        if (refereeDataRxPacket_.data().stageRemainTime < 240)
             targetMode = 2;
         else
             targetMode = 1;
     }
-    vision.setData().detectColor = refereeData.gameRobotStatus.robotId >= 101 ? 1 : 0;
+    vision.setData().detectColor = refereeDataRxPacket_.data().color;
     vision.setData().taskMode = targetMode;
-    vision.setData().isPlay = refereeData.gameStatus.gameProgress == 4;
+    vision.setData().isPlay = refereeDataRxPacket_.data().isPlay;
+#else
+    uint8_t targetMode = almsg_.state == ARMORLOADER::FSMState_e::SINGLE ? 1 : 0;
+    vision.setData().detectColor = 0; // red
+    vision.setData().isPlay = false;
+#endif
+
+    vision.setData().resetTracker = false;
     vision.setData().changeTarget = false;
     vision.setData().roll = insData_.roll;
     vision.setData().pitch = insData_.pitch;
     vision.setData().yaw = insData_.yaw;
 
+    // update state
     this->stateFactory_.update();
 }
 

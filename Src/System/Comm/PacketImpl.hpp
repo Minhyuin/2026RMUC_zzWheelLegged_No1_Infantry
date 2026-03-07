@@ -98,17 +98,17 @@ public:
     }
 };
 
-class ArmorBoosterPacketType {
+class ArmorLoaderPacketType {
 public:
     static constexpr uint8_t LEN = 4;
     static constexpr uint16_t ID = 0x22;
     struct ProtoData_s {
-        uint8_t armorBoosterExptState;
+        uint8_t armorLoaderExptState;
         bool fire;
     };
     union Data_u {
         struct Data_s {
-            uint8_t armorBoosterExptState : 8;
+            uint8_t armorLoaderExptState : 8;
             bool fire : 1;
             uint32_t reversed : 23;
         } content;
@@ -117,14 +117,52 @@ public:
     static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
     {
         Data_u::Data_s &d = _data.content;
-        d.armorBoosterExptState = _protoData.armorBoosterExptState;
+        d.armorLoaderExptState = _protoData.armorLoaderExptState;
         d.fire = _protoData.fire;
         d.reversed = 0;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
-        _protoData.armorBoosterExptState = _data.content.armorBoosterExptState;
+        _protoData.armorLoaderExptState = _data.content.armorLoaderExptState;
         _protoData.fire = _data.content.fire;
+    }
+};
+
+class RefereePacketType {
+public:
+    static constexpr uint8_t LEN = 8;
+    static constexpr uint16_t ID = 0x23;
+    struct ProtoData_s {
+        uint8_t color;
+        bool isPlay;
+        bool isAlive;
+        uint16_t stageRemainTime; // [0 - 1023]
+    };
+    union Data_u {
+        struct Data_s {
+            uint8_t color : 1; // 0 - red, 1 - blue
+            uint8_t isPlay : 1;
+            uint8_t isAlive : 1;
+            uint16_t stageRemainTime : 10; // [0 - 1023]
+            uint32_t reversed1 : 32;
+            uint32_t reversed2 : 19;
+        } content;
+        uint8_t bytes[LEN];
+    } data;
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        Data_u::Data_s &d = _data.content;
+        d.color = _protoData.color;
+        d.isPlay = _protoData.isPlay;
+        d.isAlive = _protoData.isAlive;
+        d.stageRemainTime = _protoData.stageRemainTime;
+    }
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        _protoData.color = _data.content.color;
+        _protoData.isPlay = _data.content.isPlay;
+        _protoData.isAlive = _data.content.isAlive;
+        _protoData.stageRemainTime = _data.content.stageRemainTime;
     }
 };
 

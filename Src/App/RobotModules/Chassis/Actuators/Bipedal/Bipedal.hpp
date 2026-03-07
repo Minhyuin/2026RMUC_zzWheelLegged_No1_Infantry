@@ -13,6 +13,7 @@
 #include "IIR.hpp"
 
 #include "RxPacket.hpp"
+#include "TxPacket.hpp"
 #include "PacketImpl.hpp"
 
 namespace CHASSIS {
@@ -30,6 +31,12 @@ public:
     // TODO: slightly cumbersome like this or CRTP
     ChassisCtrlRxPacket() { registerCallback(); }
     void registerCallback() final;
+};
+
+class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
+    friend class Bipedal;
+    RefereeDataTxPacket() : TxPacket(10.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class Bipedal : public Chassis {
@@ -329,9 +336,9 @@ private:
     GimbalYawMsg_s gimbalYawMsg_;
     Subscriber<GimbalYawMsg_s> *gimbalYawSub_;
 #endif
-#ifdef TARGET_SLAVE
+
     ChassisCtrlRxPacket chassisCtrlRxPacket_;
-#endif
+    RefereeDataTxPacket refereeDataTxPacket_;
 
     Axis1Odom odom_;
 

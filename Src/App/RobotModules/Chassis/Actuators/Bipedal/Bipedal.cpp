@@ -21,6 +21,10 @@
 #include "./State/JumpState.hpp"
 #include "./State/TestState.hpp"
 
+#if APP_USE_REFEREE
+#include "Referee.hpp"
+#endif
+
 #define HIP_HANDLE   HCAN2
 #define WHEEL_HANDLE HCAN1
 #define COMM_HANDLE  HCAN3
@@ -195,6 +199,14 @@ void Bipedal::update(void *_param)
     // stop detect
     detectStop();
 
+// send referee data to gimbal
+#if APP_USE_REFEREE
+    const auto &refereeData = referee->receiver.getRefereeData();
+    refereeDataTxPacket_.setData().color = refereeData.gameRobotStatus.robotId >= 101 ? 1 : 0;
+    refereeDataTxPacket_.setData().isPlay = refereeData.gameStatus.gameProgress == 4;
+    refereeDataTxPacket_.setData().isAlive = refereeData.gameRobotStatus.currentHP > 0;
+    refereeDataTxPacket_.setData().stageRemainTime = refereeData.gameStatus.stageRemainTime;
+#endif
     // update state
     this->stateFactory_.update();
 }

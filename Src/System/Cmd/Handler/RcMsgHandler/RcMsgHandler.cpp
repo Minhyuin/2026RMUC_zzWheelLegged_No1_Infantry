@@ -140,15 +140,16 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             return;
         }
         memcpy(&rcDataPrev, rcData, sizeof(DT7::RcData_s));
-        notify(&gMsg_, msgBus_->gimbalQueue);
-        notify(&cMsg_, msgBus_->chassisQueue);
-        notify(&alMsg_, msgBus_->armorLoaderQueue);
-        notify(&abMsg_, msgBus_->armorBoosterQueue);
     } else if constexpr (DEV_TYPE == RCDevType_e::ET08A) {
         ET08A::RcData_s *rcData = static_cast<ET08A::RcData_s *>(rc_->getData());
     } else if constexpr (DEV_TYPE == RCDevType_e::VT13) {
         VT13::RcData_s *rcData = static_cast<VT13::RcData_s *>(rc_->getData());
     }
+
+    notify(&gMsg_, msgBus_->gimbalQueue);
+    notify(&cMsg_, msgBus_->chassisQueue);
+    notify(&alMsg_, msgBus_->armorLoaderQueue);
+    notify(&abMsg_, msgBus_->armorBoosterQueue);
     // User-defined processing logic goes here ↑
 }
 
