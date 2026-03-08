@@ -200,27 +200,25 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 alMsg_.fire = rcData->gamepad.wheel != 0;
             } else {
                 static constexpr float KEYBOARD_ENABLE_ACC = 0.05f;
-                static constexpr float KEYBOARD_RESTORE_ACC = 1.f;
+                static constexpr float KEYBOARD_RESTORE_ACC = 0.1f;
                 // WASD
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::W)) {
                     cMsg_.vx = SMOOTH::slopeFollowing(INPUT_VX_MAX, cMsg_.vx, KEYBOARD_ENABLE_ACC);
-                } else {
-                    cMsg_.vx = SMOOTH::slopeFollowing(0.f, cMsg_.vx, KEYBOARD_RESTORE_ACC);
                 }
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::S)) {
                     cMsg_.vx = SMOOTH::slopeFollowing(-INPUT_VX_MAX, cMsg_.vx, KEYBOARD_ENABLE_ACC);
-                } else {
-                    cMsg_.vx = SMOOTH::slopeFollowing(0.f, cMsg_.vx, KEYBOARD_RESTORE_ACC);
+                }
+                if (!IS_KEY_PRESS(rcData->KBM.key, VT13::S) && (!IS_KEY_PRESS(rcData->KBM.key, VT13::W))) {
+                    cMsg_.vx = SMOOTH::slopeFollowing(0, cMsg_.vx, KEYBOARD_RESTORE_ACC);
                 }
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
                     cMsg_.vy = SMOOTH::slopeFollowing(INPUT_VX_MAX, cMsg_.vy, KEYBOARD_ENABLE_ACC);
-                } else {
-                    cMsg_.vy = SMOOTH::slopeFollowing(0.f, cMsg_.vy, KEYBOARD_RESTORE_ACC);
                 }
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
                     cMsg_.vy = SMOOTH::slopeFollowing(-INPUT_VX_MAX, cMsg_.vy, KEYBOARD_ENABLE_ACC);
-                } else {
-                    cMsg_.vy = SMOOTH::slopeFollowing(0.f, cMsg_.vy, KEYBOARD_RESTORE_ACC);
+                }
+                if (!IS_KEY_PRESS(rcData->KBM.key, VT13::A) && (!IS_KEY_PRESS(rcData->KBM.key, VT13::D))) {
+                    cMsg_.vy = SMOOTH::slopeFollowing(0, cMsg_.vy, KEYBOARD_RESTORE_ACC);
                 }
 
                 gMsg_.wPitch = -static_cast<float>(rcData->KBM.mouseY) * GAIN_MOUSE_Y;
@@ -232,6 +230,8 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::SHIFT))
+                    cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
