@@ -106,8 +106,8 @@ void Standard::update(void *_param)
     }
 
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
-        // chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
-        chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(CHASSIS::FSMState_e::STOP);
+        chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
+        // chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(CHASSIS::FSMState_e::STOP);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();

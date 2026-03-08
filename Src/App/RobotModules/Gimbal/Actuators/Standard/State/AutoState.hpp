@@ -28,6 +28,8 @@ class AutoState : public FSMState<FSMState_e> {
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
 
+    static constexpr uint16_t MAX_NEED_LAUNCH_CNT = 5000;
+
 public:
     AutoState(Standard *_gimbal) : FSMState<FSMState_e>(FSMState_e::AUTO), gimbal_(_gimbal)
     {
@@ -40,6 +42,7 @@ public:
     void enter() final
     {
         gimbal_->enter();
+        needLaunchCounter_ = 0;
 
         LOG::info("GimbalAuto", "enter");
     }
@@ -58,6 +61,8 @@ public:
         // cmdImuYawAng_ = PINYMOTOR::clampArc(cmdImuYawAng_, imuYawMinAng_,
         //                                     imuYawMaxAng_);
 
+        needLaunchCounter_ = needLaunchCounter_ > MAX_NEED_LAUNCH_CNT ? MAX_NEED_LAUNCH_CNT : needLaunchCounter_ + 1;
+
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAng_);
         gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAng_);
     }
@@ -75,7 +80,7 @@ public:
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
 
-        if (gimbal_->isNeedLaunch())
+        if (gimbal_->isNeedLaunch() && needLaunchCounter_ >= MAX_NEED_LAUNCH_CNT)
             return FSMState_e::LAUNCH;
 
         if (gimbal_->msg.state == FSMState_e::RUN || !gimbal_->vision.data().control)
@@ -91,6 +96,8 @@ private:
 
     float imuYawMinAng_ = IMU_YAW_START_ANG;
     float imuYawMaxAng_ = IMU_YAW_END_ANG;
+
+    uint16_t needLaunchCounter_ = 0;
 
     float cmdImuPitchAng_;
 
