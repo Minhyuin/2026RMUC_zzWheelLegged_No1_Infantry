@@ -213,6 +213,9 @@ void Bipedal::update(void *_param)
     else
         lengthOffset_ = 0.f;
 
+    // update anti-split
+    antiSplitTp_ = antiSplitPid_.calc(phiGlobalL() - phiGlobalR(), 0); // TpL - offset, TpR + offset
+
     // stop detect
     detectStop();
 

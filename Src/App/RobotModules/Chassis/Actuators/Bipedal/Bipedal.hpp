@@ -66,9 +66,9 @@ class Bipedal : public Chassis {
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            0.4f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            0.0f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.35f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.0f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
 public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
@@ -360,6 +360,9 @@ private:
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
+
+    PositionalPid antiSplitPid_{ 100.f, 0.f, 5.f, 0.001f, 0.f, 50.f, 0.f };
+    float antiSplitTp_ = 0;
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
     PositionalPid dsPid_[2]{ { 0.6f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };

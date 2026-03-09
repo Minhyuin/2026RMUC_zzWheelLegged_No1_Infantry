@@ -17,12 +17,12 @@ class WheelLegged {
     static constexpr float MAX_HIP_CTRL_TORQ = 22.f; // 220uf * 4
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
-    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 50.f, 0.f, 1.5f, 0.001f, 0.f, 10.f, 0.f };
+    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 50.f, 0.f, 0.5f, 0.001f, 0.f, 10.f, 0.f };
     static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 20.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
 
 public:
     static constexpr float MAX_L = 0.369f; // 0.36998937
-    static constexpr float MIN_L = 0.165f; // 0.16051326
+    static constexpr float MIN_L = 0.185f; // 0.16051326
 
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
@@ -130,7 +130,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 100.f, 0.f };
+    GasSpring spring_{ 90.f, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

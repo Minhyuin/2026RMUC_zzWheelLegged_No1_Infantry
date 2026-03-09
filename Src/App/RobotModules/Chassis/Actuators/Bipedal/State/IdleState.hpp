@@ -8,7 +8,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid idleFollowVelPid{ 15.f, 0.f, 3.0f, 0.001f, 0.f, 5.f, 0.f };
+static PositionalPid idleFollowVelPid{ 5.f, 1.f, 0.0f, 0.001f, 0.1f, 1.f, 0.1f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
@@ -41,16 +41,15 @@ public:
         chassis_->setRoll(refRoll_);
 
         float targetYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;
-        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw)) * 0.001f;
+        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));
         // float wz = 0;
         float ds = (chassis_->msg.vx * chassis_->cosYaw) - (chassis_->msg.vy * chassis_->sinYaw);
 
         // WBR
         WBRController::States_s ref{};
-        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
+        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.dyaw = wz;
         ref.q = OFFSET_Q;
         chassis_->bal(ref);
 

@@ -10,8 +10,8 @@
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float SPIN_SPEED_BASE = 3.0f;
-    static constexpr float MAX_VX_ACC = 1.f;
+    static constexpr float MAX_WZ = 5.f;
+    static constexpr float SPIN_SPEED_BASE = 5.f;
     static constexpr float SPIN_L = 0.17f;
 
 public:
@@ -34,9 +34,10 @@ public:
 
         // WBR
         WBRController::States_s ref{};
-        float wz = getSpinVel(spinCnt_++) * 0.001f;
+        float wz = getSpinVel(spinCnt_++);
+        wz = std::clamp(wz, -MAX_WZ, MAX_WZ) * 0.001f; // convert to rad/ms
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
-        ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_VX_ACC, chassis_->vel() + MAX_VX_ACC);
+        ref.ds = 0; // TODO: no spin ds temporary
         ref.yaw = refYaw_;
         ref.dyaw = wz;
         chassis_->bal(ref);
@@ -54,7 +55,7 @@ public:
 
     FSMState_e checkChange() final
     {
-        if (chassis_->msg.state == FSMState_e::STOP /*|| chassis_->isTumble()*/)
+        if (chassis_->msg.state == FSMState_e::STOP || chassis_->isTumble())
             return FSMState_e::STOP;
         else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::IDLE;
@@ -69,9 +70,10 @@ public:
     /// @brief speed change spinning
     float getSpinVel(uint32_t _cnt)
     {
-        float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
-        float rslt = (SPIN_SPEED_BASE * sinf(x) * sinf(x)) + 4.f;
-        return spinDir_ ? rslt : -rslt;
+        // float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
+        // float rslt = (SPIN_SPEED_BASE * sinf(x) * sinf(x)) + 4.f;
+        // return spinDir_ ? rslt : -rslt;
+        return spinDir_ ? SPIN_SPEED_BASE : -SPIN_SPEED_BASE;
     }
 
 private:
