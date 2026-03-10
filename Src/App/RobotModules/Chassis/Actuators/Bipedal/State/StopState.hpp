@@ -37,6 +37,8 @@ public:
             else
                 return FSMState_e::LAUNCH;
         }
+        // if (chassis_->msg.state != FSMState_e::STOP)
+        //     return FSMState_e::IDLE;
         // return FSMState_e::TEST;
         else
             return FSMState_e::STOP;

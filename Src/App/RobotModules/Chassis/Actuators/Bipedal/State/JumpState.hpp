@@ -2,14 +2,16 @@
 #include "Bipedal.hpp"
 #include "FSMState.hpp"
 #include "StmLog.hpp"
+#include "Smooth.hpp"
 
 namespace CHASSIS {
 
 class JumpState : public FSMState<FSMState_e> {
-    static constexpr float PREPARE_LENGTH = WheelLegged::MIN_L;
-    static constexpr float JUMP_LENGTH = WheelLegged::MAX_L;
+    static constexpr float PREPARE_L = WheelLegged::MIN_L;
+    static constexpr float JUMP_L = WheelLegged::MAX_L;
+    static constexpr float LAND_L = WheelLegged::MAX_L + ((WheelLegged::MAX_L - WheelLegged::MIN_L) / 2.f);
 
-    static constexpr float JUMP_FD = 120.f;
+    static constexpr float JUMP_FD = 0.f;
 
     enum class JumpFSMState_e : uint8_t { PREPARE, JUMPING, SOAR, LAND };
 
@@ -25,6 +27,7 @@ public:
     void enter() final
     {
         chassis_->enter();
+        chassis_->setRoll(0);
         jumpFinish_ = false;
         jumpFSMFactory_.init(jumpFSMFactory_.getNextState(JumpFSMState_e::PREPARE));
         LOG::info("ChassisJump", " enter");
@@ -67,16 +70,17 @@ private:
         explicit PrepareState(JumpState &_parent) : FSMState<JumpFSMState_e>(JumpFSMState_e::PREPARE), parent_(_parent)
         {
         }
-        void enter() final { LOG::info("JumpPrepare", " enter"); }
-        void run() final
+        void enter() final
         {
-            parent_.chassis_->setLength(PREPARE_LENGTH);
-            parent_.chassis_->setFdFeedforward();
+            parent_.chassis_->disableJump();
+            parent_.chassis_->setLength(PREPARE_L);
+            LOG::info("JumpPrepare", " enter");
         }
+        void run() final { parent_.chassis_->setFdFeedforward(); }
         void exit() final { LOG::info("JumpPrepare", " exit"); }
         JumpFSMState_e checkChange() final
         {
-            if (parent_.chassis_->detectLengthRange(PREPARE_LENGTH))
+            if (parent_.chassis_->detectLengthRange(PREPARE_L))
                 return JumpFSMState_e::JUMPING;
             else
                 return JumpFSMState_e::PREPARE;
@@ -92,16 +96,18 @@ private:
         explicit JumpingState(JumpState &_parent) : FSMState<JumpFSMState_e>(JumpFSMState_e::JUMPING), parent_(_parent)
         {
         }
-        void enter() final { LOG::info("Jumping", " enter"); }
-        void run() final
+        void enter() final
         {
             parent_.chassis_->enableJump();
             parent_.chassis_->setFdFeedforward(JUMP_FD);
+            parent_.chassis_->setLength(JUMP_L);
+            LOG::info("Jumping", " enter");
         }
+        void run() final {}
         void exit() final { LOG::info("Jumping", " exit"); }
         JumpFSMState_e checkChange() final
         {
-            if (parent_.chassis_->detectLengthRange(JUMP_LENGTH)) {
+            if (parent_.chassis_->detectLengthRange(JUMP_L)) {
                 return JumpFSMState_e::SOAR;
             } else
                 return JumpFSMState_e::JUMPING;
@@ -115,17 +121,17 @@ private:
     class SoarState : public FSMState<JumpFSMState_e> {
     public:
         explicit SoarState(JumpState &_parent) : FSMState<JumpFSMState_e>(JumpFSMState_e::SOAR), parent_(_parent) {}
-        void enter() final { LOG::info("JumpSoar", " enter"); }
-        void run() final
+        void enter() final
         {
-            parent_.chassis_->disbaleJump();
-            parent_.chassis_->setLength(PREPARE_LENGTH);
-            parent_.chassis_->setFdFeedforward(-WheelLegged::MASS * WheelLegged::GRAVITY);
+            parent_.chassis_->disableJump();
+            parent_.chassis_->setLength(PREPARE_L);
+            LOG::info("JumpSoar", " enter");
         }
+        void run() final { parent_.chassis_->setFdFeedforward(); }
         void exit() final { LOG::info("JumpSoar", " exit"); }
         JumpFSMState_e checkChange() final
         {
-            if (parent_.chassis_->detectLengthRange(PREPARE_LENGTH)) {
+            if (parent_.chassis_->detectLengthRange(PREPARE_L)) {
                 return JumpFSMState_e::LAND;
             } else
                 return JumpFSMState_e::SOAR;
@@ -139,12 +145,17 @@ private:
     class LandState : public FSMState<JumpFSMState_e> {
     public:
         explicit LandState(JumpState &_parent) : FSMState<JumpFSMState_e>(JumpFSMState_e::LAND), parent_(_parent) {}
-        void enter() final { LOG::info("JumpLand", " enter"); }
+        void enter() final
+        {
+            parent_.chassis_->disableJump();
+            refLength_ = parent_.chassis_->length();
+            LOG::info("JumpLand", " enter");
+        }
         void run() final
         {
-            parent_.chassis_->disbaleJump();
-            parent_.chassis_->setLength(PREPARE_LENGTH);
-            parent_.chassis_->setFdFeedforward(0.f);
+            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.00015f);
+            parent_.chassis_->setLength(refLength_);
+            parent_.chassis_->setFdFeedforward();
         }
         void exit() final { LOG::info("JumpLand", " exit"); }
         JumpFSMState_e checkChange() final
@@ -157,6 +168,7 @@ private:
 
     private:
         JumpState &parent_;
+        float refLength_ = 0;
     };
 };
 

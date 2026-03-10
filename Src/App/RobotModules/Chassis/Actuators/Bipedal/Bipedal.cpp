@@ -186,6 +186,7 @@ void Bipedal::update(void *_param)
     msg.vy = chassisCtrlRxPacket_.data().vy;
     msg.dl = chassisCtrlRxPacket_.data().dl;
     msg.droll = chassisCtrlRxPacket_.data().droll;
+    msg.needJump = chassisCtrlRxPacket_.data().needJump;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
         motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||
@@ -261,7 +262,7 @@ void Bipedal::enableJump()
     legR_.needJumping = true;
 }
 
-void Bipedal::disbaleJump()
+void Bipedal::disableJump()
 {
     legL_.needJumping = false;
     legR_.needJumping = false;
@@ -319,12 +320,17 @@ void Bipedal::setLengthPID(const PositionalPid &_angPID, const PositionalPid &_v
 
 void Bipedal::setFdFeedforward()
 {
-    float angL = phiGlobalL();
-    bool flagL = getMinorArc(PI / 2.5f, angL) > 0 && getMinorArc(-PI / 2.5f, angL) < 0;
-    float fdL = flagL ? MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(angL) : 0.f;
-    float angR = phiGlobalR();
-    bool flagR = getMinorArc(PI / 2.5f, angR) > 0 && getMinorArc(-PI / 2.5f, angR) < 0;
-    float fdR = flagR ? MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(angR) : 0.f;
+    float fdL = 0, fdR = 0;
+    if (legL_.floatFlag) {
+        fdL = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
+    } else {
+        fdL = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalL());
+    }
+    if (legR_.floatFlag) {
+        fdR = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
+    } else {
+        fdR = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalR());
+    }
     setFdFeedforward(fdL, fdR);
 }
 

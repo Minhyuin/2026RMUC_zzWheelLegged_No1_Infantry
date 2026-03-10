@@ -9,9 +9,6 @@
 namespace CHASSIS {
 
 class WheelLegged {
-    static constexpr float MASS_WHEEL = 0.334f + 0.179f;
-    static constexpr float MASS_LEG = 1.43744054f;
-
     // 4个电机输出电流过大会出现“抢占电流”现象，影响姿态
     // 增大电机最近邻外接电容容值可增大该电流限制
     static constexpr float MAX_HIP_CTRL_TORQ = 22.f; // 220uf * 4
@@ -23,6 +20,9 @@ class WheelLegged {
 public:
     static constexpr float MAX_L = 0.369f; // 0.36998937
     static constexpr float MIN_L = 0.185f; // 0.16051326
+
+    static constexpr float MASS_WHEEL = 0.334f + 0.179f;
+    static constexpr float MASS_LEG = 1.43744054f;
 
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;

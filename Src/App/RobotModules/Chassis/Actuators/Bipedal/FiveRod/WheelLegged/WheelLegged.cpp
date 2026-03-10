@@ -66,21 +66,11 @@ bool WheelLegged::isFloating(float _az, float _q)
 
 void WheelLegged::ctrl()
 {
-    if (needJumping) {
-        fd_ = fdFeedforward_;
-    } else {
-        float setVd = lengthAngPid_.calc(setL_, legState_.L0);
-        fd_ = lengthVelPid_.calc(setVd, legState_.vd) + (floatFlag ? 0.f : fdFeedforward_);
-    }
-
-    // spring
-    float &l = legState_.L0;
-    float ll = l * l;
-    float lll = ll * l;
-    float alpha = 2.883970f - (11.390346f * l) + (21.033344f * ll) - (18.549776f * lll);
-    float cosAlpha = arm_cos_f32(alpha);
-    fdFromSpring_ = spring_.computeForce(legState_.vd / cosAlpha); //* cosAlpha;
-    fd_ -= fdFromSpring_;
+    fdFromSpring_ = spring_.computeForce(0); // TODO: maybe the spring force will change with other params
+    float setVd = lengthAngPid_.calc(setL_, legState_.L0);
+    fd_ = lengthVelPid_.calc(setVd, legState_.vd) + fdFeedforward_;
+    if (!needJumping)
+        fd_ -= fdFromSpring_;
 
     Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
 

@@ -210,6 +210,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 } else {
                     cMsg_.dl = cMsg_.droll = 0;
                 }
+                cMsg_.needJump = rcData->gamepad.fn1;
                 alMsg_.fire = rcData->gamepad.wheel != 0;
             } else {
                 static constexpr float KEYBOARD_ENABLE_ACC = 0.05f;

@@ -44,8 +44,9 @@ struct ChassisMsg_s : public Msg {
     CHASSIS::FSMState_e state;
     float vx, vy, wz;
     float droll;
-    float dl;   // only for debug
+    float dl;
     float dphi; // only for debug
+    bool needJump;
 };
 
 struct GimbalMsg_s : public Msg {

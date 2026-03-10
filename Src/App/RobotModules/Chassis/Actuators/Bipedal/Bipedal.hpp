@@ -97,7 +97,7 @@ public:
     /**
      * @brief turn off the jump flag
      */
-    void disbaleJump();
+    void disableJump();
 
     /**
      * @brief turn on roll control

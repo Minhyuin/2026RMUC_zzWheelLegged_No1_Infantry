@@ -62,6 +62,7 @@ public:
         float vy;    // must be in [-3.2, 3.1]
         float dl;    // must be in [-0.16, 0.15]
         float droll; // must be in [-0.8, 0.7]
+        bool needJump;
         float deltaYaw;
     };
 #pragma pack(push, 1)
@@ -72,10 +73,11 @@ public:
             int8_t vy : 6;    // [-32, 31]
             int8_t dl : 5;    // [-16, 15]
             int8_t droll : 4; // [-8, 7]
+            uint8_t needJump : 1;
             int16_t deltaYaw : 16;
             uint8_t chassisExptState : 4;
             uint8_t gimbalRealState : 4;
-            uint32_t reversed : 18;
+            uint32_t reversed : 17;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -88,6 +90,7 @@ public:
         d.vy = static_cast<int8_t>(_protoData.vy * 10.f);
         d.dl = static_cast<int8_t>(_protoData.dl * 100.f);
         d.droll = static_cast<int8_t>(_protoData.droll * 10.f);
+        d.needJump = _protoData.needJump;
         d.chassisExptState = _protoData.chassisExptState;
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
@@ -99,6 +102,7 @@ public:
         _protoData.vy = static_cast<float>(_data.content.vy) / 10.f;
         _protoData.dl = static_cast<float>(_data.content.dl) / 100.f;
         _protoData.droll = static_cast<float>(_data.content.droll) / 10.f;
+        _protoData.needJump = _data.content.needJump;
         _protoData.chassisExptState = _data.content.chassisExptState;
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);
