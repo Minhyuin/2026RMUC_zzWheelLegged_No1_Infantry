@@ -51,9 +51,9 @@ static constexpr AccCaliParams_s ACC_CALI = {
 // default gyroscope calibration
 static constexpr GyroCaliParams_s GYRO_CALI = {
 
-    .gxBias = 2.87472653f,
-    .gyBias = -4.88287067f,
-    .gzBias = 0.255729467f,
+    .gxBias = 2.72639132f,
+    .gyBias = -4.97542763f,
+    .gzBias = 0.309023052f,
     .gxTcoK = 0.f,
     .gxTcoB0 = 0.f,
     .gyTcoK = 0.f,
@@ -62,8 +62,8 @@ static constexpr GyroCaliParams_s GYRO_CALI = {
     .gzTcoB0 = 0.f
 };
 
-static constexpr float IMU_OFFSET_X = (-18.049199f * 0.001f);
-static constexpr float IMU_OFFSET_Y = (-17.027922f * 0.001f);
+constexpr float IMU_OFFSET_X = (15.66f * 0.001f);
+constexpr float IMU_OFFSET_Y = (3.12f * 0.001f);
 
 #endif
 

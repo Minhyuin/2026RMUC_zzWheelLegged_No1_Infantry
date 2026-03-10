@@ -9,7 +9,7 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float JUDGE_PHI = 0.05f; // 用于判断站立策略
 
     static constexpr float STAND_PHI = 0.0f;
-    static constexpr float STAND_L = Bipedal::DEFAULT_L;
+    static constexpr float STAND_L = WheelLegged::MIN_L;
 
     static constexpr float MAX_ACC_BACK = 0.7f;
     static constexpr float MAX_ACC_FRONT = 1.2f;

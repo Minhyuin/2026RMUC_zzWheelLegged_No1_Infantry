@@ -107,9 +107,12 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
         } else if (sr == SW::MID) {
             cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
             cMsg_.vy = -static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_VX_MAX;
-            cMsg_.dphi = -(cMsg_.droll = static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_ROLL_MAX);
-            cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
-            cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
+            cMsg_.droll = static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_DROLL_MAX;
+            gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_WPITCH_MAX;
+            gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_WYAW_MAX;
+            cMsg_.dphi = -static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_DPHI_MAX;
+            cMsg_.dl = static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_DL_MAX;
+            cMsg_.wz = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_WZ_MAX;
             alMsg_.fire = std::fabs(static_cast<float>(rcData->wheel - DT7::CH_VALUE_OFFSET) / CH_RANGE) >
                           WHEEL_THESHORLD;
             if (sl == SW::DOWN) {
@@ -128,8 +131,12 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
         } else if (sr == SW::UP) {
             cMsg_.vx = static_cast<float>(rcData->rc.ch1) / CH_RANGE * INPUT_VX_MAX;
             cMsg_.vy = -static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_VX_MAX;
-            cMsg_.dl = -(gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_PITCH_MAX) / 5.f;
-            cMsg_.wz = (gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_YAW_MAX) / 1.3f;
+            cMsg_.droll = static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_DROLL_MAX;
+            gMsg_.wPitch = -static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_WPITCH_MAX;
+            gMsg_.wYaw = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_WYAW_MAX;
+            cMsg_.dphi = -static_cast<float>(rcData->rc.ch0) / CH_RANGE * INPUT_DPHI_MAX;
+            cMsg_.dl = static_cast<float>(rcData->rc.ch3) / CH_RANGE * INPUT_DL_MAX;
+            cMsg_.wz = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_WZ_MAX;
             alMsg_.fire = false;
             if (sl == SW::DOWN) {
                 cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
@@ -187,7 +194,6 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
-
                 if (rcData->gamepad.trigger)
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (rcData->gamepad.pause)
@@ -195,8 +201,15 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 
                 cMsg_.vx = static_cast<float>(rcData->gamepad.ch[1]) / CH_RANGE * INPUT_VX_MAX;
                 cMsg_.vy = -static_cast<float>(rcData->gamepad.ch[0]) / CH_RANGE * INPUT_VX_MAX;
-                gMsg_.wPitch = -static_cast<float>(rcData->gamepad.ch[2]) / CH_RANGE * INPUT_PITCH_MAX;
-                gMsg_.wYaw = -static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_YAW_MAX;
+                gMsg_.wPitch = -static_cast<float>(rcData->gamepad.ch[2]) / CH_RANGE * INPUT_WPITCH_MAX;
+                gMsg_.wYaw = -static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_WYAW_MAX;
+                if (rcData->gamepad.fn2) {
+                    cMsg_.dl = static_cast<float>(rcData->gamepad.ch[2]) / CH_RANGE * INPUT_DL_MAX;
+                    cMsg_.droll = static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_DROLL_MAX;
+                    gMsg_.wPitch = gMsg_.wYaw = 0;
+                } else {
+                    cMsg_.dl = cMsg_.droll = 0;
+                }
                 alMsg_.fire = rcData->gamepad.wheel != 0;
             } else {
                 static constexpr float KEYBOARD_ENABLE_ACC = 0.05f;

@@ -5,7 +5,7 @@
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_DPHI = 4.f * 0.001f; // per ms
-    static constexpr float LAUNCH_L = Bipedal::DEFAULT_L;
+    static constexpr float LAUNCH_L = WheelLegged::MIN_L;
 
     static constexpr float LAUNCH_PHI = -0.1f;
 

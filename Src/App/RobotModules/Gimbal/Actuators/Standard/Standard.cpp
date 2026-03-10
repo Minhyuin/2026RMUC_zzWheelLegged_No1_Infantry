@@ -109,6 +109,9 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         // chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(CHASSIS::FSMState_e::STOP);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
+        chassisCtrlTxPacket_.setData().vy = cmsg_.vy;
+        chassisCtrlTxPacket_.setData().dl = cmsg_.dl;
+        chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 

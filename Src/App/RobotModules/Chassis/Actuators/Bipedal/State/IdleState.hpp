@@ -27,14 +27,15 @@ public:
         refYaw_ = chassis_->yaw();
         refRoll_ = 0.f;
         refLength_ = chassis_->length();
+        targetRefLength_ = IDLE_L;
         wzAngPid_ = &idleFollowVelPid;
         LOG::info("ChassisIdle", " enter");
     }
 
     void run() final
     {
-        // refLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(IDLE_L, refLength_, 0.00015f);
+        targetRefLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00015f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -81,7 +82,8 @@ private:
     Bipedal *chassis_;
     PositionalPid *wzAngPid_;
     float refYaw_ = 0;
-    float refLength_ = Bipedal::DEFAULT_L;
+    float refLength_ = 0;
+    float targetRefLength_ = IDLE_L;
     float refRoll_ = 0;
 };
 

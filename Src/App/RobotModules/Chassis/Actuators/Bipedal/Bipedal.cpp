@@ -184,6 +184,8 @@ void Bipedal::update(void *_param)
     msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().chassisExptState);
     msg.vx = chassisCtrlRxPacket_.data().vx;
     msg.vy = chassisCtrlRxPacket_.data().vy;
+    msg.dl = chassisCtrlRxPacket_.data().dl;
+    msg.droll = chassisCtrlRxPacket_.data().droll;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
         motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||

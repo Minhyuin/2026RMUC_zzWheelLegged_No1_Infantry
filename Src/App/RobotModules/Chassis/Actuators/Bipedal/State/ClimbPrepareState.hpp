@@ -29,14 +29,15 @@ public:
         refYaw_ = chassis_->yaw();
         chassis_->setRoll(0);
         refLength_ = chassis_->length();
+        targetRefLength_ = CLIMB_PREPARE_LENGTH;
         wzAngPid_ = &climbPrepareFollowVelPid;
         LOG::info("ChassisClimbPrepare", " enter");
     }
 
     void run() final
     {
-        // refLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(CLIMB_PREPARE_LENGTH, refLength_, 0.0002f);
+        targetRefLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
@@ -86,7 +87,8 @@ private:
     Bipedal *chassis_;
     PositionalPid *wzAngPid_;
     float refYaw_ = 0;
-    float refLength_ = Bipedal::DEFAULT_L;
+    float refLength_ = 0;
+    float targetRefLength_ = CLIMB_PREPARE_LENGTH;
     bool isPrepareFinish_ = false;
 };
 

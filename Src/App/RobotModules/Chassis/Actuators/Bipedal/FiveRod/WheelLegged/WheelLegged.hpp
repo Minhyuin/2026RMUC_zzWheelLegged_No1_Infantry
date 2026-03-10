@@ -17,8 +17,8 @@ class WheelLegged {
     static constexpr float MAX_HIP_CTRL_TORQ = 22.f; // 220uf * 4
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
-    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 50.f, 0.f, 0.5f, 0.001f, 0.f, 10.f, 0.f };
-    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 20.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
+    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 40.f, 0.f, 0.5f, 0.001f, 0.f, 10.f, 0.f };
+    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 25.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
 
 public:
     static constexpr float MAX_L = 0.369f; // 0.36998937
@@ -27,7 +27,7 @@ public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
 
-    static constexpr float FLOATING_THRESHOLD = MASS_WHEEL * GRAVITY;
+    static constexpr float FLOATING_THRESHOLD = 2 * MASS_WHEEL * GRAVITY;
 
     /**
      * @brief WheelLegged singleton initialize
@@ -121,7 +121,7 @@ private:
     float tau4_ = 0.f;
 
     float fn_ = 0.f;
-    FILTER::LPF fnLPF_{ 1000.f, 5.f };
+    FILTER::LPF fnLPF_{ 1000.f, 10.f };
     float fnThreshold_ = FLOATING_THRESHOLD;
     float rawFn_ = 0.f;
     float fp_ = 0.f;

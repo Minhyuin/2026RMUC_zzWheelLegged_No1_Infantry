@@ -22,13 +22,15 @@ public:
         chassis_->enter();
         refYaw_ = chassis_->yaw();
         refLength_ = chassis_->length();
+        targetRefLength_ = SPIN_L;
         chassis_->setRoll(0);
         LOG::info("ChassisSpin", " enter");
     }
 
     void run() final
     {
-        refLength_ = SMOOTH::slopeFollowing(SPIN_L, refLength_, 0.0002f);
+        targetRefLength_ += chassis_->msg.dl * 0.001f;
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
@@ -81,6 +83,7 @@ private:
 
     float refYaw_ = 0.f;
     float refLength_ = 0.f;
+    float targetRefLength_ = SPIN_L;
 
     bool spinDir_ = false; // true : left, false: right
     uint32_t spinCnt_ = 0;
