@@ -11,7 +11,7 @@
 #include "./State/SingleState.hpp"
 #include "./State/StopState.hpp"
 
-#if APP_USE_REFEREE
+#if EXTENSION_REFEREE
 #include "Referee.hpp"
 #endif
 
@@ -63,7 +63,7 @@ void Dial::update(void *_param)
         msg.state = FSMState_e::STOP;
     }
 
-#if APP_USE_REFEREE
+#if EXTENSION_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
     if (lastBarrelHeatFromReferee_ != refereeData.powerHeatData.shooter_17mmBarrelHeat) {
         barrelHeat_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;

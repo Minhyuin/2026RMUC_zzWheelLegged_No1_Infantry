@@ -39,7 +39,7 @@ jobs:
           fetch-depth: 50
 
       - name: Cmake
-        run: cmake -B build -G Ninja
+        run: cmake -B build -G Ninja -DCONFIG_NAME=sconfig
 
       - name: clang-format
         id: clang-format 
@@ -68,6 +68,6 @@ jobs:
       - name: Ctest
         run: |
             cd test
-            cmake -B build -G Ninja
+            cmake -B build -G Ninja -DCONFIG_NAME=sconfig
             ninja -C build
             ctest --test-dir build

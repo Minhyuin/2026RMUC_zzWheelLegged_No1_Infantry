@@ -14,7 +14,7 @@ Cmd::Cmd()
     msgBus_.gimbalQueue = xQueueCreate(10, sizeof(GimbalMsg_s));
     msgBus_.armorBoosterQueue = xQueueCreate(10, sizeof(ArmorBoosterMsg_s));
     msgBus_.armorLoaderQueue = xQueueCreate(10, sizeof(ArmorLoaderMsg_s));
-#if APP_USE_REFEREE
+#if EXTENSION_REFEREE
     msgBus_.refereeQueue = xQueueCreate(10, sizeof(RefereeMsg_s));
 #endif
 #if EXTENSION_TOF
