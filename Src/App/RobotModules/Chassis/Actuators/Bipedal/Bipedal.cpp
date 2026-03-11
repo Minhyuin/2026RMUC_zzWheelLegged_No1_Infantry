@@ -21,7 +21,7 @@
 #include "./State/JumpState.hpp"
 #include "./State/TestState.hpp"
 
-#if APP_USE_REFEREE
+#if EXTENSION_REFEREE
 #include "Referee.hpp"
 #endif
 
@@ -223,7 +223,7 @@ void Bipedal::update(void *_param)
     detectStop();
 
     // send referee data to gimbal
-#if APP_USE_REFEREE
+#if EXTENSION_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
     refereeDataTxPacket_.setData().color = refereeData.gameRobotStatus.robotId >= 101 ? 1 : 0;
     refereeDataTxPacket_.setData().isPlay = refereeData.gameStatus.gameProgress == 4;

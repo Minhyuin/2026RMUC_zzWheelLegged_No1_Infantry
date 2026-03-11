@@ -123,7 +123,7 @@ void Standard::update(void *_param)
     shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
 
     // vision send
-#if APP_USE_REFEREE
+#if EXTENSION_REFEREE
     uint8_t targetMode = 0;
     if (refereeDataRxPacket_.data().isPlay && almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
         if (refereeDataRxPacket_.data().stageRemainTime < 240)
@@ -135,7 +135,7 @@ void Standard::update(void *_param)
     vision.setData().taskMode = targetMode;
     vision.setData().isPlay = refereeDataRxPacket_.data().isPlay;
 #else
-    uint8_t targetMode = almsg_.state == ARMORLOADER::FSMState_e::SINGLE ? 1 : 0;
+    vision.setData().taskMode = almsg_.state == ARMORLOADER::FSMState_e::SINGLE ? 1 : 0;
     vision.setData().detectColor = 0; // red
     vision.setData().isPlay = false;
 #endif
