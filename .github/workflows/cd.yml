@@ -47,5 +47,7 @@ jobs:
              python ./tools/script/Kconfig2h.py .config
 
       - name: Ninja build
-        run: ninja -C build
+        run: |
+          cmake -B build -G Ninja -DCONFIG_NAME=sconfig
+          ninja -C build
 
