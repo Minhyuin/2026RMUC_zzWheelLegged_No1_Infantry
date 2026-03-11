@@ -46,10 +46,10 @@ class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStr
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_CALIBRATED_ANG = 2.860530f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 4.403488f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 5.665203f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 3.005563f;
+    static constexpr float LF_HIP_CALIBRATED_ANG = 2.867051f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 4.400037f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
 
     static constexpr float MASS_BODY = 22.6110f;
 
