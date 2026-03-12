@@ -71,10 +71,12 @@ public:
     void ctrlPitchSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
     void ctrlPitchAuto(PID *_angPID, PID *_velPID, float _pos);
     void ctrlPitch(PID *_angPID, PID *_velPID, float _pos);
+    void ctrlMotorPitch(PID *_angPID, PID *_velPID, float _pos);
 
     void ctrlYawSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
     void ctrlYawAuto(PID *_angPID, PID *_velPID, PID *_velFeedbackPID, float _pos);
     void ctrlYaw(PID *_angPID, PID *_velPID, float _pos);
+    void ctrlMotorYaw(PID *_angPID, PID *_velPID, float _pos);
 
     LaunchStrategy_e generateLaunchStrategy();
 
@@ -85,6 +87,7 @@ public:
     void loadResetState(bool _state);
 
     bool isNeedLaunch();
+    bool isAllowExitLaunch();
 
 private:
     Motors_s motors_;

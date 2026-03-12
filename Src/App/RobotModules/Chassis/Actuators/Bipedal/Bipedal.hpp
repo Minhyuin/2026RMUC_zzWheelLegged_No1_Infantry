@@ -327,6 +327,9 @@ public:
     float length() const;
     float vel() const; // m/s
 
+    void needGimbalLaunch(bool _need);
+    void allowGimbalExitLaunch(bool _allow);
+
     float deltaYaw = 0.f;
     float cosYaw = 0.f;
     float sinYaw = 0.f;
@@ -395,8 +398,6 @@ private:
 
     // Observe functions
     void updateBody();
-
-    void updateGimbalLaunchStrategy();
 
     /**
      * @brief judge body is in the low displacement state

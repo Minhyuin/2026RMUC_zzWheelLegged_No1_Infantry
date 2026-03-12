@@ -23,6 +23,7 @@ public:
     void enter() final
     {
         chassis_->enter();
+
         chassis_->enableRoll();
         refYaw_ = chassis_->yaw();
         refRoll_ = 0.f;
@@ -30,6 +31,9 @@ public:
         targetRefLength_ = IDLE_L;
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
+        chassis_->needGimbalLaunch(false);
+        chassis_->allowGimbalExitLaunch(true);
+
         wzAngPid_ = &idleFollowVelPid;
         LOG::info("ChassisIdle", " enter");
     }

@@ -233,9 +233,6 @@ void Bipedal::update(void *_param)
     refereeDataTxPacket_.setData().muzzleVel = refereeData.shootData.bulletSpeed;
 #endif
 
-    // send gimbal strategy to gimbal
-    updateGimbalLaunchStrategy();
-
     // update state
     this->stateFactory_.update();
 }
@@ -435,3 +432,12 @@ float Bipedal::lengthR() const { return legR_.state().L0; }
 float Bipedal::length() const { return (legL_.state().L0 + legR_.state().L0) / 2.f; }
 
 float Bipedal::vel() const { return ds_; }
+
+void Bipedal::needGimbalLaunch(bool _need)
+{
+    gimbalLaunchStrategyTxPacket_.setData().isLegLFront = detectPhiLRange(-3.14f, -0.1f);
+    gimbalLaunchStrategyTxPacket_.setData().isLegRFront = detectPhiRRange(-3.14f, -0.1f);
+    gimbalLaunchStrategyTxPacket_.setData().isNeedGimbalLaunch = _need;
+}
+
+void Bipedal::allowGimbalExitLaunch(bool _allow) { gimbalLaunchStrategyTxPacket_.setData().isAllowExitLaunch = _allow; }

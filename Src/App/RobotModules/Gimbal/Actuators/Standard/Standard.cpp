@@ -181,9 +181,14 @@ void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _insPos)
 {
     float insPitchDelArc = getMinorArc(_insPos, ins().pitch);
     float pos = rangeMap(pitch()->posNorm() + insPitchDelArc);
-    float del = getMinorArc(pos, pitch()->posNorm());
+    ctrlMotorPitch(_angPID, _velPID, pos);
+}
+
+void Standard::ctrlMotorPitch(PID *_angPID, PID *_velPID, float _pos)
+{
+    float del = getMinorArc(_pos, pitch()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, insData_.body.gy); // TODO: calc acc first
+    float torq = _velPID->calc(vel, insData_.body.gy);
     pitch()->cmdTorq(outFilrPitch_.process(torq) - (PITCH_FEEDFORWARD * fabsf(arm_cos_f32(ins().pitch))));
 }
 
@@ -210,9 +215,14 @@ void Standard::ctrlYaw(PID *_angPID, PID *_velPID, float _insPos)
 {
     float insYawDelArc = getMinorArc(_insPos, ins().yaw);
     float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
-    float del = getMinorArc(pos, yaw()->posNorm());
+    ctrlMotorYaw(_angPID, _velPID, pos);
+}
+
+void Standard::ctrlMotorYaw(PID *_angPID, PID *_velPID, float _pos)
+{
+    float del = getMinorArc(_pos, yaw()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, insData_.body.gz); // TODO: calc acc first
+    float torq = _velPID->calc(vel, insData_.body.gz);
     yaw()->cmdTorq(outFilrYaw_.process(torq));
 }
 
@@ -274,4 +284,5 @@ Gimbal::LaunchStrategy_e Standard::generateLaunchStrategy()
     return strategy;
 }
 
-bool Standard::isNeedLaunch() { return gimbalLaunchStrategyRxPacket_.data().isNeedLaunch; }
+bool Standard::isNeedLaunch() { return gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch; }
+bool Standard::isAllowExitLaunch() { return gimbalLaunchStrategyRxPacket_.data().isAllowExitLaunch; }

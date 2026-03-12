@@ -192,14 +192,16 @@ public:
     struct ProtoData_s {
         bool isLegLFront;
         bool isLegRFront;
-        bool isNeedLaunch;
+        bool isNeedGimbalLaunch;
+        bool isAllowExitLaunch;
     };
     union Data_u {
         struct Data_s {
             uint8_t isLegLFront : 1;
             uint8_t isLegRFront : 1;
-            uint8_t isNeedLaunch : 1;
-            uint32_t reversed1 : 29;
+            uint8_t isNeedGimbalLaunch : 1;
+            uint8_t isAllowExitLaunch : 1;
+            uint32_t reversed1 : 28;
             uint32_t reversed2 : 32;
         } content;
         uint8_t bytes[LEN];
@@ -209,13 +211,15 @@ public:
         Data_u::Data_s &d = _data.content;
         d.isLegLFront = _protoData.isLegLFront;
         d.isLegRFront = _protoData.isLegRFront;
-        d.isNeedLaunch = _protoData.isNeedLaunch;
+        d.isNeedGimbalLaunch = _protoData.isNeedGimbalLaunch;
+        d.isAllowExitLaunch = _protoData.isAllowExitLaunch;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
         _protoData.isLegLFront = _data.content.isLegLFront;
         _protoData.isLegRFront = _data.content.isLegRFront;
-        _protoData.isNeedLaunch = _data.content.isNeedLaunch;
+        _protoData.isNeedGimbalLaunch = _data.content.isNeedGimbalLaunch;
+        _protoData.isAllowExitLaunch = _data.content.isAllowExitLaunch;
     }
 };
 
