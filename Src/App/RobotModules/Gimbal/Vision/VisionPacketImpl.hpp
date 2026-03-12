@@ -7,7 +7,7 @@
 
 class VisionTxPacket {
 public:
-    static constexpr uint8_t LEN = (128 / 8); // bits to bytes
+    static constexpr uint8_t LEN = (160 / 8); // bits to bytes
     static constexpr uint16_t ID = 0x5A;
     struct ProtoData_s {
         uint8_t detectColor; // 0: red, 1: blue
@@ -18,6 +18,7 @@ public:
         float roll;
         float pitch;
         float yaw;
+        float bulletSpeed;
     };
 #pragma pack(push, 1)
     union Data_u {
@@ -32,6 +33,7 @@ public:
             float roll;
             float pitch;
             float yaw;
+            float bulletSpeed;
             uint16_t checksum;
         } content;
         uint8_t bytes[LEN];
@@ -50,6 +52,7 @@ public:
         d.roll = _protoData.roll;
         d.pitch = _protoData.pitch;
         d.yaw = _protoData.yaw;
+        d.bulletSpeed = _protoData.bulletSpeed;
         d.checksum = Get_CRC16_Check_Sum(_data.bytes, LEN - 2, CRC16_INIT);
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)

@@ -14,6 +14,8 @@
 #define GIMBAL_HANDLE HCAN1
 #define COMM_HANDLE   HCAN1
 
+volatile float PITCH_FEEDFORWARD = 1.5f;
+
 using namespace GIMBAL;
 using namespace PINYMOTOR;
 
@@ -131,13 +133,15 @@ void Standard::update(void *_param)
         else
             targetMode = 1;
     }
-    vision.setData().detectColor = refereeDataRxPacket_.data().color;
+    vision.setData().detectColor = !refereeDataRxPacket_.data().color;
     vision.setData().taskMode = targetMode;
     vision.setData().isPlay = refereeDataRxPacket_.data().isPlay;
+    vision.setData().bulletSpeed = refereeDataRxPacket_.data().muzzleVel;
 #else
     vision.setData().taskMode = almsg_.state == ARMORLOADER::FSMState_e::SINGLE ? 1 : 0;
-    vision.setData().detectColor = 0; // red
+    vision.setData().detectColor = 1; // enemy is blue
     vision.setData().isPlay = false;
+    vision.setData().bulletSpeed = -1;
 #endif
 
     vision.setData().resetTracker = false;
@@ -170,7 +174,7 @@ void Standard::ctrlPitchAuto(PID *_angPID, PID *_velPID, float _insPos)
     float acc = _velPID->calc(vel, insData_.body.gy);
     acc += vision.data().pitchAcc; // forward feedback
     float torq = calcPitchTorq(_insPos, vel, acc);
-    pitch()->cmdTorq(outFilrPitch_.process(torq));
+    pitch()->cmdTorq(outFilrPitch_.process(torq) - (PITCH_FEEDFORWARD * fabsf(arm_cos_f32(ins().pitch))));
 }
 
 void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _insPos)
@@ -180,7 +184,7 @@ void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _insPos)
     float del = getMinorArc(pos, pitch()->posNorm());
     float vel = _angPID->calc(del, 0);
     float torq = _velPID->calc(vel, insData_.body.gy); // TODO: calc acc first
-    pitch()->cmdTorq(outFilrPitch_.process(torq));
+    pitch()->cmdTorq(outFilrPitch_.process(torq) - (PITCH_FEEDFORWARD * fabsf(arm_cos_f32(ins().pitch))));
 }
 
 void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _insPos, float _step)
@@ -190,16 +194,15 @@ void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _insPos, float _s
     ctrlYaw(_angPID, _velPID, ins().yaw + delta);
 }
 
-void Standard::ctrlYawAuto(PID *_angPID, PID *_velPID, float _insPos)
+void Standard::ctrlYawAuto(PID *_angPID, PID *_velPID, PID *_velFeedbackPID, float _insPos)
 {
     float insYawDelArc = getMinorArc(_insPos, ins().yaw);
     float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
     float del = getMinorArc(pos, yaw()->posNorm());
     float vel = _angPID->calc(del, 0);
-    vel = clamp(vel, -vision.data().yawVel, vision.data().yawVel);
-    float acc = _velPID->calc(vel, insData_.body.gz);
-    acc += vision.data().yawAcc; // forward feedback
-    float torq = calcYawTorq(vel, acc);
+    float acc = _velPID->calc(vel, insData_.body.gz) + _velFeedbackPID->calc(vision.data().yawVel, insData_.body.gz);
+    float torq = calcYawTorq(insData_.body.gz, acc);
+    torq = std::clamp(torq, -DMMOTOR::DM4310::TORQ_MAX, DMMOTOR::DM4310::TORQ_MAX);
     yaw()->cmdTorq(outFilrYaw_.process(torq));
 }
 
@@ -225,9 +228,17 @@ float Standard::calcPitchTorq(float _ang, float _vel, float _acc)
 
 float Standard::calcYawTorq(float _vel, float _acc)
 {
-    (void)_vel;
-    (void)_acc;
-    return 0.f; // TODO:
+    static constexpr auto SIGN = [](float _v) {
+        if (_v > 0.f)
+            return 1.f;
+        else if (_v < 0.f)
+            return -1.f;
+        else
+            return 0.f;
+    };
+
+    float torq = (YAW_INERTIA * _acc) + (YAW_FRICTION * _vel) + (YAW_COULOMB * SIGN(_vel));
+    return torq;
 }
 
 Gimbal::LaunchStrategy_e Standard::generateLaunchStrategy()

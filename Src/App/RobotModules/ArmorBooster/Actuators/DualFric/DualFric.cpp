@@ -85,7 +85,7 @@ void DualFric::ctrl(float _vel)
 void DualFric::on()
 {
     float constTarget = FAST_FRIC_RATE;
-    SMOOTH::slopeFollowing(&constTarget, &targetVel_, 0.35f);
+    SMOOTH::slopeFollowing(&constTarget, &targetVel_, 0.1f);
     ctrl(targetVel_);
 }
 
@@ -95,7 +95,7 @@ void DualFric::off()
         stop();
     } else {
         float constZero = 0;
-        SMOOTH::slopeFollowing(&constZero, &targetVel_, 0.35f);
+        SMOOTH::slopeFollowing(&constZero, &targetVel_, 0.1f);
         ctrl(targetVel_);
     }
 }

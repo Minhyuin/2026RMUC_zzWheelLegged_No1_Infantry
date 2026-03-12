@@ -5,12 +5,15 @@
 #include "StmLog.hpp"
 
 #include "MotorCommonMacros.hpp"
+#include "Smooth.hpp"
 #include "PidBasic.hpp"
 
-static PositionalPid autoPitchAngPID(55.f, 500.f, 0.005f, 0.001f, 1.0f, 7.f, 0.f);
-static PositionalPid autoPitchVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
-static PositionalPid autoYawAngPID(45.f, 150.f, 0.5f, 0.001f, 0.5f, 10.f, 0.f);
-static PositionalPid autoYawVelPID(0.9f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid autoPitchAngPID(110.f, 250.f, 0.01f, 0.001f, 3.f, 1.5f, 0.f);
+static PositionalPid autoPitchVelPID(1.35f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+
+static PositionalPid autoYawAngPID(100.f, 150.f, 0.7f, 0.001f, 0.5f, 30.f, 0.f);
+static PositionalPid autoYawVelPID(13.0f, 0.f, 0.f, 0.001f, 0.f, 100.f, 0.f);
+static PositionalPid autoYawVelFeedbackPID(100.0f, 0.f, 0.f, 0.001f, 0.f, 20.f, 0.f);
 
 namespace GIMBAL {
 
@@ -20,10 +23,11 @@ class AutoState : public FSMState<FSMState_e> {
         PositionalPid *pitchVelPid;
         PositionalPid *yawAngPid;
         PositionalPid *yawVelPid;
+        PositionalPid *yawVelFbPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.292561157f;
-    static constexpr float IMU_PITCH_END_ANG = 0.207101977f;
+    static constexpr float IMU_PITCH_START_ANG = -0.35f;
+    static constexpr float IMU_PITCH_END_ANG = 0.1f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
@@ -37,6 +41,7 @@ public:
         pids_.pitchVelPid = &autoPitchVelPID;
         pids_.yawAngPid = &autoYawAngPID;
         pids_.yawVelPid = &autoYawVelPID;
+        pids_.yawVelFbPid = &autoYawVelFeedbackPID;
     }
 
     void enter() final
@@ -49,22 +54,17 @@ public:
 
     void run() final
     {
-        cmdImuPitchAng_ = gimbal_->vision.data().pitch;
+        cmdImuPitchAng_ =
+                std::clamp(gimbal_->vision.data().pitch, gimbal_->ins().pitch - 0.018f, gimbal_->ins().pitch + 0.018f);
+
         cmdImuYawAng_ = gimbal_->vision.data().yaw;
 
         cmdImuPitchAng_ = PINYMOTOR::clampArc(cmdImuPitchAng_, IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
 
-        // float rangeCenter = PINYMOTOR::getMinorArc(gimbal_->ins().yaw,
-        //                                            gimbal_->yaw()->posNorm());
-        // imuYawMinAng_ = PINYMOTOR::rangeMap(rangeCenter + IMU_YAW_START_ANG);
-        // imuYawMaxAng_ = PINYMOTOR::rangeMap(rangeCenter + IMU_YAW_END_ANG);
-        // cmdImuYawAng_ = PINYMOTOR::clampArc(cmdImuYawAng_, imuYawMinAng_,
-        //                                     imuYawMaxAng_);
-
         needLaunchCounter_ = needLaunchCounter_ > MAX_NEED_LAUNCH_CNT ? MAX_NEED_LAUNCH_CNT : needLaunchCounter_ + 1;
 
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAng_);
-        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAng_);
+        gimbal_->ctrlYawAuto(pids_.yawAngPid, pids_.yawVelPid, pids_.yawVelFbPid, cmdImuYawAng_);
     }
 
     void exit() final
@@ -73,6 +73,7 @@ public:
         pids_.pitchVelPid->reset();
         pids_.yawAngPid->reset();
         pids_.yawVelPid->reset();
+        pids_.yawVelFbPid->reset();
         LOG::info("GimbalAuto", "exit");
     }
     FSMState_e checkChange() final
@@ -93,9 +94,6 @@ private:
     Standard *gimbal_;
 
     Pids_s pids_;
-
-    float imuYawMinAng_ = IMU_YAW_START_ANG;
-    float imuYawMaxAng_ = IMU_YAW_END_ANG;
 
     uint16_t needLaunchCounter_ = 0;
 

@@ -53,6 +53,10 @@ public:
     static constexpr float PITCH_MOTOR_FREQ = 500.f;
     static constexpr float YAW_MOTOR_FREQ = 500.f;
 
+    static constexpr float YAW_INERTIA = 0.0397887f;
+    static constexpr float YAW_FRICTION = 0.0932377f;
+    static constexpr float YAW_COULOMB = 0.253459f;
+
     // "REVERSE flag" is true when imu and motor have different direction
     static constexpr bool PITCH_REVERSE = false;
     static constexpr bool YAW_REVERSE = false;
@@ -69,7 +73,7 @@ public:
     void ctrlPitch(PID *_angPID, PID *_velPID, float _pos);
 
     void ctrlYawSmooth(PID *_angPID, PID *_velPID, float _pos, float _step);
-    void ctrlYawAuto(PID *_angPID, PID *_velPID, float _pos);
+    void ctrlYawAuto(PID *_angPID, PID *_velPID, PID *_velFeedbackPID, float _pos);
     void ctrlYaw(PID *_angPID, PID *_velPID, float _pos);
 
     LaunchStrategy_e generateLaunchStrategy();

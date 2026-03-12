@@ -149,7 +149,7 @@ public:
         bool isAlive;
         uint16_t stageRemainTime; // [0 - 1023]
         uint8_t rateOfFire;       // [0 - 63], unit:Hz
-        float muzzleVel;          // [0 - 25.5] unit:m/s
+        float muzzleVel = 20.f;   // [0 - 32.767] unit:m/s
     };
     union Data_u {
         struct Data_s {
@@ -158,8 +158,8 @@ public:
             uint8_t isAlive : 1;
             uint16_t stageRemainTime : 10; // [0 - 1023]
             uint8_t rateOfFire : 6;        // [0 - 63]
-            uint8_t muzzleVel : 8;         // [0 - 255] -> [0 - 25.5]
-            uint32_t reversed1 : 18;
+            uint16_t muzzleVel : 15;       // [0 - 32767]
+            uint32_t reversed1 : 11;
             uint32_t reversed2 : 19;
         } content;
         uint8_t bytes[LEN];
@@ -172,7 +172,7 @@ public:
         d.isAlive = _protoData.isAlive;
         d.stageRemainTime = _protoData.stageRemainTime;
         d.rateOfFire = _protoData.rateOfFire;
-        d.muzzleVel = static_cast<uint8_t>(_protoData.muzzleVel * 10.f);
+        d.muzzleVel = static_cast<uint16_t>(_protoData.muzzleVel * 1000.f);
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -181,7 +181,7 @@ public:
         _protoData.isAlive = _data.content.isAlive;
         _protoData.stageRemainTime = _data.content.stageRemainTime;
         _protoData.rateOfFire = _data.content.rateOfFire;
-        _protoData.muzzleVel = static_cast<float>(_data.content.muzzleVel) / 10.f;
+        _protoData.muzzleVel = static_cast<float>(_data.content.muzzleVel) / 1000.f;
     }
 };
 

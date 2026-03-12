@@ -35,7 +35,7 @@ public:
 
 class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     friend class Bipedal;
-    RefereeDataTxPacket() : TxPacket(10.f) {}
+    RefereeDataTxPacket() : TxPacket(20.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
