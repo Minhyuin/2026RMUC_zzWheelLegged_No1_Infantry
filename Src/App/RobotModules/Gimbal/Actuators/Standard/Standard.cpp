@@ -108,8 +108,8 @@ void Standard::update(void *_param)
     }
 
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
+        // cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
-        // chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(CHASSIS::FSMState_e::STOP);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;
         chassisCtrlTxPacket_.setData().dl = cmsg_.dl;
@@ -205,8 +205,8 @@ void Standard::ctrlYawAuto(PID *_angPID, PID *_velPID, PID *_velFeedbackPID, flo
     float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
     float del = getMinorArc(pos, yaw()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float acc = _velPID->calc(vel, insData_.body.gz) + _velFeedbackPID->calc(vision.data().yawVel, insData_.body.gz);
-    float torq = calcYawTorq(insData_.body.gz, acc);
+    float acc = _velPID->calc(vel, insData_.earth.gz) + _velFeedbackPID->calc(vision.data().yawVel, insData_.earth.gz);
+    float torq = calcYawTorq(insData_.earth.gz, acc);
     torq = std::clamp(torq, -DMMOTOR::DM4310::TORQ_MAX, DMMOTOR::DM4310::TORQ_MAX);
     yaw()->cmdTorq(outFilrYaw_.process(torq));
 }
@@ -285,4 +285,7 @@ Gimbal::LaunchStrategy_e Standard::generateLaunchStrategy()
 }
 
 bool Standard::isNeedLaunch() { return gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch; }
-bool Standard::isAllowExitLaunch() { return gimbalLaunchStrategyRxPacket_.data().isAllowExitLaunch; }
+bool Standard::isAllowExitLaunch()
+{
+    return gimbalLaunchStrategyRxPacket_.data().isAllowExitLaunch || cmsg_.state == CHASSIS::FSMState_e::STOP;
+}

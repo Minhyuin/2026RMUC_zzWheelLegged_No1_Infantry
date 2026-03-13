@@ -50,12 +50,12 @@ public:
     static constexpr float PITCH_LAUNCH_ANG = 5.36427498f;
     static constexpr float YAW_LAUNCH_ANG = 3.90537f;
 
-    static constexpr float PITCH_MOTOR_FREQ = 500.f;
-    static constexpr float YAW_MOTOR_FREQ = 500.f;
+    static constexpr float PITCH_MOTOR_FREQ = 1000.f;
+    static constexpr float YAW_MOTOR_FREQ = 1000.f;
 
     static constexpr float YAW_INERTIA = 0.0397887f;
-    static constexpr float YAW_FRICTION = 0.0932377f;
-    static constexpr float YAW_COULOMB = 0.253459f;
+    static constexpr float YAW_FRICTION = 0.f; // 0.0932377f;
+    static constexpr float YAW_COULOMB = 0.f;  // 0.253459f;
 
     // "REVERSE flag" is true when imu and motor have different direction
     static constexpr bool PITCH_REVERSE = false;

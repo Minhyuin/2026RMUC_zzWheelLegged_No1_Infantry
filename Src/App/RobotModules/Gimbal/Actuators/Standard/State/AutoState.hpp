@@ -8,12 +8,12 @@
 #include "Smooth.hpp"
 #include "PidBasic.hpp"
 
-static PositionalPid autoPitchAngPID(110.f, 250.f, 0.01f, 0.001f, 3.f, 1.5f, 0.f);
-static PositionalPid autoPitchVelPID(1.35f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid autoPitchAngPID(90.f, 250.f, 0.8f, 0.001f, 3.f, 1.5f, 0.f);
+static PositionalPid autoPitchVelPID(0.9f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
-static PositionalPid autoYawAngPID(100.f, 150.f, 0.7f, 0.001f, 0.5f, 30.f, 0.f);
-static PositionalPid autoYawVelPID(13.0f, 0.f, 0.f, 0.001f, 0.f, 100.f, 0.f);
-static PositionalPid autoYawVelFeedbackPID(100.0f, 0.f, 0.f, 0.001f, 0.f, 20.f, 0.f);
+static PositionalPid autoYawAngPID(120.f, 150.f, 1.f, 0.001f, 5.f, 30.f, 0.f);
+static PositionalPid autoYawVelPID(10.0f, 0.f, 0.f, 0.001f, 0.f, 100.f, 0.f);
+static PositionalPid autoYawVelFeedbackPID(25.0f, 0.f, 0.f, 0.001f, 0.f, 50.f, 0.f);
 
 namespace GIMBAL {
 

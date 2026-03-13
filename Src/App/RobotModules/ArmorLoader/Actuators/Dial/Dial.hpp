@@ -31,9 +31,9 @@ public:
 
     static constexpr bool DIAL_REVERSE = false;
 
-    static constexpr float BLOCK_CURRENT = 2.f;   // A
-    static constexpr float BLOCK_SPEED_MIN = 1.f; // rad/s
-    static constexpr uint16_t BLOCK_CNT_MAX = 300.f;
+    static constexpr float BLOCK_CURRENT = 2.f;    // A
+    static constexpr float BLOCK_SPEED_MIN = 0.3f; // rad/s
+    static constexpr uint16_t BLOCK_CNT_MAX = 500.f;
 
     static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 20.f;
 
