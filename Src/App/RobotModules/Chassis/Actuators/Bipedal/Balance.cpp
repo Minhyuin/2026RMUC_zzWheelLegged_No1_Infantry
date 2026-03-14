@@ -12,11 +12,11 @@ void Bipedal::bal(const WBRController::States_s &_ref)
     errData.ds = _ref.ds - ds_;
     errData.yaw = getMinorArc(_ref.yaw, insData_.yaw);
     errData.dyaw = _ref.dyaw - insData_.body.gz;
-    errData.phil = getMinorArc(_ref.phil, phiGlobalL());
+    errData.phil = getMinorArc(_ref.phil + PHI_OFFSET, phiGlobalL());
     errData.dphil = _ref.dphil - (legL_.state().dphi0 + insData_.body.gy);
-    errData.phir = getMinorArc(_ref.phir, phiGlobalR());
+    errData.phir = getMinorArc(_ref.phir + PHI_OFFSET, phiGlobalR());
     errData.dphir = _ref.dphir - (legR_.state().dphi0 + insData_.body.gy);
-    errData.q = getMinorArc(_ref.q, insData_.pitch);
+    errData.q = getMinorArc(_ref.q + Q_OFFSET, insData_.pitch);
     errData.dq = _ref.dq - insData_.body.gy;
     Matrix<10, 1> err{ errData.data };
     Matrix<4, 1> u = WBRController::solve(err, legL_.state().L0, legR_.state().L0, legL_.floatFlag, legR_.floatFlag);
@@ -31,19 +31,19 @@ void Bipedal::bal(const WLController::States_s &_ref, float _yaw) { bal(_ref, _r
 void Bipedal::bal(const WLController::States_s &_refL, const WLController::States_s &_refR, float _yaw)
 {
     WLController::States_s errDataL;
-    errDataL.phi = getMinorArc(_refL.phi, phiGlobalL());
+    errDataL.phi = getMinorArc(_refL.phi + PHI_OFFSET, phiGlobalL());
     errDataL.dphi = _refL.dphi - (legL_.state().dphi0 + insData_.body.gy);
     errDataL.s = _refL.s - s_;
     errDataL.ds = _refL.ds - ds_;
-    errDataL.q = getMinorArc(_refL.q, insData_.pitch);
+    errDataL.q = getMinorArc(_refL.q + Q_OFFSET, insData_.pitch);
     errDataL.dq = _refL.dq - insData_.body.gy;
     Matrix<6, 1> errL{ errDataL.data };
     WLController::States_s errDataR;
-    errDataR.phi = getMinorArc(_refR.phi, phiGlobalR());
+    errDataR.phi = getMinorArc(_refR.phi + PHI_OFFSET, phiGlobalR());
     errDataR.dphi = _refR.dphi - (legR_.state().dphi0 + insData_.body.gy);
     errDataR.s = _refR.s - s_;
     errDataR.ds = _refR.ds - ds_;
-    errDataR.q = getMinorArc(_refR.q, insData_.pitch);
+    errDataR.q = getMinorArc(_refR.q + Q_OFFSET, insData_.pitch);
     errDataR.dq = _refR.dq - insData_.body.gy;
     Matrix<6, 1> errR{ errDataR.data };
     Matrix<2, 1> uL = WLController::solve(errL, legL_.state().L0, legL_.floatFlag);
@@ -59,7 +59,7 @@ void Bipedal::bal(const STController::States_s &_ref, float _yaw)
 {
     STController::States_s errData;
     errData.s = _ref.s - s_;
-    errData.q = getMinorArc(_ref.q, insData_.pitch);
+    errData.q = getMinorArc(_ref.q + Q_OFFSET, insData_.pitch);
     errData.ds = _ref.ds - ds_;
     errData.dq = _ref.dq - insData_.body.gy;
 
@@ -71,10 +71,10 @@ void Bipedal::bal(const STController::States_s &_ref, float _yaw)
     legL_.setTw((uDiv(0, 0) * W_RADIUS) + tw2);
     legR_.setTw((uDiv(0, 0) * W_RADIUS) - tw2);
 
-    float hipVelL = hipAngPidL_.calc(getMinorArc(0, phiL()), 0);
+    float hipVelL = hipAngPidL_.calc(getMinorArc(PHI_OFFSET, phiL()), 0);
     float tpL = hipVelPidL_.calc(hipVelL, legL_.state().dphi0);
     legL_.setTp(tpL - antiSplitTp_);
-    float hipVelR = hipAngPidR_.calc(getMinorArc(0, phiR()), 0);
+    float hipVelR = hipAngPidR_.calc(getMinorArc(PHI_OFFSET, phiR()), 0);
     float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0);
     legR_.setTp(tpR + antiSplitTp_);
 }

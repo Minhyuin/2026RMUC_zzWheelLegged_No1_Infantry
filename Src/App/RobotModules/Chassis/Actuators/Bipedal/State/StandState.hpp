@@ -6,7 +6,7 @@
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
-    static constexpr float JUDGE_PHI = 0.05f; // 用于判断站立策略
+    static constexpr float JUDGE_PHI = 0.1f; // 用于判断站立策略
 
     static constexpr float STAND_PHI = 0.0f;
     static constexpr float STAND_L = WheelLegged::MIN_L;

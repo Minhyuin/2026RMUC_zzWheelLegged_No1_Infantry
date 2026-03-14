@@ -11,9 +11,9 @@ static volatile float launchPitchStep = 0.6f * 0.001f;
 static volatile float launchYawStep = 0.5f * 0.001f;
 
 static PositionalPid launchPitchAngPID(50.f, 20.f, 0.1f, 0.001f, 1.0f, 5.f, 0.f);
-static PositionalPid launchPitchVelPID(1.f, 1.f, 0.f, 0.001f, 1.f, 7.f, 0.f);
-static PositionalPid launchYawAngPID(50.f, 50.f, 0.3f, 0.001f, 0.3f, 3.5f, 0.f);
-static PositionalPid launchYawVelPID(1.f, 1.f, 0.f, 0.001f, 1.f, 7.f, 0.f);
+static PositionalPid launchPitchVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
+static PositionalPid launchYawAngPID(50.f, 100.f, 0.3f, 0.001f, 1.f, 3.5f, 0.f);
+static PositionalPid launchYawVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
@@ -29,7 +29,7 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr uint16_t MAX_LAUNCH_TIME = 50; // 0.3s
 
     static constexpr float PITCH_LAUNCH_ANG_DEADBAND = 0.1f;
-    static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.1f;
+    static constexpr float YAW_LAUNCH_ANG_DEADBAND = 0.07f;
 
     static constexpr float TARGET_YAW_CHENGE_THESHOLD = 1.9625f; // rad
 

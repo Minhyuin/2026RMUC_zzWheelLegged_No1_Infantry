@@ -8,13 +8,14 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid idleFollowVelPid{ 5.f, 1.f, 0.0f, 0.001f, 0.1f, 1.f, 0.1f };
+static PositionalPid idleFollowVelPid{ 5.0f, 1.f, 0.05f, 0.001f, 0.1f, 1.5f, 0.1f };
+float phiOffset = 0.f;
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 0.7f;
-    static constexpr float MAX_ACC_FRONT = 1.2f;
+    static constexpr float MAX_ACC_BACK = 1.f;
+    static constexpr float MAX_ACC_FRONT = 1.f;
     static constexpr float IDLE_L = 0.2f;
 
 public:
@@ -41,7 +42,11 @@ public:
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00015f);
+        if (chassis_->isFloating()) {
+            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.00005f);
+        } else {
+            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        }
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -58,6 +63,7 @@ public:
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.q = OFFSET_Q;
+        ref.phil = ref.phir = phiOffset;
         chassis_->bal(ref);
 
         chassis_->ctrl();

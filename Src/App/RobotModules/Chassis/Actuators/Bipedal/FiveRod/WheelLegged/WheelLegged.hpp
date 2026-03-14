@@ -14,8 +14,8 @@ class WheelLegged {
     static constexpr float MAX_HIP_CTRL_TORQ = 22.f; // 220uf * 4
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
-    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 40.f, 0.f, 0.5f, 0.001f, 0.f, 10.f, 0.f };
-    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 25.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
+    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 40.f, 0.f, 0.5f, 0.001f, 0.f, 5.f, 0.f };
+    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
 
 public:
     static constexpr float MAX_L = 0.369f; // 0.36998937

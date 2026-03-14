@@ -11,7 +11,7 @@ class JumpState : public FSMState<FSMState_e> {
     static constexpr float JUMP_L = WheelLegged::MAX_L;
     static constexpr float LAND_L = WheelLegged::MAX_L + ((WheelLegged::MAX_L - WheelLegged::MIN_L) / 2.f);
 
-    static constexpr float JUMP_FD = 0.f;
+    static constexpr float JUMP_FD = 150.f;
 
     enum class JumpFSMState_e : uint8_t { PREPARE, JUMPING, SOAR, LAND };
 
@@ -153,7 +153,7 @@ private:
         }
         void run() final
         {
-            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.00015f);
+            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.00005f);
             parent_.chassis_->setLength(refLength_);
             parent_.chassis_->setFdFeedforward();
         }

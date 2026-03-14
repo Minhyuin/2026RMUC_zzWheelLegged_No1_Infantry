@@ -41,7 +41,7 @@ class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
 
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
-    GimbalLaunchStrategyTxPacket() : TxPacket(10.f) {}
+    GimbalLaunchStrategyTxPacket() : TxPacket(20.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -66,9 +66,12 @@ class Bipedal : public Chassis {
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            0.0f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            0.5f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.0f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.3f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+
+    static constexpr float Q_OFFSET = 0.08f;
+    static constexpr float PHI_OFFSET = 0.05f;
 
 public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
@@ -358,7 +361,7 @@ private:
     PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
 
-    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 4.3f, 0.f };
+    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 5.f, 0.f };
     PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };

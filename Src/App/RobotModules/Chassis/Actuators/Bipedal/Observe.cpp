@@ -12,8 +12,8 @@ bool Bipedal::isGimbalReset() const
 bool Bipedal::isTumble() const
 {
     // TODO: maybe this is a weighted linear regression
-    return fabs(phiGlobalL()) > 0.85f || fabs(phiGlobalR()) > 0.85f || fabs(phiGlobalL()) < -0.85f ||
-           fabs(phiGlobalR()) < -0.85f;
+    return fabs(phiGlobalL()) > 0.85f || fabs(phiGlobalR()) > 0.85f || fabs(phiGlobalL()) < -0.45f ||
+           fabs(phiGlobalR()) < -0.45f;
 }
 
 static constexpr float DANG_FREEZE_THRESHOLD = 0.2f;

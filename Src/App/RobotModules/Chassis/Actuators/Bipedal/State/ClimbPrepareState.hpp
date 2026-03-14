@@ -9,7 +9,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid climbPrepareFollowVelPid{ 15.f, 0.f, 3.0f, 0.001f, 0.f, 5.f, 0.f };
+static PositionalPid climbPrepareFollowVelPid{ 5.f, 0.f, 0.05f, 0.001f, 0.f, 1.f, 0.1f };
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
@@ -17,7 +17,7 @@ class ClimbPrepareState : public FSMState<FSMState_e> {
     static constexpr float MAX_ACC_BACK = 0.1f;
     static constexpr float MAX_ACC_FRONT = 0.7f;
     static constexpr float MAX_SPEED = 1.5f;
-    static constexpr float CLIMB_PREPARE_LENGTH = 0.36f;
+    static constexpr float CLIMB_PREPARE_LENGTH = 0.35f;
 
 public:
     ClimbPrepareState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis) {}
@@ -30,6 +30,8 @@ public:
         chassis_->setRoll(0);
         refLength_ = chassis_->length();
         targetRefLength_ = CLIMB_PREPARE_LENGTH;
+        chassis_->needGimbalLaunch(true);
+        chassis_->allowGimbalExitLaunch(false);
         wzAngPid_ = &climbPrepareFollowVelPid;
         LOG::info("ChassisClimbPrepare", " enter");
     }
@@ -41,11 +43,11 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.2f)
+        if (chassis_->isFloating() /*&& (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.1f*/)
             isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
-        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw)) * 0.001f;
+        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));
         // float wz = 0;
         float ds = (chassis_->msg.vx * chassis_->cosYaw) - (chassis_->msg.vy * chassis_->sinYaw);
 
@@ -55,8 +57,9 @@ public:
         chassis_->msg.vx = std::clamp(chassis_->msg.vx, -MAX_SPEED, MAX_SPEED);
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.dyaw = wz;
         ref.q = OFFSET_Q;
+        ref.phil = 0.1f;
+        ref.phir = 0.1f;
         chassis_->bal(ref);
 
         chassis_->ctrl();

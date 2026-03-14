@@ -46,7 +46,8 @@ void WheelLegged::stateUpdate(float _dt)
     vmc_.update(legState_, _dt);
 }
 
-float OFFSET_THRESHOLD = 60.f;
+float OFFSET_THRESHOLD = 0.f;
+float OFFSET_THRESHOLD_FOR_LENGTH = 60.f;
 bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
@@ -59,8 +60,9 @@ bool WheelLegged::isFloating(float _az, float _q)
     if (!isnan(rawFn_)) {
         fn_ = fnLPF_.process(rawFn_);
     }
-    fnThreshold_ = FLOATING_THRESHOLD +
-                   ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) * OFFSET_THRESHOLD);
+    fnThreshold_ = FLOATING_THRESHOLD + OFFSET_THRESHOLD +
+                   ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) *
+                    OFFSET_THRESHOLD_FOR_LENGTH);
     return floatFlag = fn_ < fnThreshold_;
 }
 
