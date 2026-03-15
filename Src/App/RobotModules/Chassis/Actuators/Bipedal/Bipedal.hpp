@@ -46,6 +46,11 @@ class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStr
 };
 
 class Bipedal : public Chassis {
+    /*
+    FLOOR_TO_HIP1 = 23.78 / 180 * pi; % HIP1与地面的夹角，由地面指向HIP1
+    HIP4_TO_FLOOR = 56.85 / 180 * pi; % HIP4与地面的夹角，由HIP4指向地面
+    PHI0_TO_FLOOR = 16.53 / 180 * pi; % 等效摆杆与地面夹角，由等效摆杆指向地面
+    */
     static constexpr float LF_HIP_CALIBRATED_ANG = 2.867051f;
     static constexpr float LB_HIP_CALIBRATED_ANG = 4.400037f;
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
