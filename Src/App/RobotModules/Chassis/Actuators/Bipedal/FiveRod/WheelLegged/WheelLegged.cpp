@@ -97,30 +97,17 @@ float WheelLegged::minL(float _phi) const
     return MIN_L;
 }
 
-void WheelLegged::overrideLengthPid(const PositionalPid &_angPID, const PositionalPid &_velPID)
+void WheelLegged::setLegLengthAngPidPD(float _kp, float _kd)
 {
-    lengthAngPid_ = _angPID;
-    lengthVelPid_ = _velPID;
-    lengthAngPid_.reset();
-    lengthVelPid_.reset();
+    lengthAngPid_.setParam(_kp, 0.f, _kd, 0.001f, 0.f, LENGTH_ANG_PID_OUTMAX);
 }
 
-void WheelLegged::overrideLengthPid()
+void WheelLegged::setLegLengthVelPidPD(float _kp, float _kd)
 {
-    lengthAngPid_ = PositionalPid{ FLOAT_LENGTH_ANG_PID_PARAM[0], FLOAT_LENGTH_ANG_PID_PARAM[1],
-                                   FLOAT_LENGTH_ANG_PID_PARAM[2], FLOAT_LENGTH_ANG_PID_PARAM[3],
-                                   FLOAT_LENGTH_ANG_PID_PARAM[4], FLOAT_LENGTH_ANG_PID_PARAM[5],
-                                   FLOAT_LENGTH_ANG_PID_PARAM[6] };
-    lengthVelPid_ = PositionalPid{ FLOAT_LENGTH_VEL_PID_PARAM[0], FLOAT_LENGTH_VEL_PID_PARAM[1],
-                                   FLOAT_LENGTH_VEL_PID_PARAM[2], FLOAT_LENGTH_VEL_PID_PARAM[3],
-                                   FLOAT_LENGTH_VEL_PID_PARAM[4], FLOAT_LENGTH_VEL_PID_PARAM[5],
-                                   FLOAT_LENGTH_VEL_PID_PARAM[6] };
-    lengthAngPid_.reset();
-    lengthVelPid_.reset();
+    lengthVelPid_.setParam(_kp, 0.f, _kd, 0.001f, 0.f, LENGTH_VEL_PID_OUTMAX);
 }
 
 void WheelLegged::setL(float _l) { setL_ = fmin(fmax(_l, minL(legState_.phi0)), MAX_L); }
-
 
 void WheelLegged::setFdFeedforward(float _fd) { fdFeedforward_ = _fd; }
 void WheelLegged::setTp(float _tp) { tp_ = _tp; }

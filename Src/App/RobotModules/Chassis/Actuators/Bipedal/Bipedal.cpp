@@ -275,6 +275,18 @@ void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
 
 void Bipedal::setRoll(float _roll) { setRoll_ = std::clamp(_roll, -MAX_ABS_ROLL, MAX_ABS_ROLL); }
 
+void Bipedal::setLegLengthAngPidPD(float _kp, float _kd)
+{
+    legL_.setLegLengthAngPidPD(_kp, _kd);
+    legR_.setLegLengthAngPidPD(_kp, _kd);
+}
+
+void Bipedal::setLegLengthVelPidPD(float _kp, float _kd)
+{
+    legL_.setLegLengthVelPidPD(_kp, _kd);
+    legR_.setLegLengthVelPidPD(_kp, _kd);
+}
+
 void Bipedal::setLengthSmooth(float _l, float _step) { setLengthSmooth(_l, _l, _step); }
 void Bipedal::setLengthSmooth(float _lL, float _lR, float _step)
 {
@@ -308,12 +320,6 @@ void Bipedal::setLength(float _lL, float _lR)
 void Bipedal::setLengthL(float _l) { legL_.setL(_l); }
 
 void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
-
-void Bipedal::setLengthPID(const PositionalPid &_angPID, const PositionalPid &_velPID)
-{
-    legL_.overrideLengthPid(_angPID, _velPID);
-    legR_.overrideLengthPid(_angPID, _velPID);
-}
 
 void Bipedal::setFdFeedforward()
 {

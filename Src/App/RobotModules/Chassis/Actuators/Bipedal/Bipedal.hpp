@@ -142,6 +142,22 @@ public:
     void setRoll(float _roll);
 
     /**
+     * @brief set twin Leg Length Ang Pid P D
+     * 
+     * @param _kp 
+     * @param _kd 
+     */
+    void setLegLengthAngPidPD(float _kp, float _kd);
+
+    /**
+     * @brief set twin Leg Length Vel Pid P D
+     * 
+     * @param _kp 
+     * @param _kd 
+     */
+    void setLegLengthVelPidPD(float _kp, float _kd);
+
+    /**
      * @brief set the expected length smoothly
      * 
      * @param _l unit: m
@@ -161,10 +177,6 @@ public:
     void setLength(float _lL, float _lR);
     void setLengthL(float _l);
     void setLengthR(float _l);
-    /**
-     * @brief override the length PIDs with custom parameters
-     */
-    void setLengthPID(const PositionalPid &_angPID, const PositionalPid &_velPID);
 
     /**
      * @brief Set the Fd feedforward

@@ -2,6 +2,10 @@
 #include "Bipedal.hpp"
 #include "FSMState.hpp"
 #include "StmLog.hpp"
+
+static float launchLegLengthAngPidPD[2]{ 50.f, 0.5f };
+static float launchLegLengthVelPidPD[2]{ 30.f, 0.0f };
+
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_DPHI = 4.f * 0.001f; // per ms
@@ -21,6 +25,8 @@ public:
         chassis_->disableRoll();
         refPhiL_ = chassis_->phiL();
         refPhiR_ = chassis_->phiR();
+        chassis_->setLegLengthAngPidPD(launchLegLengthAngPidPD[0], launchLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(launchLegLengthVelPidPD[0], launchLegLengthVelPidPD[1]);
 
         // 腿在前面则直接旋转+缩腿，在后面则先缩腿再旋转
         if (refPhiL_ < 0)

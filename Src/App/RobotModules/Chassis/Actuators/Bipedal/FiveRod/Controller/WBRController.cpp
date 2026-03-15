@@ -18,6 +18,20 @@ Matrix<4, 1> WBRController::solve(const Matrix<10, 1> &_err, float _lL, float _l
     const float x1x2x2 = x1x2 * x2;
     const float x1x1x2 = x1x1 * x2;
     // NOLINTBEGIN(readability-math-missing-parentheses, readability-identifier-naming)
+    /*
+            obj.Q = diag([ ...
+                3000, 600, ...       % 轮位置
+                13000, 3000, ...       % 底盘偏航角
+                1000, 10, ...       % 左腿倾角
+                1000, 10, ...       % 右腿倾角
+                60000, 1]);           % 底盘俯仰角
+
+            obj.R = diag([ ...
+                1e2, ...    % 左轮能量惩罚
+                1e2, ...    % 右轮能量惩罚
+                2e1, ...    % 左腿能量惩罚
+                2e1]);      % 右腿能量惩罚
+    */
     float LQR_K_DATA[4 * 10] = {
         3.1755103f * x2 - 27.832339f * x1 + 19.874403f * x1x2 + 3.9270606f * x1x2x2 - 32.799406f * x1x1x2 +
                 55.202462f * x1x1 - 39.044228f * x1x1x1 - 13.45909f * x2x2 + 11.955365f * x2x2x2 + 0.046403747f,

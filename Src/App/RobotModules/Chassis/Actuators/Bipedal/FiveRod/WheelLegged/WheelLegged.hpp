@@ -14,8 +14,8 @@ class WheelLegged {
     static constexpr float MAX_HIP_CTRL_TORQ = 22.f; // 220uf * 4
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
 
-    static constexpr float FLOAT_LENGTH_ANG_PID_PARAM[7] = { 40.f, 0.f, 0.5f, 0.001f, 0.f, 5.f, 0.f };
-    static constexpr float FLOAT_LENGTH_VEL_PID_PARAM[7] = { 30.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
+    static constexpr float LENGTH_ANG_PID_OUTMAX = 5.f;
+    static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
 public:
     static constexpr float MAX_L = 0.369f; // 0.36998937
@@ -54,16 +54,21 @@ public:
     void stateUpdate(float _dt);
 
     /**
-     * @brief override the length PIDs with custom parameters
+     * @brief set the Leg Length AngPid params
      * 
-     * @param _angPID 
-     * @param _velPID 
+     * @param _kp 
+     * @param _kd 
      */
-    void overrideLengthPid(const PositionalPid &_angPID, const PositionalPid &_velPID);
+    void setLegLengthAngPidPD(float _kp, float _kd);
+
     /**
-     * @brief override the length PIDs with default parameters
+     * @brief set the Leg Length VelPid params
+     * 
+     * @param _kp 
+     * @param _kd 
      */
-    void overrideLengthPid();
+    void setLegLengthVelPidPD(float _kp, float _kd);
+
     /**
      * @brief set the leg length, automatically clamp to the range [MIN_L, MAX_L]
      * 
@@ -135,14 +140,8 @@ private:
 
     float setL_ = 0.f;
 
-    PositionalPid lengthAngPid_{ FLOAT_LENGTH_ANG_PID_PARAM[0], FLOAT_LENGTH_ANG_PID_PARAM[1],
-                                 FLOAT_LENGTH_ANG_PID_PARAM[2], FLOAT_LENGTH_ANG_PID_PARAM[3],
-                                 FLOAT_LENGTH_ANG_PID_PARAM[4], FLOAT_LENGTH_ANG_PID_PARAM[5],
-                                 FLOAT_LENGTH_ANG_PID_PARAM[6] };
-    PositionalPid lengthVelPid_{ FLOAT_LENGTH_VEL_PID_PARAM[0], FLOAT_LENGTH_VEL_PID_PARAM[1],
-                                 FLOAT_LENGTH_VEL_PID_PARAM[2], FLOAT_LENGTH_VEL_PID_PARAM[3],
-                                 FLOAT_LENGTH_VEL_PID_PARAM[4], FLOAT_LENGTH_VEL_PID_PARAM[5],
-                                 FLOAT_LENGTH_VEL_PID_PARAM[6] };
+    PositionalPid lengthAngPid_{ 50.f, 0.f, 0.5f, 0.001f, 0.f, 5.f, 0.f };
+    PositionalPid lengthVelPid_{ 30.f, 0.f, 0.f, 0.001f, 0.f, 200.f, 0.f };
 
     PINYMOTOR::IMotor *hip1_;
     PINYMOTOR::IMotor *hip4_;
