@@ -205,7 +205,8 @@ void Standard::ctrlYawAuto(PID *_angPID, PID *_velPID, PID *_velFeedbackPID, flo
     float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
     float del = getMinorArc(pos, yaw()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float acc = _velPID->calc(vel, insData_.earth.gz) + _velFeedbackPID->calc(vision.data().yawVel, insData_.earth.gz);
+    float acc = _velPID->calc(vel, insData_.earth.gz) + _velFeedbackPID->calc(vision.data().yawVel, insData_.earth.gz) +
+                vision.data().yawAcc;
     float torq = calcYawTorq(insData_.earth.gz, acc);
     torq = std::clamp(torq, -DMMOTOR::DM4310::TORQ_MAX, DMMOTOR::DM4310::TORQ_MAX);
     yaw()->cmdTorq(outFilrYaw_.process(torq));
