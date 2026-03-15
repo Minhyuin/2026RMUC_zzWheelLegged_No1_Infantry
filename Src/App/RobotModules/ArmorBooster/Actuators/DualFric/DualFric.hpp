@@ -15,7 +15,7 @@ class DualFric : public ArmorBooster {
     };
 
 public:
-    static constexpr float FAST_FRIC_RATE = 940.f; // 628.f;
+    static constexpr float FAST_FRIC_RATE = 200.f; //940.f; // 628.f;
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
     static constexpr float FRIC_STOP_THRESHOLD = 1.f;

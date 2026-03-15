@@ -5,8 +5,8 @@
 
 #include "PidBasic.hpp"
 
-static PositionalPid singleDialAngPID(17.f, 3.f, 0.1f, 0.001f, 0.3f, 30.f, 0);
-static PositionalPid singleDialVelPID(4.f, 0, 0, 0.001f, 0, 0.f, 0);
+static PositionalPid singleDialAngPID(25.f, 7.f, 0.5f, 0.001f, 5.f, 20.f, 0);
+static PositionalPid singleDialVelPID(0.1f, 0.f, 0, 0.001f, 0.f, 2.49f, 0);
 
 namespace ARMORLOADER {
 
@@ -18,9 +18,9 @@ class SingleState : public FSMState<FSMState_e> {
 
     enum class SingleFSMState_e : uint8_t { BOOST, FINISH };
 
-    static constexpr float SINGLE_ANG = 1.f;
+    static constexpr float SINGLE_ANG = 2.f * std::numbers::pi_v<float> / Dial::BULLET_NUM_ROUND;
 
-    static constexpr float DEADBAND = 0.02f;
+    static constexpr float DEADBAND = 0.01f;
 
 public:
     SingleState(Dial *_armorLoader) : FSMState<FSMState_e>(FSMState_e::SINGLE), loader_(_armorLoader)
