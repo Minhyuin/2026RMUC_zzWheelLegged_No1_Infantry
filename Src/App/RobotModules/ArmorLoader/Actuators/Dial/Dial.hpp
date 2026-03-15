@@ -86,6 +86,8 @@ private:
     float barrelHeat_ = 0.f;
     uint16_t lastBarrelHeatFromReferee_ = 0.f;
 
+    uint16_t roundsFiredNum_ = 0; // the number of rounds fired
+
     uint16_t blockCnt = 0.f;
 };
 

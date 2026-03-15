@@ -50,7 +50,11 @@ Dial::Dial()
 
 void Dial::stop() { motors_.dial->cmd(MotorCmdType_e::OFF); }
 
-void Dial::enter() { motors_.dial->cmd(MotorCmdType_e::ON); }
+void Dial::enter()
+{
+    motors_.dial->setZeroAng(); // reset multipCirAng and cirNum
+    motors_.dial->cmd(MotorCmdType_e::ON);
+}
 
 void Dial::update(void *_param)
 {
@@ -62,6 +66,12 @@ void Dial::update(void *_param)
     if (motors_.dial->globalState != GlobalState_e::ONLINE) {
         msg.state = FSMState_e::STOP;
     }
+
+    uint16_t nextRoundsFiredNum = static_cast<int>(std::fabsf(motors_.dial->pos() / (2.f * PI))) * BULLET_NUM_ROUND;
+    uint16_t deltaRoundsFiredNum = nextRoundsFiredNum - roundsFiredNum_;
+    if (deltaRoundsFiredNum > 0)
+        barrelHeat_ += static_cast<float>(deltaRoundsFiredNum * 10); // 每颗17mm弹丸10热量
+    roundsFiredNum_ = nextRoundsFiredNum;
 
 #if EXTENSION_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
