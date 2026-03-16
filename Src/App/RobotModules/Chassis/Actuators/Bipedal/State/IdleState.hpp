@@ -91,6 +91,8 @@ public:
             return FSMState_e::JUMP;
         else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::IDLE;
+        else if (chassis_->msg.state == FSMState_e::TANK)
+            return FSMState_e::TANK;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
         else if (chassis_->msg.state == FSMState_e::CLIMB_PREPARE)
