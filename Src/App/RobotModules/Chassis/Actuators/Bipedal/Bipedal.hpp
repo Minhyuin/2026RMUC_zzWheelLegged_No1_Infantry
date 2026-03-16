@@ -46,12 +46,18 @@ class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStr
 };
 
 class Bipedal : public Chassis {
-    static constexpr float LF_HIP_CALIBRATED_ANG = 2.867051f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 4.400037f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
+    /*
+        (LF_HIP)左HIP4在0度时编码值: 2.247717
+        (LB_HIP)左HIP1在180度时编码值: 2.201276
+        (RF_HIP)右HIP4在0度时编码值: 3.134028
+        (RB_HIP)右HIP1在180度时编码值: 0.184351
+     */
+    static constexpr float LF_HIP_CALIBRATED_ANG = 2.247717f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 2.201276f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 3.134028f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 0.184351f;
 
-    static constexpr float MASS_BODY = 22.6110f;
+    static constexpr float MASS_BODY = 21.5270f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 

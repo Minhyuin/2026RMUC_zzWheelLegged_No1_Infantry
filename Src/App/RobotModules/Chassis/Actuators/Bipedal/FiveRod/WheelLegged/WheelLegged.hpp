@@ -18,8 +18,8 @@ class WheelLegged {
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
 public:
-    static constexpr float MAX_L = 0.369f; // 0.36998937
-    static constexpr float MIN_L = 0.185f; // 0.16051326
+    static constexpr float MAX_L = 0.33f; // 0.36998937
+    static constexpr float MIN_L = 0.16f; // 0.16051326
 
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
@@ -27,7 +27,7 @@ public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
 
-    static constexpr float FLOATING_THRESHOLD = 2 * MASS_WHEEL * GRAVITY;
+    static constexpr float FLOATING_THRESHOLD = MASS_WHEEL * GRAVITY;
 
     /**
      * @brief WheelLegged singleton initialize
@@ -135,7 +135,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 90.f, 0.f };
+    GasSpring spring_{ 0.f, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;
