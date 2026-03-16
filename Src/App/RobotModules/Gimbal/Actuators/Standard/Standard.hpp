@@ -50,8 +50,8 @@ public:
     static constexpr float PITCH_LAUNCH_ANG = 4.71229315f;
     static constexpr float YAW_LAUNCH_ANG = 3.72780108f;
 
-    static constexpr float PITCH_MOTOR_FREQ = 1000.f;
-    static constexpr float YAW_MOTOR_FREQ = 1000.f;
+    static constexpr float PITCH_MOTOR_FREQ = 500.f;
+    static constexpr float YAW_MOTOR_FREQ = 500.f;
 
     static constexpr float YAW_INERTIA = 0.0201694f;
     static constexpr float YAW_FRICTION = 0.f; // 0.109081
