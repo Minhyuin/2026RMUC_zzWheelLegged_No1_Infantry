@@ -4,8 +4,8 @@ CONFIG_TARGET_MASTER=y
 #
 # Soc config
 #
-CONFIG_TARGET_STM32F407=y
-# CONFIG_TARGET_STM32H723 is not set
+# CONFIG_TARGET_STM32F407 is not set
+CONFIG_TARGET_STM32H723=y
 # end of Soc config
 
 #
@@ -45,13 +45,7 @@ CONFIG_APP_USE_INS=y
 
 CONFIG_APP_USE_DAEMONS=y
 CONFIG_APP_USE_COMM=y
-CONFIG_APP_USE_REFEREE=y
-
-#
-# UI config
-#
 CONFIG_APP_USE_UI=y
-# end of UI config
 # end of app config
 
 #

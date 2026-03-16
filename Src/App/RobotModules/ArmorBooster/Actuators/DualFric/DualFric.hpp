@@ -6,6 +6,8 @@
 
 #include "PidBasic.hpp"
 
+#include "IIR.hpp"
+
 namespace ARMORBOOSTER {
 
 class DualFric : public ArmorBooster {
@@ -15,14 +17,14 @@ class DualFric : public ArmorBooster {
     };
 
 public:
-    static constexpr float FAST_FRIC_RATE = 200.f; //940.f; // 628.f;
+    static constexpr float FAST_FRIC_RATE = 628.f;
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
     static constexpr float FRIC_STOP_THRESHOLD = 1.f;
 
     static constexpr float FRIC_MOTOR_FREQ = 10.f;
 
-    static constexpr bool FRIC_REVERSE = true;
+    static constexpr bool FRIC_REVERSE = false;
 
     DualFric();
 
@@ -38,7 +40,12 @@ public:
 private:
     Motors_s motors_;
 
-    // IncrementalPid fricPid_[2]{ { 0.0003f, 1e-6f, 0.f, 0.157f }, { 0.0003f, 1e-6f, 0.f, 0.157f } };
+    FILTER::LPFIIR3 velFltr_[2] = {
+        { 500.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
+        { 500.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
+    };
+
+    PositionalPid fricPid_[2]{ { 0.00025f, 4e-6f, 3e-7f, 0.001f, 0.003f, 0.157f, 0.f }, { fricPid_[0] } };
 
     float targetVel_ = SLOW_FRIC_RATE;
 };

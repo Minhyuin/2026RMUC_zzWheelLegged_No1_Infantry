@@ -2,7 +2,7 @@
 
 #include "Bsp_can.hpp"
 
-#include "DM3519.hpp"
+#include "M3508.hpp"
 
 #include "Smooth.hpp"
 
@@ -17,28 +17,28 @@ using namespace PINYMOTOR;
 DualFric::DualFric()
 {
     InitConfig_s fricLConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::VDES,
-        .offsetId = 1,
+        .workMode = WorkMode_e::QUAD_CURR,
+        .offsetId = 2,
         .txFreq = FRIC_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .isReverse = FRIC_REVERSE,
     };
-    motors_.fricL = new DMMOTOR::DM3519("FricL", fricLConfig);
+    motors_.fricL = new DJIMOTOR::M3508("FricL", fricLConfig);
 
     InitConfig_s fricRConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::VDES,
-        .offsetId = 2,
+        .workMode = WorkMode_e::QUAD_CURR,
+        .offsetId = 3,
         .txFreq = FRIC_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .isReverse = !FRIC_REVERSE,
     };
-    motors_.fricR = new DMMOTOR::DM3519("FricR", fricRConfig);
+    motors_.fricR = new DJIMOTOR::M3508("FricR", fricRConfig);
 
     this->stateFactory_.addState(FSMState_e::ON, std::make_unique<OnState>(this));
     this->stateFactory_.addState(FSMState_e::OFF, std::make_unique<OffState>(this));
@@ -72,14 +72,12 @@ void DualFric::update(void *_param)
 
 void DualFric::ctrl(float _vel)
 {
-    // float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
-    // float pidOut = fricPid_[0].calc(velErr, 0);
-    // motors_.fricL->cmdTorq(pidOut);
-    // velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
-    // pidOut = fricPid_[1].calc(velErr, 0);
-    // motors_.fricR->cmdTorq(pidOut);
-    motors_.fricR->cmdVel(_vel);
-    motors_.fricL->cmdVel(_vel);
+    float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
+    float pidOut = fricPid_[0].calc(velErr, 0);
+    motors_.fricL->cmdTorq(pidOut);
+    velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
+    pidOut = fricPid_[1].calc(velErr, 0);
+    motors_.fricR->cmdTorq(pidOut);
 }
 
 void DualFric::on()
