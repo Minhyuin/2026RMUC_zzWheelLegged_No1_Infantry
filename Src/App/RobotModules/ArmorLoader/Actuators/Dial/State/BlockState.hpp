@@ -8,11 +8,11 @@
 namespace ARMORLOADER {
 
 class BlockState : public FSMState<FSMState_e> {
-    static constexpr float BLOCK_TORQ = 0.8f;
+    static constexpr float BLOCK_TORQ = 0.5f;
 
-    static constexpr uint16_t REVERSE_CNT = 80;
+    static constexpr uint16_t REVERSE_CNT = 25;
 
-    static constexpr uint16_t RESTORE_CNT_MAX = 200;
+    static constexpr uint16_t RESTORE_CNT_MAX = 50;
 
 public:
     BlockState(Dial *_armorLoader) : FSMState<FSMState_e>(FSMState_e::BLOCK), loader_(_armorLoader) {}

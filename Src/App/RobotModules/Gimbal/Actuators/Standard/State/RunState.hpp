@@ -13,9 +13,9 @@ static volatile float yawGimbalExpOffset = 0.f;
 static volatile float yawMotorAng = 0.f;
 static volatile float pitchMotorAng = 0.f;
 
-static PositionalPid runPitchAngPID(50.f, 200.f, 0.005f, 0.001f, 2.f, 15.f, 0.f);
-static PositionalPid runPitchVelPID(0.4f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
-static PositionalPid runYawAngPID(35.f, 100.f, 0.5f, 0.001f, 0.3f, 10.f, 0.f);
+static PositionalPid runPitchAngPID(50.f, 50.f, 0.12f, 0.001f, 2.f, 15.f, 0.f);
+static PositionalPid runPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid runYawAngPID(85.f, 150.f, 3.f, 0.001f, 0.3f, 10.f, 0.f);
 static PositionalPid runYawVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
@@ -29,7 +29,7 @@ class RunState : public FSMState<FSMState_e> {
         PositionalPid *yawVelPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.35f;
+    static constexpr float IMU_PITCH_START_ANG = -0.44f;
     static constexpr float IMU_PITCH_END_ANG = 0.1f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
@@ -103,7 +103,7 @@ public:
         if (gimbal_->isNeedLaunch() && needLaunchCounter_ >= MAX_NEED_LAUNCH_CNT)
             return FSMState_e::LAUNCH;
 
-        if (gimbal_->msg.state == FSMState_e::AUTO && gimbal_->vision.data().control)
+        if (gimbal_->msg.state == FSMState_e::AUTO && gimbal_->vision.data().control && !gimbal_->msg.forceHumanProxy)
             return FSMState_e::AUTO;
         else
             return FSMState_e::RUN;

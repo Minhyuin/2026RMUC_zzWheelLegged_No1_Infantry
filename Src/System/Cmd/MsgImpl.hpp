@@ -52,6 +52,7 @@ struct ChassisMsg_s : public Msg {
 struct GimbalMsg_s : public Msg {
     GIMBAL::FSMState_e state;
     float wRoll, wPitch, wYaw;
+    bool forceHumanProxy;
 };
 
 struct ArmorBoosterMsg_s : public Msg {

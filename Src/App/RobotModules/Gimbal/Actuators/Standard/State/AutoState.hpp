@@ -26,7 +26,7 @@ class AutoState : public FSMState<FSMState_e> {
         PositionalPid *yawVelFbPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.35f;
+    static constexpr float IMU_PITCH_START_ANG = -0.42f;
     static constexpr float IMU_PITCH_END_ANG = 0.1f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
@@ -84,7 +84,7 @@ public:
         if (gimbal_->isNeedLaunch() && needLaunchCounter_ >= MAX_NEED_LAUNCH_CNT)
             return FSMState_e::LAUNCH;
 
-        if (gimbal_->msg.state == FSMState_e::RUN || !gimbal_->vision.data().control)
+        if (gimbal_->msg.state == FSMState_e::RUN || !gimbal_->vision.data().control || gimbal_->msg.forceHumanProxy)
             return FSMState_e::RUN;
         else
             return FSMState_e::AUTO;

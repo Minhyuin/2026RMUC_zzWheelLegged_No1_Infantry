@@ -119,14 +119,20 @@ private:
         }
         void enter() final
         {
+            lastFire_ = parent_.loader_->msg.fire;
             parent_.loader_->ctrl(0.f);
             LOG::info("", "done");
         }
-        void run() final {}
+        void run() final
+        {
+            if (parent_.loader_->msg.fire != lastFire_) {
+                lastFire_ = parent_.loader_->msg.fire;
+            }
+        }
         void exit() final {}
         SingleFSMState_e checkChange() final
         {
-            if (parent_.loader_->msg.fire)
+            if (!lastFire_ && parent_.loader_->msg.fire)
                 return SingleFSMState_e::BOOST;
             else
                 return SingleFSMState_e::FINISH;
@@ -134,6 +140,7 @@ private:
 
     private:
         SingleState &parent_;
+        bool lastFire_ = false;
     };
 };
 } // namespace ARMORLOADER

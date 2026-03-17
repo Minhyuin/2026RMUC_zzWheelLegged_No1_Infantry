@@ -33,7 +33,7 @@ public:
 
     static constexpr float BLOCK_CURRENT = 2.f;    // A
     static constexpr float BLOCK_SPEED_MIN = 0.3f; // rad/s
-    static constexpr uint16_t BLOCK_CNT_MAX = 500.f;
+    static constexpr uint16_t BLOCK_CNT_MAX = 200.f;
 
     static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 20.f;
 
