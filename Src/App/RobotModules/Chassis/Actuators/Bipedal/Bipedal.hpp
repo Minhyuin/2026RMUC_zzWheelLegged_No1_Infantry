@@ -35,13 +35,13 @@ public:
 
 class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     friend class Bipedal;
-    RefereeDataTxPacket() : TxPacket(20.f) {}
+    RefereeDataTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
-    GimbalLaunchStrategyTxPacket() : TxPacket(20.f) {}
+    GimbalLaunchStrategyTxPacket() : TxPacket(200.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
