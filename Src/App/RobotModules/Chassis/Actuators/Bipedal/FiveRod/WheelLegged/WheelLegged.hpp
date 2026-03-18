@@ -27,7 +27,7 @@ public:
     static constexpr float GRAVITY = 9.7833f;
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
 
-    static constexpr float FLOATING_THRESHOLD = 2 * MASS_WHEEL * GRAVITY;
+    static constexpr float FLOATING_THRESHOLD = MASS_WHEEL * GRAVITY;
 
     /**
      * @brief WheelLegged singleton initialize

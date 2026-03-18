@@ -75,7 +75,7 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_FORWARD =
             -0.3f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.08f;
+    static constexpr float Q_OFFSET = 0.03f;
     static constexpr float PHI_OFFSET = 0.05f;
 
 public:
@@ -399,6 +399,10 @@ private:
     float yaw_ = 0.f;
 
     float ds_ = 0.f;
+    FILTER::LPF wheelVelFilter_[2] = {
+        { 1000.f, 20.f },
+        { 1000.f, 20.f },
+    };
     float s_ = 0.f;
     uint16_t lockSCount_ = 0;
     float dsCmdBeforeStop_ = 0.f;

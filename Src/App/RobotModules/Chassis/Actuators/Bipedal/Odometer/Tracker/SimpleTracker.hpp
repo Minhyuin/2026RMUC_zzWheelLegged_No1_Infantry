@@ -83,7 +83,7 @@ private:
     WelFordData_s velData_{};
 
     float sigmaQ_ = 4e6f;
-    float sigmaR_ = 1.f;
+    float sigmaR_ = 1.5f;
 };
 
 } // namespace CHASSIS

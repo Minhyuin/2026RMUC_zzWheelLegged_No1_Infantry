@@ -133,6 +133,8 @@ void Bipedal::updateBody()
                   legL_.state().vd * arm_sin_f32(legL_.state().phi0);
     wheelVel[1] = wheelOmega[1] * W_RADIUS + legR_.state().L0 * legR_.state().dphi0 * arm_cos_f32(legR_.state().phi0) +
                   legR_.state().vd * arm_sin_f32(legR_.state().phi0);
+    wheelVel[0] = wheelVelFilter_[0].process(wheelVel[0]);
+    wheelVel[1] = wheelVelFilter_[1].process(wheelVel[1]);
     float vxFromWheel = (wheelVel[0] + wheelVel[1]) / 2.f;
 
     if (!isnan(vxFromWheel))

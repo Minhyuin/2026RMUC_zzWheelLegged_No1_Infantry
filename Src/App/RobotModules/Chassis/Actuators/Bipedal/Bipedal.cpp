@@ -167,6 +167,9 @@ void Bipedal::stop()
     dsPid_[0].reset();
     dsPid_[1].reset();
 
+    wheelVelFilter_[0].reset();
+    wheelVelFilter_[1].reset();
+
     s_ = 0;
     setRoll_ = 0;
     lengthOffset_ = 0;
