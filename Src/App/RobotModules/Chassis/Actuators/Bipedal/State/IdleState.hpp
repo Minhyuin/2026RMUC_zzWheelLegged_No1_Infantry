@@ -9,16 +9,16 @@
 #include "Smooth.hpp"
 
 static PositionalPid idleFollowVelPid{ 5.0f, 1.f, 0.05f, 0.001f, 0.1f, 1.5f, 0.1f };
-static float idleLegLengthAngPidPD[2]{ 40.f, 0.1f };
+static float idleLegLengthAngPidPD[2]{ 50.f, 0.1f };
 static float idleLegLengthVelPidPD[2]{ 40.f, 0.0f };
 float phiOffset = 0.f;
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 1.f;
-    static constexpr float MAX_ACC_FRONT = 1.f;
-    static constexpr float IDLE_L = 0.2f;
+    static constexpr float MAX_ACC_BACK = 0.8f;
+    static constexpr float MAX_ACC_FRONT = 0.8f;
+    static constexpr float IDLE_L = WheelLegged::MIN_L;
 
 public:
     IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
@@ -47,7 +47,7 @@ public:
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
         if (chassis_->isFloating()) {
-            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.00003f);
+            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.00015);
         } else {
             refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
         }
