@@ -8,12 +8,12 @@
 #include "Smooth.hpp"
 #include "PidBasic.hpp"
 
-static PositionalPid autoPitchAngPID(90.f, 250.f, 0.8f, 0.001f, 3.f, 1.5f, 0.f);
-static PositionalPid autoPitchVelPID(0.9f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid autoPitchAngPID(70.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f);
+static PositionalPid autoPitchVelPID(0.7f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
-static PositionalPid autoYawAngPID(120.f, 150.f, 1.f, 0.001f, 5.f, 30.f, 0.f);
-static PositionalPid autoYawVelPID(10.0f, 0.f, 0.f, 0.001f, 0.f, 100.f, 0.f);
-static PositionalPid autoYawVelFeedbackPID(25.0f, 0.f, 0.f, 0.001f, 0.f, 50.f, 0.f);
+static PositionalPid autoYawAngPID(600.f, 1000.f, 11.f, 0.001f, 15.f, 30.f, 0.f);
+static PositionalPid autoYawVelPID(5.0f, 1.f, 0.f, 0.001f, 10.f, 100.f, 0.f);
+static PositionalPid autoYawVelFeedbackPID(15.0f, 5.f, 1.6f, 0.001f, 10.f, 50.f, 0.f);
 
 namespace GIMBAL {
 
@@ -26,8 +26,8 @@ class AutoState : public FSMState<FSMState_e> {
         PositionalPid *yawVelFbPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.35f;
-    static constexpr float IMU_PITCH_END_ANG = 0.1f;
+    static constexpr float IMU_PITCH_START_ANG = -0.50f;
+    static constexpr float IMU_PITCH_END_ANG = 0.3f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
@@ -54,8 +54,8 @@ public:
 
     void run() final
     {
-        cmdImuPitchAng_ =
-                std::clamp(gimbal_->vision.data().pitch, gimbal_->ins().pitch - 0.018f, gimbal_->ins().pitch + 0.018f);
+        cmdImuPitchAng_ = // gimbal_->vision.data().pitch;
+                std::clamp(gimbal_->vision.data().pitch, gimbal_->ins().pitch - 0.1f, gimbal_->ins().pitch + 0.1f);
 
         cmdImuYawAng_ = gimbal_->vision.data().yaw;
 
