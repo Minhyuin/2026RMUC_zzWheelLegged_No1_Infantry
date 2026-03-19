@@ -47,6 +47,10 @@ DualFric::DualFric()
 
 void DualFric::stop()
 {
+    fricPid_[0].reset();
+    fricPid_[1].reset();
+    antiDiffPid_.reset();
+
     motors_.fricL->cmd(MotorCmdType_e::OFF);
     motors_.fricR->cmd(MotorCmdType_e::OFF);
 }
@@ -72,12 +76,18 @@ void DualFric::update(void *_param)
 
 void DualFric::ctrl(float _vel)
 {
-    float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
+    float curVelL = velFltr_[0].process(motors_.fricL->vel());
+    float curVelR = velFltr_[1].process(motors_.fricR->vel());
+    float diffVel = curVelL - curVelR;
+    float antiDiffPidOut = antiDiffPid_.calc(diffVel, 0);
+    float velErr = _vel - velFltr_[0].process(curVelL);
     float pidOut = fricPid_[0].calc(velErr, 0);
-    motors_.fricL->cmdTorq(pidOut);
-    velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
+    motors_.fricL->cmdTorq(
+            std::clamp(pidOut - antiDiffPidOut, -DJIMOTOR::M3508::TORQ_RATED, DJIMOTOR::M3508::TORQ_RATED));
+    velErr = _vel - velFltr_[1].process(curVelR);
     pidOut = fricPid_[1].calc(velErr, 0);
-    motors_.fricR->cmdTorq(pidOut);
+    motors_.fricR->cmdTorq(
+            std::clamp(pidOut + antiDiffPidOut, -DJIMOTOR::M3508::TORQ_RATED, DJIMOTOR::M3508::TORQ_RATED));
 }
 
 void DualFric::on()
