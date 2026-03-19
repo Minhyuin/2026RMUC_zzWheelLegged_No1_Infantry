@@ -23,6 +23,8 @@ public:
         refYaw_ = chassis_->yaw();
         refLength_ = chassis_->length();
         targetRefLength_ = SPIN_L;
+        isJumpReady_ = false;
+        needJumpPrev_ = chassis_->msg.needJump;
         chassis_->setRoll(0);
         LOG::info("ChassisSpin", " enter");
     }
@@ -45,6 +47,9 @@ public:
         chassis_->bal(ref);
 
         chassis_->ctrl();
+
+        isJumpReady_ = needJumpPrev_ && !chassis_->msg.needJump;
+        needJumpPrev_ = chassis_->msg.needJump;
     }
 
     void exit() final
@@ -59,8 +64,12 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP || chassis_->isTumble())
             return FSMState_e::STOP;
+        if (isJumpReady_)
+            return FSMState_e::JUMP;
         else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::IDLE;
+        else if (chassis_->msg.state == FSMState_e::TANK)
+            return FSMState_e::TANK;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
         else if (chassis_->msg.state == FSMState_e::CLIMB_PREPARE)
@@ -87,5 +96,8 @@ private:
 
     bool spinDir_ = false; // true : left, false: right
     uint32_t spinCnt_ = 0;
+
+    bool isJumpReady_ = false;
+    bool needJumpPrev_ = false;
 };
 } // namespace CHASSIS

@@ -6,7 +6,7 @@
 
 
 namespace CHASSIS {
-enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, SPIN, CLIMB_PREPARE, CLIMB, JUMP, TEST };
+enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, TANK, SPIN, CLIMB_PREPARE, CLIMB, JUMP, TEST };
 }
 
 namespace GIMBAL {

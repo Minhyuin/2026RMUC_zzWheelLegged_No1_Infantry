@@ -153,6 +153,67 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
         memcpy(&rcDataPrev, rcData, sizeof(DT7::RcData_s));
     } else if constexpr (DEV_TYPE == RCDevType_e::ET08A) {
         ET08A::RcData_s *rcData = static_cast<ET08A::RcData_s *>(rc_->getData());
+        static ET08A::RcData_s rcDataPrev = {};
+        static constexpr float CH_RANGE = ET08A::CH_VALUE_MAX - ET08A::CH_VALUE_OFFSET;
+        static constexpr float WHEEL_THESHORLD = 0.2f;
+        using SW = ET08A::Sw_e;
+        SW &sr = rcData->switchRight;
+        SW &sl = rcData->switchLeft;
+        if (sr == SW::DOWN) {
+            gMsg_.state = GIMBAL::FSMState_e::STOP;
+            gMsg_.wPitch = gMsg_.wYaw = 0.f;
+            cMsg_.state = CHASSIS::FSMState_e::STOP;
+            cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
+            alMsg_.state = ARMORLOADER::FSMState_e::STOP;
+            alMsg_.fire = false;
+            abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+        } else if (sr == SW::MID) {
+            cMsg_.vx = static_cast<float>(rcData->ch1) / CH_RANGE * INPUT_VX_MAX;
+            cMsg_.vy = -static_cast<float>(rcData->ch0) / CH_RANGE * INPUT_VX_MAX;
+            cMsg_.droll = static_cast<float>(rcData->ch0) / CH_RANGE * INPUT_DROLL_MAX;
+            gMsg_.wPitch = -static_cast<float>(rcData->ch3) / CH_RANGE * INPUT_WPITCH_MAX;
+            gMsg_.wYaw = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_WYAW_MAX;
+            cMsg_.dphi = -static_cast<float>(rcData->ch0) / CH_RANGE * INPUT_DPHI_MAX;
+            cMsg_.dl = static_cast<float>(rcData->ch3) / CH_RANGE * INPUT_DL_MAX;
+            cMsg_.wz = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_WZ_MAX;
+            alMsg_.fire = std::fabs(static_cast<float>(rcData->wheel - ET08A::CH_VALUE_OFFSET) / CH_RANGE) >
+                          WHEEL_THESHORLD;
+            if (sl == SW::DOWN) {
+                gMsg_.state = GIMBAL::FSMState_e::RUN;
+                cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                alMsg_.state = ARMORLOADER::FSMState_e::STOP;
+                abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+            } else if (sl == SW::MID) {
+                gMsg_.state = GIMBAL::FSMState_e::AUTO;
+                // cMsg_.state = CHASSIS::FSMState_e::TANK;
+                alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
+                abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+            } else if (sl == SW::UP) {
+                alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
+            }
+        } else if (sr == SW::UP) {
+            cMsg_.vx = static_cast<float>(rcData->ch1) / CH_RANGE * INPUT_VX_MAX;
+            cMsg_.vy = -static_cast<float>(rcData->ch0) / CH_RANGE * INPUT_VX_MAX;
+            cMsg_.droll = static_cast<float>(rcData->ch0) / CH_RANGE * INPUT_DROLL_MAX;
+            gMsg_.wPitch = -static_cast<float>(rcData->ch3) / CH_RANGE * INPUT_WPITCH_MAX;
+            gMsg_.wYaw = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_WYAW_MAX;
+            cMsg_.dphi = -static_cast<float>(rcData->ch0) / CH_RANGE * INPUT_DPHI_MAX;
+            cMsg_.dl = static_cast<float>(rcData->ch3) / CH_RANGE * INPUT_DL_MAX;
+            cMsg_.wz = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_WZ_MAX;
+            alMsg_.fire = false;
+            if (sl == SW::DOWN) {
+                cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
+            } else {
+                cMsg_.state = CHASSIS::FSMState_e::SPIN;
+            }
+            gMsg_.state = GIMBAL::FSMState_e::RUN;
+            alMsg_.state = ARMORLOADER::FSMState_e::STOP;
+            abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+        } else {
+            // TODO: Use keyboard
+            return;
+        }
+        memcpy(&rcDataPrev, rcData, sizeof(ET08A::RcData_s));
     } else if constexpr (DEV_TYPE == RCDevType_e::VT13) {
         static constexpr float CH_RANGE = VT13::CH_VALUE_MAX - VT13::CH_VALUE_OFFSET;
         VT13::RcData_s *rcData = static_cast<VT13::RcData_s *>(rc_->getData());

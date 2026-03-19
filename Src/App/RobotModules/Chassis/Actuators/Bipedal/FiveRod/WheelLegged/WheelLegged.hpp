@@ -9,17 +9,16 @@
 namespace CHASSIS {
 
 class WheelLegged {
-    // 4个电机输出电流过大会出现“抢占电流”现象，影响姿态
-    // 增大电机最近邻外接电容容值可增大该电流限制
-    static constexpr float MAX_HIP_CTRL_TORQ = 22.f; // 220uf * 4
-    static constexpr float MAX_WHEEL_CTRL_TORQ = 3.94f;
+    // 4个电机输出电流过大达到电池负载阈值，会严重影响姿态，需要并入超电来提高物理上限
+    static constexpr float MAX_HIP_CTRL_TORQ = 20.f;
+    static constexpr float MAX_WHEEL_CTRL_TORQ = 3.9f;
 
     static constexpr float LENGTH_ANG_PID_OUTMAX = 5.f;
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
 public:
-    static constexpr float MAX_L = 0.33f; // 0.36998937
-    static constexpr float MIN_L = 0.16f; // 0.16051326
+    static constexpr float MAX_L = 0.369f; // 0.36998937
+    static constexpr float MIN_L = 0.185f; // 0.16051326
 
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
@@ -135,7 +134,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 0.f, 0.f };
+    GasSpring spring_{ 90.f, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

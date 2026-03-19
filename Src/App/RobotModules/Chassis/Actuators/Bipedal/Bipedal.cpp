@@ -15,6 +15,7 @@
 #include "./State/LaunchState.hpp"
 #include "./State/StandState.hpp"
 #include "./State/IdleState.hpp"
+#include "./State/TankState.hpp"
 #include "./State/SpinState.hpp"
 #include "./State/ClimbState.hpp"
 #include "./State/ClimbPrepareState.hpp"
@@ -138,6 +139,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     this->stateFactory_.addState(FSMState_e::STAND, std::make_unique<StandState>(this));
     this->stateFactory_.addState(FSMState_e::RESCUE, std::make_unique<RescueState>(this));
     this->stateFactory_.addState(FSMState_e::IDLE, std::make_unique<IdleState>(this));
+    this->stateFactory_.addState(FSMState_e::TANK, std::make_unique<TankState>(this));
     this->stateFactory_.addState(FSMState_e::SPIN, std::make_unique<SpinState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB, std::make_unique<ClimbState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB_PREPARE, std::make_unique<ClimbPrepareState>(this));
@@ -164,6 +166,9 @@ void Bipedal::stop()
 
     dsPid_[0].reset();
     dsPid_[1].reset();
+
+    wheelVelFilter_[0].reset();
+    wheelVelFilter_[1].reset();
 
     s_ = 0;
     setRoll_ = 0;

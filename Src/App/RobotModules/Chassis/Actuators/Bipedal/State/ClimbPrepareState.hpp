@@ -9,7 +9,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.6f, 0.1f };
+static PositionalPid climbPrepareFollowVelPid{ 5.f, 0.f, 0.05f, 0.001f, 0.f, 1.f, 0.1f };
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
@@ -80,6 +80,8 @@ public:
             return FSMState_e::CLIMB;
         else if (chassis_->msg.state == FSMState_e::IDLE)
             return FSMState_e::IDLE;
+        else if (chassis_->msg.state == FSMState_e::TANK)
+            return FSMState_e::TANK;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
         else

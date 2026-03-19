@@ -35,27 +35,26 @@ public:
 
 class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     friend class Bipedal;
-    RefereeDataTxPacket() : TxPacket(20.f) {}
+    RefereeDataTxPacket() : TxPacket(50.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
-    GimbalLaunchStrategyTxPacket() : TxPacket(20.f) {}
+    GimbalLaunchStrategyTxPacket() : TxPacket(50.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class Bipedal : public Chassis {
     /*
-        (LF_HIP)左HIP4在0度时编码值: 2.247717
-        (LB_HIP)左HIP1在180度时编码值: 2.201276
-        (RF_HIP)右HIP4在0度时编码值: 3.134028
-        (RB_HIP)右HIP1在180度时编码值: 0.184351
-     */
-    static constexpr float LF_HIP_CALIBRATED_ANG = 2.247717f;
-    static constexpr float LB_HIP_CALIBRATED_ANG = 2.201276f;
-    static constexpr float RF_HIP_CALIBRATED_ANG = 3.134028f;
-    static constexpr float RB_HIP_CALIBRATED_ANG = 0.184351f;
+    FLOOR_TO_HIP1 = 23.78 / 180 * pi; % HIP1与地面的夹角，由地面指向HIP1
+    HIP4_TO_FLOOR = 56.85 / 180 * pi; % HIP4与地面的夹角，由HIP4指向地面
+    PHI0_TO_FLOOR = 16.53 / 180 * pi; % 等效摆杆与地面夹角，由等效摆杆指向地面
+    */
+    static constexpr float LF_HIP_CALIBRATED_ANG = 2.867051f;
+    static constexpr float LB_HIP_CALIBRATED_ANG = 4.400037f;
+    static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
+    static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
 
     static constexpr float MASS_BODY = 21.5270f;
 
@@ -76,7 +75,7 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_FORWARD =
             -0.3f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.08f;
+    static constexpr float Q_OFFSET = 0.05f;
     static constexpr float PHI_OFFSET = 0.05f;
 
 public:
@@ -400,6 +399,10 @@ private:
     float yaw_ = 0.f;
 
     float ds_ = 0.f;
+    FILTER::LPF wheelVelFilter_[2] = {
+        { 1000.f, 20.f },
+        { 1000.f, 20.f },
+    };
     float s_ = 0.f;
     uint16_t lockSCount_ = 0;
     float dsCmdBeforeStop_ = 0.f;
