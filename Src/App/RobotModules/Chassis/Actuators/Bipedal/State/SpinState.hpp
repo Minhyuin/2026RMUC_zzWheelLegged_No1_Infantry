@@ -10,8 +10,9 @@
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float MAX_WZ = 5.f;
+    static constexpr float MAX_WZ = 8.f;
     static constexpr float SPIN_SPEED_BASE = 5.f;
+    static constexpr float SPIN_SPEED_VAR = 5.f;
     static constexpr float SPIN_L = 0.17f;
 
 public:
@@ -81,10 +82,10 @@ public:
     /// @brief speed change spinning
     float getSpinVel(uint32_t _cnt)
     {
-        // float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
-        // float rslt = (SPIN_SPEED_BASE * sinf(x) * sinf(x)) + 4.f;
-        // return spinDir_ ? rslt : -rslt;
-        return spinDir_ ? SPIN_SPEED_BASE : -SPIN_SPEED_BASE;
+        float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
+        float rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
+        return spinDir_ ? rslt : -rslt;
+        // return spinDir_ ? SPIN_SPEED_BASE : -SPIN_SPEED_BASE;
     }
 
 private:

@@ -9,7 +9,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid climbPrepareFollowVelPid{ 5.f, 0.f, 0.05f, 0.001f, 0.f, 1.f, 0.1f };
+static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.5f, 0.1f };
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
@@ -43,8 +43,8 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() /*&& (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.1f*/)
-            isPrepareFinish_ = true;
+        // if (chassis_->isFloating() /*&& (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.1f*/)
+        //     isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
         float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));
