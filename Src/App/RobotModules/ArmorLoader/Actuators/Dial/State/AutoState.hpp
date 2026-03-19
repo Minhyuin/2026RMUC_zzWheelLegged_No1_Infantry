@@ -35,7 +35,7 @@ public:
     void run() final
     {
         if (loader_->msg.fire)
-            loader_->ctrl(pids_.dialVelPid, getDialVel(12.f));
+            loader_->ctrl(pids_.dialVelPid, getDialVel(18.f));
         else
             loader_->ctrl(pids_.dialVelPid, 0.f);
     }

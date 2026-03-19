@@ -4,15 +4,14 @@
 #include "StmLog.hpp"
 
 #include <cmath>
-uint16_t restoreCnt_ = 1;
+
 namespace ARMORLOADER {
-
 class BlockState : public FSMState<FSMState_e> {
-    static constexpr float BLOCK_TORQ = 0.8f;
+    static constexpr float BLOCK_TORQ = 0.5f;
 
-    static constexpr uint16_t REVERSE_CNT = 100;
+    static constexpr uint16_t REVERSE_CNT = 25;
 
-    static constexpr uint16_t RESTORE_CNT_MAX = 400;
+    static constexpr uint16_t RESTORE_CNT_MAX = 50;
 
 public:
     BlockState(Dial *_armorLoader) : FSMState<FSMState_e>(FSMState_e::BLOCK), loader_(_armorLoader) {}
@@ -20,26 +19,21 @@ public:
     void enter() final
     {
         loader_->enter();
-        blockFlag_ = true;
+        dirCnt_ = 0;
+        restoreCnt_ = 0;
         LOG::info("ArmorLoaderBlock", " enter");
     }
 
     void run() final
     {
-        if (restoreCnt_ % REVERSE_CNT == 0 && blockFlag_) {
-            dir_ = -dir_;
-        }
-
-        if (restoreCnt_ == 0)
-            restoreCnt_ = RESTORE_CNT_MAX / 2.f;
-
         if (std::fabs(loader_->dial()->data().curr) > Dial::BLOCK_CURRENT &&
             std::fabs(loader_->dial()->vel()) < Dial::BLOCK_SPEED_MIN) {
             restoreCnt_ = restoreCnt_ - 1 > 0 ? restoreCnt_ - 1 : 0;
-            blockFlag_ = true;
+            if (dirCnt_++ % REVERSE_CNT == 0) {
+                dir_ = -dir_;
+            }
         } else {
             restoreCnt_ = restoreCnt_ < RESTORE_CNT_MAX ? restoreCnt_ + 1 : RESTORE_CNT_MAX;
-            blockFlag_ = false;
         }
 
         loader_->ctrl(dir_ * BLOCK_TORQ);
@@ -65,8 +59,8 @@ public:
 private:
     Dial *loader_;
 
-    // uint16_t restoreCnt_ = 1;
+    uint16_t restoreCnt_ = 1;
     float dir_ = (Dial::DIAL_REVERSE ? 1.f : -1.f);
-    bool blockFlag_ = false;
+    uint32_t dirCnt_ = 0;
 };
 } // namespace ARMORLOADER
