@@ -9,16 +9,16 @@
 #include "Smooth.hpp"
 
 static PositionalPid idleFollowVelPid{ 5.0f, 1.f, 0.05f, 0.001f, 0.1f, 1.5f, 0.1f };
-static float idleLegLengthAngPidPD[2]{ 30.f, 0.0f };
+static float idleLegLengthAngPidPD[2]{ 40.f, 0.0f };
 static float idleLegLengthVelPidPD[2]{ 40.f, 0.0f };
 float phiOffset = 0.f;
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 1.f;
-    static constexpr float MAX_ACC_FRONT = 1.f;
-    static constexpr float IDLE_L = 0.2f;
+    static constexpr float MAX_ACC_BACK = 1.7f;
+    static constexpr float MAX_ACC_FRONT = 1.7f;
+    static constexpr float IDLE_L = WheelLegged::MIN_L;
 
 public:
     IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
@@ -46,14 +46,16 @@ public:
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        if (chassis_->isFloating()) {
-            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.00005f);
-        } else {
-            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
-        }
+        // if (chassis_->isFloating()) {
+        //     refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.00005f);
+        // } else {
+        //     refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        // }
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
-        refRoll_ += chassis_->msg.droll * 0.001f;
+        // refRoll_ += chassis_->msg.droll * 0.001f;
         chassis_->setRoll(refRoll_);
 
         float targetYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;

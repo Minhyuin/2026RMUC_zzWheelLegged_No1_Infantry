@@ -9,7 +9,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid climbPrepareFollowVelPid{ 5.f, 0.f, 0.05f, 0.001f, 0.f, 1.f, 0.1f };
+static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.6f, 0.1f };
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
