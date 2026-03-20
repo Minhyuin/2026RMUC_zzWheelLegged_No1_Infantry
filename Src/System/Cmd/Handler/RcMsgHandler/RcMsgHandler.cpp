@@ -251,11 +251,15 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
                 } else if (rcData->gamepad.sw == VT13::Sw_e::S) {
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;
-                    cMsg_.state = CHASSIS::FSMState_e::IDLE;
+                    cMsg_.state = CHASSIS::FSMState_e::TEST;
                     if (rcData->gamepad.fn2)
                         alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     else
                         alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
+                    // if (rcData->gamepad.wheel != 0)
+                    //     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
+                    // else
+                    //     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
                 if (rcData->gamepad.trigger)
@@ -322,6 +326,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
+                gMsg_.forceFire = IS_KEY_PRESS(rcData->KBM.key, VT13::E);
                 if (rcData->KBM.mouseRight) {
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;
                 } else {

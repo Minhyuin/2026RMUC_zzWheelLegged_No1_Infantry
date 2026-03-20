@@ -270,6 +270,18 @@ void Bipedal::disableJump()
     legR_.needJumping = false;
 }
 
+void Bipedal::disableHip()
+{
+    legL_.setTp(0);
+    legR_.setTp(0);
+    legL_.setLegLengthAngPidPD(0, 0);
+    legR_.setLegLengthAngPidPD(0, 0);
+    legL_.setLegLengthVelPidPD(0, 0);
+    legR_.setLegLengthVelPidPD(0, 0);
+    legL_.setFdFeedforward(0);
+    legR_.setFdFeedforward(0);
+}
+
 void Bipedal::enableRoll() { rollControlFlag = true; }
 
 void Bipedal::disableRoll() { rollControlFlag = false; }

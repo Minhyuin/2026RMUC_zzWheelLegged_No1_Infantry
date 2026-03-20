@@ -12,17 +12,12 @@ public:
     {
         chassis_->enter();
         LOG::info("ChassisTest", " enter");
-        phi_ = chassis_->phiL();
-        l0_ = chassis_->lengthL();
     }
 
     void run() final
     {
-        phi_ += chassis_->msg.dphi * 0.002f;
-        l0_ += chassis_->msg.dl * 0.001f;
-        chassis_->setLength(l0_);
-        chassis_->setHipPhi(phi_);
         chassis_->noBal(chassis_->msg.vx, -chassis_->msg.wz);
+        chassis_->disableHip();
         chassis_->ctrl();
     }
 
@@ -33,8 +28,10 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
-        else if (chassis_->msg.state == FSMState_e::IDLE)
+        else if (chassis_->msg.state == FSMState_e::TEST)
             return FSMState_e::TEST;
+        else if (chassis_->msg.state == FSMState_e::IDLE)
+            return FSMState_e::LAUNCH;
         // TODO: the other state
         else
             return FSMState_e::TEST;

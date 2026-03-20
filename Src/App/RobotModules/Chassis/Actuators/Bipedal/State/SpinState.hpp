@@ -10,8 +10,8 @@
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float MAX_WZ = 8.f;
-    static constexpr float SPIN_SPEED_BASE = 5.f;
+    static constexpr float MAX_WZ = 6.28f;
+    static constexpr float SPIN_SPEED_BASE = 2.f;
     static constexpr float SPIN_SPEED_VAR = 5.f;
     static constexpr float SPIN_L = 0.17f;
 

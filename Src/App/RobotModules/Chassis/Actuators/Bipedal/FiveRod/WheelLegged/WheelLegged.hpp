@@ -134,7 +134,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 150.f, 0.f };
+    GasSpring spring_{ 110.f, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

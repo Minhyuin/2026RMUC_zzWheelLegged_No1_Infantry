@@ -119,7 +119,8 @@ void Standard::update(void *_param)
         shooterCtrlTxPacket_.setData().armorLoaderExptState = static_cast<uint8_t>(almsg_.state);
         shooterCtrlTxPacket_.setData().fire = almsg_.fire;
     }
-    shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
+    if (!msg.forceFire)
+        shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
 
     // vision send
 #if EXTENSION_REFEREE

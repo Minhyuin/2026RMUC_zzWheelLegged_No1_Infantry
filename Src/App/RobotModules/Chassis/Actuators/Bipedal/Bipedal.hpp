@@ -56,9 +56,9 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
 
-    static constexpr float MAX_VEL = 2.f;
+    static constexpr float MAX_VEL = 1.f;
 
-    static constexpr float MASS_BODY = 21.5270f;
+    static constexpr float MASS_BODY = 23.4f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -108,6 +108,11 @@ public:
      * @brief turn off the jump flag
      */
     void disableJump();
+
+    /**
+     * @brief set hip torq zero
+     */
+    void disableHip();
 
     /**
      * @brief turn on roll control
