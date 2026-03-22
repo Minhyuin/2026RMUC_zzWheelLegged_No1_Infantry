@@ -39,12 +39,7 @@ jobs:
           fetch-depth: 50
 
       - name: Cmake
-        run: cmake -B build -G Ninja
-
-      - name: config
-        run: |
-             allyesconfig Kconfig
-             python ./tools/script/Kconfig2h.py .config
+        run: cmake -B build -G Ninja -DCONFIG_NAME=mconfig
 
       - name: Ninja build
         run: ninja -C build
