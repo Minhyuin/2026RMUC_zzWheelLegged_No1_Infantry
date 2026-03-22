@@ -3,7 +3,7 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
-static float launchLegLengthAngPidPD[2]{ 40.f, 0.1f };
+static float launchLegLengthAngPidPD[2]{ 30.f, 0.1f };
 static float launchLegLengthVelPidPD[2]{ 30.f, 0.0f };
 
 namespace CHASSIS {

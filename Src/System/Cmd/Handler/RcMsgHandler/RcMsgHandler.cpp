@@ -251,7 +251,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
                 } else if (rcData->gamepad.sw == VT13::Sw_e::S) {
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;
-                    cMsg_.state = CHASSIS::FSMState_e::TEST;
+                    cMsg_.state = CHASSIS::FSMState_e::IDLE;
                     if (rcData->gamepad.fn2)
                         alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     else

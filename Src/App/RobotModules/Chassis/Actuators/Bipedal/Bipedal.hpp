@@ -56,7 +56,7 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
 
-    static constexpr float MAX_VEL = 1.f;
+    static constexpr float MAX_VEL = 1.5f;
 
     static constexpr float MASS_BODY = 23.4f;
 
