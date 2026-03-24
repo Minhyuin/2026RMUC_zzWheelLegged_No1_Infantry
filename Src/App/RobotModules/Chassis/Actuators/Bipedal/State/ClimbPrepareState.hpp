@@ -43,8 +43,8 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        // if (chassis_->isFloating() /*&& (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.1f*/)
-        //     isPrepareFinish_ = true;
+        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.2f)
+            isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
         float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));

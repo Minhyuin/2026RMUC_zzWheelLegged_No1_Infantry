@@ -3,6 +3,9 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+static float standLegLengthAngPidPD[2]{ 30.f, 0.0f };
+static float standLegLengthVelPidPD[2]{ 90.f, 0.0f };
+
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
@@ -11,17 +14,17 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float STAND_PHI = 0.0f;
     static constexpr float STAND_L = WheelLegged::MIN_L;
 
-    static constexpr float MAX_ACC_BACK = 0.7f;
-    static constexpr float MAX_ACC_FRONT = 1.2f;
+    static constexpr float MAX_ACC_BACK = 1.f;
+    static constexpr float MAX_ACC_FRONT = 1.f;
 
     static constexpr float BALANCE_DETECT_THESHOLD = 0.3f;
     static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 100;
 
     static constexpr float TARGET_PITCH_FORWARD = 0.f;
-    static constexpr float TARGET_PITCH_BACKWARD = 0.2f;
+    static constexpr float TARGET_PITCH_BACKWARD = 0.f;
 
-    static constexpr float S_FEEDFORWARD_FORWARD = -0.35f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = 0.3f;
+    static constexpr float S_FEEDFORWARD_FORWARD = 0.3f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.25f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 500; // ms
 
 public:
@@ -35,8 +38,10 @@ public:
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
         chassis_->enableRoll();
+        chassis_->setLegLengthAngPidPD(standLegLengthAngPidPD[0], standLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(standLegLengthVelPidPD[0], standLegLengthVelPidPD[1]);
 
-        if ((chassis_->phiGlobalL() + chassis_->phiGlobalR()) / 2.f >= JUDGE_PHI) {
+        if ((chassis_->phiL() + chassis_->phiR()) / 2.f >= JUDGE_PHI) {
             // 腿在后面
             sFeedforward_ = S_FEEDFORWARD_FORWARD;
             targetBalancePitch_ = TARGET_PITCH_FORWARD;
@@ -45,7 +50,7 @@ public:
             // 腿在前面
             sFeedforward_ = S_FEEDFORWARD_BACKWARD;
             targetBalancePitch_ = TARGET_PITCH_BACKWARD;
-            model_ = Model_e::ST;
+            model_ = Model_e::WBR;
         }
 
         LOG::info("ChassisStand", "enter");

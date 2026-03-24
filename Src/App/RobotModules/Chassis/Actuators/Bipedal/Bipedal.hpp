@@ -382,11 +382,11 @@ private:
 
     Axis1Odom odom_;
 
-    PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
-    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
+    PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
+    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 5.f, 0.f };
-    PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
+    PositionalPid hipAngPidL_{ 40.f, 0.f, 0.1f, 0.001f, 0.f, 5.f, 0.f };
+    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
@@ -395,7 +395,7 @@ private:
     float antiSplitTp_ = 0;
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
-    PositionalPid dsPid_[2]{ { 0.6f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
+    PositionalPid dsPid_[2]{ { 1.f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     float setRoll_ = 0.f;
     float lengthOffset_ = 0.f;
