@@ -9,7 +9,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.5f, 0.1f };
+static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.1f, 0.1f };
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
@@ -39,7 +39,7 @@ public:
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0005f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 

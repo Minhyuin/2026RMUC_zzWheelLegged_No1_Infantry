@@ -13,7 +13,8 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_PHI_THRESHOLD = 0.1f;
     static constexpr float LAUNCH_L_THRESHOLD = 0.05f;
 
-    static constexpr float LAUNCH_PHI = -0.1f;
+    static constexpr float LAUNCH_PHI_FORNT = 0.25f;
+    static constexpr float LAUNCH_PHI_BACK = -0.1f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
@@ -33,6 +34,7 @@ public:
         // 腿在前面则直接旋转+缩腿，在后面则先缩腿再旋转
         if (refPhiL_ > 0) {
             legPos_[0] = LegPos_e::BACK;
+            launchPhi_ = LAUNCH_PHI_BACK;
         } else if (refPhiL_ < -1.2f) {
             legPos_[0] = LegPos_e::FRONT;
         } else {
@@ -44,6 +46,11 @@ public:
             legPos_[1] = LegPos_e::FRONT;
         } else {
             legPos_[1] = LegPos_e::BOTTOM;
+        }
+        if ((chassis_->phiL() + chassis_->phiR()) / 2.f > 0.f) {
+            launchPhi_ = LAUNCH_PHI_BACK;
+        } else {
+            launchPhi_ = LAUNCH_PHI_FORNT;
         }
 
         LOG::info("ChassisLaunch", "enter");
@@ -73,7 +80,7 @@ public:
 
         // 定方向旋到指定角度再复位
         if (isLengthFinish_[0]) {
-            if (chassis_->detectPhiLRange(LAUNCH_PHI + LAUNCH_PHI_THRESHOLD, LAUNCH_PHI - LAUNCH_PHI_THRESHOLD) ||
+            if (chassis_->detectPhiLRange(launchPhi_ + LAUNCH_PHI_THRESHOLD, launchPhi_ - LAUNCH_PHI_THRESHOLD) ||
                 isRotFinish_[0]) {
                 isRotFinish_[0] = true;
                 refPhiL_ = chassis_->phiL();
@@ -87,7 +94,7 @@ public:
         chassis_->setHipPhiL(refPhiL_);
 
         if (isLengthFinish_[1]) {
-            if (chassis_->detectPhiRRange(LAUNCH_PHI + LAUNCH_PHI_THRESHOLD, LAUNCH_PHI - LAUNCH_PHI_THRESHOLD) ||
+            if (chassis_->detectPhiRRange(launchPhi_ + LAUNCH_PHI_THRESHOLD, launchPhi_ - LAUNCH_PHI_THRESHOLD) ||
                 isRotFinish_[1]) {
                 isRotFinish_[1] = true;
                 refPhiR_ = chassis_->phiR();
@@ -125,6 +132,7 @@ private:
     Bipedal *chassis_;
     float refPhiL_ = 0;
     float refPhiR_ = 0;
+    float launchPhi_ = 0;
     bool isRotFinish_[2] = { false, false };
     bool isLengthFinish_[2] = { false, false };
     enum class LegPos_e : uint8_t { FRONT, BOTTOM, BACK } legPos_[2]; // true则腿在前方

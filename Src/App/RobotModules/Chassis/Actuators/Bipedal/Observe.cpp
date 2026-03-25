@@ -124,8 +124,8 @@ void Bipedal::updateBody()
     // update odom
     // w = w_eb + dq + w_ecd
     float wheelOmega[2]{};
-    wheelOmega[0] = motors_.WheelL->vel() + insData_.body.gy + legL_.state().dphi0;
-    wheelOmega[1] = motors_.WheelR->vel() - insData_.body.gy + legR_.state().dphi0;
+    wheelOmega[0] = wheelVelFltr_[0].process(motors_.WheelL->vel()) + insData_.body.gy + legL_.state().dphi0;
+    wheelOmega[1] = wheelVelFltr_[1].process(motors_.WheelR->vel()) - insData_.body.gy + legR_.state().dphi0;
 
     // x_dot = w * r + L * phi_dot * cos(phi) + L_dot * sin(phi)
     float wheelVel[2]{};
@@ -133,8 +133,6 @@ void Bipedal::updateBody()
                   legL_.state().vd * arm_sin_f32(legL_.state().phi0);
     wheelVel[1] = wheelOmega[1] * W_RADIUS + legR_.state().L0 * legR_.state().dphi0 * arm_cos_f32(legR_.state().phi0) +
                   legR_.state().vd * arm_sin_f32(legR_.state().phi0);
-    wheelVel[0] = wheelVelFilter_[0].process(wheelVel[0]);
-    wheelVel[1] = wheelVelFilter_[1].process(wheelVel[1]);
     float vxFromWheel = (wheelVel[0] + wheelVel[1]) / 2.f;
 
     if (!isnan(vxFromWheel))
