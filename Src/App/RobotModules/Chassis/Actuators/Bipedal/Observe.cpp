@@ -125,7 +125,7 @@ void Bipedal::updateBody()
     // w = w_eb + dq + w_ecd
     float wheelOmega[2]{};
     wheelOmega[0] = wheelVelFltr_[0].process(motors_.WheelL->vel()) + insData_.body.gy + legL_.state().dphi0;
-    wheelOmega[1] = wheelVelFltr_[1].process(motors_.WheelR->vel()) - insData_.body.gy + legR_.state().dphi0;
+    wheelOmega[1] = wheelVelFltr_[1].process(motors_.WheelR->vel()) + insData_.body.gy + legR_.state().dphi0;
 
     // x_dot = w * r + L * phi_dot * cos(phi) + L_dot * sin(phi)
     float wheelVel[2]{};
@@ -138,8 +138,8 @@ void Bipedal::updateBody()
     if (!isnan(vxFromWheel))
         odom_.update(dt_, vxFromWheel, insData_.earth.ax, yaw_);
 
-    ds_ = odom_.normVel();
-    // ds_ = vxFromWheel;
+    // ds_ = odom_.normVel();
+    ds_ = vxFromWheel;
     as_ = odom_.normAcc();
 
     az_ = insData_.earth.az + WheelLegged::GRAVITY;
