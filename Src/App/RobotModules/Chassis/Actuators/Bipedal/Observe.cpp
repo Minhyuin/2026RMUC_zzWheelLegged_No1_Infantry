@@ -49,7 +49,8 @@ bool Bipedal::detectFloating()
 bool Bipedal::detectNeedStop(float _expVel)
 {
     static constexpr float STOP_CMD_THRESHOLD = 0.3f;
-    if ((_expVel > -STOP_CMD_THRESHOLD && _expVel < STOP_CMD_THRESHOLD)) {
+    static constexpr float STOP_VEL_THRESHOLD = 0.4f;
+    if (std::fabs(_expVel) < STOP_CMD_THRESHOLD && std::fabs(ds_) < STOP_VEL_THRESHOLD) {
         return true;
     } else {
         dsCmdBeforeStop_ = _expVel;
@@ -62,24 +63,23 @@ void Bipedal::detectStop()
     if (lockSCount_ > 0)
         lockSCount_--;
     static bool slowSpeedFlag = false;
-    if (detectNeedStop(this->msg.vx)) {
-        s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
-        if (fabs(insData_.earth.ax) < 0.0025f && !slowSpeedFlag) {
-            // LOG::info("sForward", "%f", s_);
+    if (lockSCount_ == 0) {
+        if (detectNeedStop(this->msg.vx)) {
+            s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
+            if (ds_ < 0.1f && !slowSpeedFlag) {
+                slowSpeedFlag = true;
+                if (dsCmdBeforeStop_ > 0.f)
+                    s_ = S_FEEDFORWARD_FORWARD;
+                else
+                    s_ = S_FEEDFORWARD_BACKWARD;
+            }
+        } else {
+            s_ = 0;
+            slowSpeedFlag = false;
         }
-        if (ds_ < 0.1f && !slowSpeedFlag) {
-            slowSpeedFlag = true;
-            if (dsCmdBeforeStop_ > 0.f)
-                s_ = S_FEEDFORWARD_FORWARD;
-            else
-                s_ = S_FEEDFORWARD_BACKWARD;
-        }
-    } else {
-        s_ = 0;
-        slowSpeedFlag = false;
+        if (isFloating())
+            s_ = 0;
     }
-    if (isFloating() && lockSCount_ == 0)
-        s_ = 0;
 }
 
 bool Bipedal::detectPitchRange(float _endAng, float _startAng) const { return detectAng(pitch(), _startAng, _endAng); }

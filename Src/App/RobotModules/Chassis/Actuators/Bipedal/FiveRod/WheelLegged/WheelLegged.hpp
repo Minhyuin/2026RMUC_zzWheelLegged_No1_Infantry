@@ -128,8 +128,6 @@ private:
     FILTER::LPF fnLPF_{ 1000.f, 10.f };
     float fnThreshold_ = FLOATING_THRESHOLD;
     float rawFn_ = 0.f;
-    float fp_ = 0.f;
-    float nWheel_ = 0.f;
 
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;

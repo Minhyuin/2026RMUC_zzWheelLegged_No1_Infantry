@@ -47,16 +47,16 @@ void WheelLegged::stateUpdate(float _dt)
 }
 
 float OFFSET_THRESHOLD = 0.f;
-float OFFSET_THRESHOLD_FOR_LENGTH = 60.f;
+float OFFSET_THRESHOLD_FOR_LENGTH = 40.f;
 bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
     float sinPhi0 = arm_sin_f32(legState_.phi0 + _q);
-    fp_ = ((legState_.fd + fdFromSpring_) * cosPhi0) + (legState_.tp * sinPhi0 / legState_.L0);
+    float fp = ((legState_.fd + fdFromSpring_) * cosPhi0) + (legState_.tp * sinPhi0 / legState_.L0);
     float azWheel = _az - (legState_.ad * cosPhi0) + (2.f * legState_.vd * legState_.dphi0 * sinPhi0) +
                     (legState_.L0 * legState_.ap * sinPhi0) + (legState_.L0 * powf(legState_.dphi0, 2) * cosPhi0);
-    nWheel_ = ((azWheel + GRAVITY) * MASS_WHEEL);
-    rawFn_ = nWheel_ + fp_;
+    float nWheel = ((azWheel + GRAVITY) * MASS_WHEEL);
+    rawFn_ = nWheel + fp;
     if (!isnan(rawFn_)) {
         fn_ = fnLPF_.process(rawFn_);
     }

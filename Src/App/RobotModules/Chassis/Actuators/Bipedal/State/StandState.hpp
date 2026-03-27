@@ -3,13 +3,10 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
-static float standLegLengthAngPidPD[2]{ 30.f, 0.0f };
-static float standLegLengthVelPidPD[2]{ 90.f, 0.0f };
-
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
-    static constexpr float JUDGE_PHI = 0.1f; // 用于判断站立策略
+    static constexpr float JUDGE_PHI = -0.f; // 用于判断站立策略
 
     static constexpr float STAND_PHI = 0.0f;
     static constexpr float STAND_L = WheelLegged::MIN_L;
@@ -20,12 +17,12 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float BALANCE_DETECT_THESHOLD = 0.3f;
     static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 100;
 
-    static constexpr float TARGET_PITCH_FORWARD = 0.f;
-    static constexpr float TARGET_PITCH_BACKWARD = 0.f;
+    static constexpr float TARGET_PITCH_FORWARD = 0.1f;
+    static constexpr float TARGET_PITCH_BACKWARD = 0.1f;
 
-    static constexpr float S_FEEDFORWARD_FORWARD = 0.3f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -0.25f;
-    static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 500; // ms
+    static constexpr float S_FEEDFORWARD_FORWARD = -0.3f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.6f;
+    static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 1000; // ms
 
 public:
     StandState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e ::STAND), chassis_(_chassis) {}
@@ -38,18 +35,16 @@ public:
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
         chassis_->enableRoll();
-        chassis_->setLegLengthAngPidPD(standLegLengthAngPidPD[0], standLegLengthAngPidPD[1]);
-        chassis_->setLegLengthVelPidPD(standLegLengthVelPidPD[0], standLegLengthVelPidPD[1]);
 
-        if ((chassis_->phiL() + chassis_->phiR()) / 2.f >= JUDGE_PHI) {
+        if ((chassis_->phiL() + chassis_->phiR()) / 2.f <= JUDGE_PHI) {
             // 腿在后面
-            sFeedforward_ = S_FEEDFORWARD_FORWARD;
-            targetBalancePitch_ = TARGET_PITCH_FORWARD;
+            sFeedforward_ = S_FEEDFORWARD_BACKWARD;
+            targetBalancePitch_ = TARGET_PITCH_BACKWARD;
             model_ = Model_e::WBR;
         } else {
             // 腿在前面
-            sFeedforward_ = S_FEEDFORWARD_BACKWARD;
-            targetBalancePitch_ = TARGET_PITCH_BACKWARD;
+            sFeedforward_ = S_FEEDFORWARD_FORWARD;
+            targetBalancePitch_ = TARGET_PITCH_FORWARD;
             model_ = Model_e::WBR;
         }
 

@@ -56,7 +56,8 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
 
-    static constexpr float MAX_VEL = 1.5f;
+    static constexpr float MAX_VEL_FRONT = 2.f;
+    static constexpr float MAX_VEL_BACK = 1.f;
 
     static constexpr float MASS_BODY = 23.4f;
 
@@ -68,16 +69,16 @@ class Bipedal : public Chassis {
 
     static constexpr float W_DISTANCE = 0.4611f / 2.f; // half of the left-right wheelbase
 
-    static constexpr float MAX_S = 2.5f; // maximum displacement allowed for credit accumulation
+    static constexpr float MAX_S = 1.f; // maximum displacement allowed for credit accumulation
 
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            0.5f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.3f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.3f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.4f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.05f;
+    static constexpr float Q_OFFSET = 0.15f;
     static constexpr float PHI_OFFSET = 0.05f;
 
 public:
@@ -133,12 +134,11 @@ public:
     bool isGimbalReset() const;
 
     /**
-     * @brief force approaching overwrite current state "s", used to accelerate model convergence
+     * @brief force overwrite current state "s", used to accelerate model convergence
      * 
      * @param _s overwrite value for "s", unit: m
-     * @param _acc approaching acceleration, unit: {_s unit}/ms
      */
-    void feedS(float _s, float _acc = 10.f);
+    void feedS(float _s);
     /**
      * @brief force keep the state "s", not affected by the floating detection 
      * 

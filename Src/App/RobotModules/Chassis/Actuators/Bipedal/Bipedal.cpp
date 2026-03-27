@@ -283,7 +283,7 @@ void Bipedal::enableRoll() { rollControlFlag = true; }
 
 void Bipedal::disableRoll() { rollControlFlag = false; }
 
-void Bipedal::feedS(float _s, float _acc) { SMOOTH::slopeFollowing(&_s, &s_, _acc); }
+void Bipedal::feedS(float _s) { s_ = _s; }
 
 void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
 
