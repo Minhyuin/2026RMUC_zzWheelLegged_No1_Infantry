@@ -17,7 +17,7 @@ class ClimbPrepareState : public FSMState<FSMState_e> {
     static constexpr float MAX_ACC_BACK = 0.5f;
     static constexpr float MAX_ACC_FRONT = 0.7f;
     static constexpr float MAX_SPEED = 1.5f;
-    static constexpr float CLIMB_PREPARE_LENGTH = 0.35f;
+    static constexpr float CLIMB_PREPARE_LENGTH = WheelLegged::MAX_L;
 
 public:
     ClimbPrepareState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis) {}
