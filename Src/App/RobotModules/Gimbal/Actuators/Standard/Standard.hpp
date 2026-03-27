@@ -48,7 +48,7 @@ class Standard : public Gimbal {
 
 public:
     static constexpr float PITCH_LAUNCH_ANG = 4.71229315f;
-    static constexpr float YAW_LAUNCH_ANG = 3.72780108f;
+    static constexpr float YAW_LAUNCH_ANG = 2.26506090f;
 
     static constexpr float PITCH_MOTOR_FREQ = 1000.f;
     static constexpr float YAW_MOTOR_FREQ = 1000.f;

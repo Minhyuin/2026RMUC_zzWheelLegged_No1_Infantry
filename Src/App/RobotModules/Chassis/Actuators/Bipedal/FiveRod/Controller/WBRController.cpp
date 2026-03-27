@@ -22,11 +22,11 @@ Matrix<4, 1> WBRController::solve(const Matrix<10, 1> &_err, float _lL, float _l
     // NOLINTBEGIN(readability-math-missing-parentheses, readability-identifier-naming)
     /*
             obj.Q = diag([ ...
-                3000, 7000, ...       % 轮位置
-                18000, 4000, ...       % 底盘偏航角
-                800, 1, ...       % 左腿倾角
-                800, 1, ...       % 右腿倾角
-                60000, 500]);           % 底盘俯仰角
+                6000, 7000, ...       % 轮位置
+                20000, 5000, ...       % 底盘偏航角
+                800, 80, ...       % 左腿倾角
+                800, 80, ...       % 右腿倾角
+                35000, 60]);           % 底盘俯仰角
 
             obj.R = diag([ ...
                 350, ...    % 左轮能量惩罚

@@ -17,8 +17,8 @@ class WheelLegged {
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
 public:
-    static constexpr float MAX_L = 0.369f; // 0.36998937
-    static constexpr float MIN_L = 0.163f; // 0.16051326
+    static constexpr float MAX_L = 0.330f; // 0.337014049
+    static constexpr float MIN_L = 0.165f; // 0.16051326
 
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
