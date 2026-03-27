@@ -67,7 +67,7 @@ class Bipedal : public Chassis {
     static constexpr float W_RADIUS = W_DIAMETER / 2.f;
     static constexpr float W_CIRCUMFERENCE = (PI * W_DIAMETER);
 
-    static constexpr float W_DISTANCE = 0.4611f / 2.f; // half of the left-right wheelbase
+    static constexpr float W_DISTANCE_HALF = 0.4611f / 2.f; // half of the left-right wheelbase
 
     static constexpr float MAX_S = 1.f; // maximum displacement allowed for credit accumulation
 
