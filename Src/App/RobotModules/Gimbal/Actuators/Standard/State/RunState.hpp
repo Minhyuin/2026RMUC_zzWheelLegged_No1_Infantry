@@ -15,8 +15,11 @@ static volatile float pitchMotorAng = 0.f;
 
 static PositionalPid runPitchAngPID(50.f, 50.f, 0.12f, 0.001f, 2.f, 15.f, 0.f);
 static PositionalPid runPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
-static PositionalPid runYawAngPID(85.f, 150.f, 3.f, 0.001f, 0.3f, 10.f, 0.f);
-static PositionalPid runYawVelPID(0.6f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid runYawAngPID(40.f, 150.f, 1.f, 0.001f, 0.3f, 10.f, 0.f);
+static PositionalPid runYawVelPID(0.3f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+
+static PositionalPid runFixYawAngPID(50.f, 100.f, 0.3f, 0.001f, 1.f, 3.5f, 0.f);
+static PositionalPid runFixYawVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
 
 namespace GIMBAL {
 
@@ -83,7 +86,8 @@ public:
         needLaunchCounter_ = needLaunchCounter_ > MAX_NEED_LAUNCH_CNT ? MAX_NEED_LAUNCH_CNT : needLaunchCounter_ + 1;
 
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAngWithOffset_);
-        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAngWithOffset_);
+        //gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAngWithOffset_);
+        gimbal_->ctrlMotorYaw(&runFixYawAngPID, &runFixYawVelPID,0);
     }
 
     void exit() final
@@ -92,6 +96,8 @@ public:
         pids_.pitchVelPid->reset();
         pids_.yawAngPid->reset();
         pids_.yawVelPid->reset();
+        runFixYawAngPID.reset();
+        runFixYawVelPID.reset();
         LOG::info("GimbalRun", "exit");
     }
 

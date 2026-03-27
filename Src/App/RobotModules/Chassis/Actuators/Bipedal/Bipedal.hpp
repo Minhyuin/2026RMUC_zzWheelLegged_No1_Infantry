@@ -35,13 +35,13 @@ public:
 
 class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     friend class Bipedal;
-    RefereeDataTxPacket() : TxPacket(200.f) {}
+    RefereeDataTxPacket() : TxPacket(50.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
-    GimbalLaunchStrategyTxPacket() : TxPacket(200.f) {}
+    GimbalLaunchStrategyTxPacket() : TxPacket(50.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -56,7 +56,9 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.700869f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 2.992524f;
 
-    static constexpr float MASS_BODY = 22.6110f;
+    static constexpr float MAX_VEL = 1.5f;
+
+    static constexpr float MASS_BODY = 23.4f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -106,6 +108,11 @@ public:
      * @brief turn off the jump flag
      */
     void disableJump();
+
+    /**
+     * @brief set hip torq zero
+     */
+    void disableHip();
 
     /**
      * @brief turn on roll control
@@ -375,11 +382,11 @@ private:
 
     Axis1Odom odom_;
 
-    PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 15.f, 0.f };
-    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.2f, 0.f };
+    PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
+    PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 60.f, 0.f, 1.5f, 0.001f, 0.f, 5.f, 0.f };
-    PositionalPid hipVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
+    PositionalPid hipAngPidL_{ 40.f, 0.f, 0.1f, 0.001f, 0.f, 5.f, 0.f };
+    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
@@ -388,7 +395,7 @@ private:
     float antiSplitTp_ = 0;
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
-    PositionalPid dsPid_[2]{ { 0.6f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
+    PositionalPid dsPid_[2]{ { 1.f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     float setRoll_ = 0.f;
     float lengthOffset_ = 0.f;
@@ -399,9 +406,9 @@ private:
     float yaw_ = 0.f;
 
     float ds_ = 0.f;
-    FILTER::LPF wheelVelFilter_[2] = {
-        { 1000.f, 20.f },
-        { 1000.f, 20.f },
+    FILTER::LPFIIR3 wheelVelFltr_[2] = {
+        { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
+        { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
     };
     float s_ = 0.f;
     uint16_t lockSCount_ = 0;

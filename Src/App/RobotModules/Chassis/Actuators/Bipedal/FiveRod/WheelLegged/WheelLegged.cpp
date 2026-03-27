@@ -111,4 +111,8 @@ void WheelLegged::setL(float _l) { setL_ = fmin(fmax(_l, minL(legState_.phi0)), 
 
 void WheelLegged::setFdFeedforward(float _fd) { fdFeedforward_ = _fd; }
 void WheelLegged::setTp(float _tp) { tp_ = _tp; }
-void WheelLegged::setTw(float _tw) { tw_ = _tw; }
+/**
+ * @brief 设置tw_成员变量的值
+ * @param _tw 要设置的tw_的值
+ */
+void WheelLegged::setTw(float _tw) { tw_ = _tw; } // 将传入的参数_tw赋值给成员变量tw_

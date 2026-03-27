@@ -101,7 +101,7 @@ public:
 
         if (launchFinish_[0] && launchFinish_[1])
             gimbal_->loadResetState(true);
-
+        launchFinish_[0]=true;
         gimbal_->ctrlMotorPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdMotorPitchAng_);
         if (launchFinish_[0])
             gimbal_->ctrlMotorYaw(pids_.yawAngPid, pids_.yawVelPid, cmdMotorYawAng_);

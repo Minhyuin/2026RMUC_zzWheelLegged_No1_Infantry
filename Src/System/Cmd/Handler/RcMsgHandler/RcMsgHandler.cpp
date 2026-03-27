@@ -205,8 +205,11 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 
                 cMsg_.vx = static_cast<float>(rcData->gamepad.ch[1]) / CH_RANGE * INPUT_VX_MAX;
                 cMsg_.vy = -static_cast<float>(rcData->gamepad.ch[0]) / CH_RANGE * INPUT_VX_MAX;
+                cMsg_.wz = -static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_WZ_MAX;
+
                 gMsg_.wPitch = -static_cast<float>(rcData->gamepad.ch[2]) / CH_RANGE * INPUT_WPITCH_MAX;
                 gMsg_.wYaw = -static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_WYAW_MAX;
+
                 if (rcData->gamepad.fn2) {
                     cMsg_.dl = static_cast<float>(rcData->gamepad.ch[2]) / CH_RANGE * INPUT_DL_MAX;
                     cMsg_.droll = static_cast<float>(rcData->gamepad.ch[3]) / CH_RANGE * INPUT_DROLL_MAX;

@@ -11,7 +11,7 @@ class JumpState : public FSMState<FSMState_e> {
     static constexpr float JUMP_L = WheelLegged::MAX_L;
     static constexpr float LAND_L = WheelLegged::MAX_L + ((WheelLegged::MAX_L - WheelLegged::MIN_L) / 2.f);
 
-    static constexpr float JUMP_FD = 150.f;
+    static constexpr float JUMP_FD = 180.f;
 
     enum class JumpFSMState_e : uint8_t { PREPARE, JUMPING, SOAR, LAND };
 

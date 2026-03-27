@@ -93,7 +93,7 @@ void Standard::stop()
 
 void Standard::enter()
 {
-    motors_.pitch->cmd(MotorCmdType_e::ON);
+    motors_.pitch->cmd(MotorCmdType_e::OFF);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
 
@@ -114,6 +114,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;
         chassisCtrlTxPacket_.setData().dl = cmsg_.dl;
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
+        chassisCtrlTxPacket_.setData().wz = cmsg_.wz;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();

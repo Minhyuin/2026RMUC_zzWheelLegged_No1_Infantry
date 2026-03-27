@@ -6,7 +6,7 @@
 namespace CHASSIS {
 class ClimbState : public FSMState<FSMState_e> {
     static constexpr float CLIMB_PHI = 1.2f;
-    static constexpr float CLIMB_DPHI = 4.f * 0.001f;
+    static constexpr float CLIMB_DPHI = 3.f * 0.001f;
     static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.1f;
 
 public:

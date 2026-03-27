@@ -167,9 +167,6 @@ void Bipedal::stop()
     dsPid_[0].reset();
     dsPid_[1].reset();
 
-    wheelVelFilter_[0].reset();
-    wheelVelFilter_[1].reset();
-
     s_ = 0;
     setRoll_ = 0;
     lengthOffset_ = 0;
@@ -270,6 +267,18 @@ void Bipedal::disableJump()
     legR_.needJumping = false;
 }
 
+void Bipedal::disableHip()
+{
+    legL_.setTp(0);
+    legR_.setTp(0);
+    legL_.setLegLengthAngPidPD(0, 0);
+    legR_.setLegLengthAngPidPD(0, 0);
+    legL_.setLegLengthVelPidPD(0, 0);
+    legR_.setLegLengthVelPidPD(0, 0);
+    legL_.setFdFeedforward(0);
+    legR_.setFdFeedforward(0);
+}
+
 void Bipedal::enableRoll() { rollControlFlag = true; }
 
 void Bipedal::disableRoll() { rollControlFlag = false; }
@@ -329,16 +338,18 @@ void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
 void Bipedal::setFdFeedforward()
 {
     float fdL = 0, fdR = 0;
-    if (legL_.floatFlag) {
-        fdL = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
-    } else {
-        fdL = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalL());
-    }
-    if (legR_.floatFlag) {
-        fdR = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
-    } else {
-        fdR = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalR());
-    }
+    // if (legL_.floatFlag) {
+    //     fdL = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
+    // } else {
+    //     fdL = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalL());
+    // }
+    // if (legR_.floatFlag) {
+    //     fdR = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
+    // } else {
+    //     fdR = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalR());
+    // }
+    fdL = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalL());
+    fdR = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalR());
     setFdFeedforward(fdL, fdR);
 }
 
