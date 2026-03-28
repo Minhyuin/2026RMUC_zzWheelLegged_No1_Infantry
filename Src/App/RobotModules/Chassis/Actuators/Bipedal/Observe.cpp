@@ -49,8 +49,8 @@ bool Bipedal::detectFloating()
 bool Bipedal::detectNeedStop(float _expVel)
 {
     static constexpr float STOP_CMD_THRESHOLD = 0.3f;
-    static constexpr float STOP_VEL_THRESHOLD = 0.4f;
-    if (std::fabs(_expVel) < STOP_CMD_THRESHOLD && std::fabs(ds_) < STOP_VEL_THRESHOLD) {
+    // static constexpr float STOP_VEL_THRESHOLD = 0.4f;
+    if (std::fabs(_expVel) < STOP_CMD_THRESHOLD /*&& std::fabs(ds_) < STOP_VEL_THRESHOLD*/) {
         return true;
     } else {
         dsCmdBeforeStop_ = _expVel;

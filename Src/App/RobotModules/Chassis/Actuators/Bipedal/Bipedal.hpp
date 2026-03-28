@@ -74,11 +74,11 @@ class Bipedal : public Chassis {
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            -0.3f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.2f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
             -0.4f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.15f;
+    static constexpr float Q_OFFSET = 0.11f;
     static constexpr float PHI_OFFSET = 0.05f;
 
 public:
@@ -353,6 +353,7 @@ public:
     float lengthR() const;
     float length() const;
     float vel() const; // m/s
+    float wheelVel() const;
 
     void needGimbalLaunch(bool _need);
     void allowGimbalExitLaunch(bool _allow);
@@ -385,7 +386,7 @@ private:
     PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 40.f, 0.f, 0.1f, 0.001f, 0.f, 5.f, 0.f };
+    PositionalPid hipAngPidL_{ 40.f, 0.f, 0.1f, 0.001f, 0.f, 5.5f, 0.f };
     PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };

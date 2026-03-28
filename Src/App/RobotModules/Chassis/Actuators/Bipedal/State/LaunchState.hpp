@@ -59,6 +59,7 @@ public:
     void run() final
     {
         chassis_->setLength(LAUNCH_L);
+        chassis_->setFdFeedforward(0.f);
 
         // 缩腿
         if (legPos_[0] == LegPos_e::FRONT)
@@ -107,7 +108,7 @@ public:
         }
         chassis_->setHipPhiR(refPhiR_);
 
-        chassis_->noBal(chassis_->msg.vx, 0);
+        chassis_->noBal(chassis_->msg.vx == 0.f ? chassis_->wheelVel() : chassis_->msg.vx, 0);
 
         chassis_->ctrl();
     }

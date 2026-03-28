@@ -13,10 +13,10 @@ static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.1
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
-    static constexpr float OFFSET_Q = 0.f;
+    static constexpr float OFFSET_PHI = 0.2f;
     static constexpr float MAX_ACC_BACK = 0.5f;
     static constexpr float MAX_ACC_FRONT = 0.7f;
-    static constexpr float MAX_SPEED = 1.5f;
+    static constexpr float MAX_SPEED = 1.f;
     static constexpr float CLIMB_PREPARE_LENGTH = WheelLegged::MAX_L;
 
 public:
@@ -43,7 +43,7 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.2f)
+        if (chassis_->isFloating() || (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.33f)
             isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
@@ -57,7 +57,7 @@ public:
         chassis_->msg.vx = std::clamp(chassis_->msg.vx, -MAX_SPEED, MAX_SPEED);
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.q = OFFSET_Q;
+        ref.phir = ref.phil = OFFSET_PHI;
         chassis_->bal(ref);
 
         chassis_->ctrl();

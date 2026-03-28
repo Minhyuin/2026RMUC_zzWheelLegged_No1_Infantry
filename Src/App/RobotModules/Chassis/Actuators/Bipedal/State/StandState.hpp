@@ -35,6 +35,7 @@ public:
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
         chassis_->enableRoll();
+        chassis_->setRoll(0.f);
 
         if ((chassis_->phiL() + chassis_->phiR()) / 2.f <= JUDGE_PHI) {
             // 腿在后面
@@ -55,7 +56,6 @@ public:
     {
         chassis_->setLength(startLength_);
         chassis_->setFdFeedforward();
-        chassis_->setRoll(chassis_->roll());
 
         // ST
         if (model_ == Model_e::ST) {
