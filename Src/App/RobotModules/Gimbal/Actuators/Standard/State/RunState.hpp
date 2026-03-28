@@ -13,8 +13,8 @@ static volatile float yawGimbalExpOffset = 0.f;
 static volatile float yawMotorAng = 0.f;
 static volatile float pitchMotorAng = 0.f;
 
-static PositionalPid runPitchAngPID(50.f, 50.f, 0.12f, 0.001f, 2.f, 15.f, 0.f);
-static PositionalPid runPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid runPitchAngPID(20.f, 200.f, 0.1f, 0.001f, 2.f, 7.f, 0.f);
+static PositionalPid runPitchVelPID(0.5f, 100.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid runYawAngPID(40.f, 150.f, 1.f, 0.001f, 0.3f, 10.f, 0.f);
 static PositionalPid runYawVelPID(0.3f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
@@ -32,8 +32,8 @@ class RunState : public FSMState<FSMState_e> {
         PositionalPid *yawVelPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.44f;
-    static constexpr float IMU_PITCH_END_ANG = 0.1f;
+    static constexpr float IMU_PITCH_START_ANG = -0.3f;
+    static constexpr float IMU_PITCH_END_ANG = 0.25f;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
@@ -86,8 +86,8 @@ public:
         needLaunchCounter_ = needLaunchCounter_ > MAX_NEED_LAUNCH_CNT ? MAX_NEED_LAUNCH_CNT : needLaunchCounter_ + 1;
 
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAngWithOffset_);
-        //gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAngWithOffset_);
-        gimbal_->ctrlMotorYaw(&runFixYawAngPID, &runFixYawVelPID,0);
+        gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAngWithOffset_);
+        // gimbal_->ctrlMotorYaw(&runFixYawAngPID, &runFixYawVelPID,0);
     }
 
     void exit() final

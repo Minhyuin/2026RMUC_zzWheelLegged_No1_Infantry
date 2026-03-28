@@ -14,7 +14,7 @@
 #define GIMBAL_HANDLE HCAN1
 #define COMM_HANDLE   HCAN1
 
-volatile float PITCH_FEEDFORWARD = 1.5f;
+volatile float PITCH_FEEDFORWARD = 2.0f;
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
@@ -93,7 +93,7 @@ void Standard::stop()
 
 void Standard::enter()
 {
-    motors_.pitch->cmd(MotorCmdType_e::OFF);
+    motors_.pitch->cmd(MotorCmdType_e::ON);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
 
@@ -108,7 +108,7 @@ void Standard::update(void *_param)
     }
 
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
-        cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
+        // cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;

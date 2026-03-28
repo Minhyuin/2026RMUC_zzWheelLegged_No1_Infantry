@@ -17,8 +17,8 @@ class WheelLegged {
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
 public:
-    static constexpr float MAX_L = 0.330f; // 0.33701393
-    static constexpr float MIN_L = 0.163f; // 0.16051326
+    static constexpr float MAX_L = 0.330f; // 0.337014049
+    static constexpr float MIN_L = 0.165f; // 0.16051326
 
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
@@ -128,8 +128,6 @@ private:
     FILTER::LPF fnLPF_{ 1000.f, 10.f };
     float fnThreshold_ = FLOATING_THRESHOLD;
     float rawFn_ = 0.f;
-    float fp_ = 0.f;
-    float nWheel_ = 0.f;
 
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;

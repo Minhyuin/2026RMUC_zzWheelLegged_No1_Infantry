@@ -2,6 +2,7 @@
 
 #include "FSMState.hpp"
 #include "TopicRouter.hpp"
+#include "SuperCap.hpp"
 
 class Chassis {
 public:
@@ -9,4 +10,8 @@ public:
 
 protected:
     StateFactory<CHASSIS::FSMState_e> stateFactory_;
+
+#if EXTENSION_SUPERCAP
+    CAP cap_{ &HCAN3 };
+#endif
 };

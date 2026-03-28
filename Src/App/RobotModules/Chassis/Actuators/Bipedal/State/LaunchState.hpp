@@ -4,7 +4,7 @@
 #include "StmLog.hpp"
 
 static float launchLegLengthAngPidPD[2]{ 20.f, 0.0f };
-static float launchLegLengthVelPidPD[2]{ 30.f, 0.0f };
+static float launchLegLengthVelPidPD[2]{ 55.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {

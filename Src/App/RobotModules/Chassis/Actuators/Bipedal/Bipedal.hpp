@@ -47,18 +47,19 @@ class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStr
 
 class Bipedal : public Chassis {
     /*
-    FLOOR_TO_HIP1 = 29.54 / 180 * pi; % HIP1与地面的夹角，由地面指向HIP1
-    HIP4_TO_FLOOR = 65.95 / 180 * pi; % HIP4与地面的夹角，由HIP4指向地面
-    PHI0_TO_FLOOR = 18.21 / 180 * pi; % 等效摆杆与地面夹角，由等效摆杆指向地面
+        FLOOR_TO_HIP1 = 29.54 / 180 * pi; % HIP1与地面的夹角，由地面指向HIP1
+        HIP4_TO_FLOOR = 65.95 / 180 * pi; % HIP4与地面的夹角，由HIP4指向地面
+        PHI0_TO_FLOOR = 18.21 / 180 * pi; % 等效摆杆与地面夹角，由等效摆杆指向地面
     */
     static constexpr float LF_HIP_CALIBRATED_ANG = 2.261523f;
     static constexpr float LB_HIP_CALIBRATED_ANG = 2.184784f;
     static constexpr float RF_HIP_CALIBRATED_ANG = 3.150903f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 0.101128f;
 
-    static constexpr float MAX_VEL = 1.5f;
+    static constexpr float MAX_VEL_FRONT = 2.f;
+    static constexpr float MAX_VEL_BACK = 1.f;
 
-    static constexpr float MASS_BODY = 23.4f;
+    static constexpr float MASS_BODY = 18.0f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -66,19 +67,19 @@ class Bipedal : public Chassis {
     static constexpr float W_RADIUS = W_DIAMETER / 2.f;
     static constexpr float W_CIRCUMFERENCE = (PI * W_DIAMETER);
 
-    static constexpr float W_DISTANCE = 0.4611f / 2.f; // half of the left-right wheelbase
+    static constexpr float W_DISTANCE_HALF = 0.4611f / 2.f; // half of the left-right wheelbase
 
-    static constexpr float MAX_S = 2.5f; // maximum displacement allowed for credit accumulation
+    static constexpr float MAX_S = 1.f; // maximum displacement allowed for credit accumulation
 
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            0.5f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.05f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.3f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.7f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.05f;
-    static constexpr float PHI_OFFSET = 0.05f;
+    static constexpr float Q_OFFSET = 0.15f;
+    static constexpr float PHI_OFFSET = 0.1f;
 
 public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
@@ -133,12 +134,11 @@ public:
     bool isGimbalReset() const;
 
     /**
-     * @brief force approaching overwrite current state "s", used to accelerate model convergence
+     * @brief force overwrite current state "s", used to accelerate model convergence
      * 
      * @param _s overwrite value for "s", unit: m
-     * @param _acc approaching acceleration, unit: {_s unit}/ms
      */
-    void feedS(float _s, float _acc = 10.f);
+    void feedS(float _s);
     /**
      * @brief force keep the state "s", not affected by the floating detection 
      * 

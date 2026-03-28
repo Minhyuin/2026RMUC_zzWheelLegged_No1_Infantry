@@ -283,7 +283,7 @@ void Bipedal::enableRoll() { rollControlFlag = true; }
 
 void Bipedal::disableRoll() { rollControlFlag = false; }
 
-void Bipedal::feedS(float _s, float _acc) { SMOOTH::slopeFollowing(&_s, &s_, _acc); }
+void Bipedal::feedS(float _s) { s_ = _s; }
 
 void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
 
@@ -337,19 +337,14 @@ void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
 
 void Bipedal::setFdFeedforward()
 {
-    float fdL = 0, fdR = 0;
-    // if (legL_.floatFlag) {
-    //     fdL = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
-    // } else {
-    //     fdL = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalL());
-    // }
-    // if (legR_.floatFlag) {
-    //     fdR = -WheelLegged::MASS * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
-    // } else {
-    //     fdR = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalR());
-    // }
-    fdL = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalL());
-    fdR = MASS_BODY * WheelLegged::GRAVITY / 2.f * arm_cos_f32(phiGlobalR());
+    // F_gravity = 1/2 * M * g * cos(phi)
+    // F_inertial = 1/2 * M * (L / 2 / R_l * dyaw * ds)
+    float gravityF = 0.5f * MASS_BODY * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
+    float inertialF = 0.5f * MASS_BODY * (0.5f * lengthL() / W_DISTANCE_HALF * insData_.body.gz * ds_);
+    float fdL = gravityF - inertialF;
+    gravityF = 0.5f * MASS_BODY * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
+    inertialF = 0.5f * MASS_BODY * (0.5f * lengthR() / W_DISTANCE_HALF * insData_.body.gz * ds_);
+    float fdR = gravityF + inertialF;
     setFdFeedforward(fdL, fdR);
 }
 
