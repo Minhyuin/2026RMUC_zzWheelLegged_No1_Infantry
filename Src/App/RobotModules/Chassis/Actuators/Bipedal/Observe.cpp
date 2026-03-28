@@ -138,8 +138,8 @@ void Bipedal::updateBody()
     if (!isnan(vxFromWheel))
         odom_.update(dt_, vxFromWheel, insData_.earth.ax, yaw_);
 
-    // ds_ = odom_.normVel();
-    ds_ = vxFromWheel;
+    ds_ = odom_.normVel();
+    // ds_ = vxFromWheel;
     as_ = odom_.normAcc();
 
     az_ = insData_.earth.az + WheelLegged::GRAVITY;
