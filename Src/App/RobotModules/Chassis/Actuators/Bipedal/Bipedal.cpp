@@ -17,6 +17,7 @@
 #include "./State/IdleState.hpp"
 #include "./State/TankState.hpp"
 #include "./State/SpinState.hpp"
+#include "./State/SpinExitingState.hpp"
 #include "./State/ClimbState.hpp"
 #include "./State/ClimbPrepareState.hpp"
 #include "./State/JumpState.hpp"
@@ -145,6 +146,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     this->stateFactory_.addState(FSMState_e::IDLE, std::make_unique<IdleState>(this));
     this->stateFactory_.addState(FSMState_e::TANK, std::make_unique<TankState>(this));
     this->stateFactory_.addState(FSMState_e::SPIN, std::make_unique<SpinState>(this));
+    this->stateFactory_.addState(FSMState_e::SPIN_EXITING, std::make_unique<SpinExitingState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB, std::make_unique<ClimbState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB_PREPARE, std::make_unique<ClimbPrepareState>(this));
     this->stateFactory_.addState(FSMState_e::JUMP, std::make_unique<JumpState>(this));
@@ -457,6 +459,8 @@ float Bipedal::lengthR() const { return legR_.state().L0; }
 float Bipedal::length() const { return (legL_.state().L0 + legR_.state().L0) / 2.f; }
 
 float Bipedal::vel() const { return ds_; }
+
+float Bipedal::wz() const { return wz_; }
 
 float Bipedal::wheelVel() const { return (motors_.WheelL->vel() + motors_.WheelR->vel()) * W_RADIUS / 2.f; }
 

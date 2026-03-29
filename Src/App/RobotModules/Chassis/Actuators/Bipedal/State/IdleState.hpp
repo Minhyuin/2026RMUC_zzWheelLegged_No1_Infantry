@@ -21,7 +21,10 @@ class IdleState : public FSMState<FSMState_e> {
     static constexpr float IDLE_L = WheelLegged::MIN_L;
 
 public:
-    IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
+    IdleState(Bipedal *_chassis)
+            : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis), wzAngPid_(&idleFollowVelPid)
+    {
+    }
 
     void enter() final
     {
@@ -39,7 +42,6 @@ public:
         chassis_->needGimbalLaunch(false);
         chassis_->allowGimbalExitLaunch(true);
 
-        wzAngPid_ = &idleFollowVelPid;
         LOG::info("ChassisIdle", " enter");
     }
 
@@ -49,7 +51,7 @@ public:
         refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
-        // refRoll_ += chassis_->msg.droll * 0.001f;
+        refRoll_ += chassis_->msg.droll * 0.001f;
         chassis_->setRoll(refRoll_); // 0
 
         float targetYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;

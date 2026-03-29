@@ -20,7 +20,10 @@ class ClimbPrepareState : public FSMState<FSMState_e> {
     static constexpr float CLIMB_PREPARE_LENGTH = WheelLegged::MAX_L;
 
 public:
-    ClimbPrepareState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis) {}
+    ClimbPrepareState(Bipedal *_chassis)
+            : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis), wzAngPid_(&climbPrepareFollowVelPid)
+    {
+    }
 
     void enter() final
     {
@@ -32,7 +35,6 @@ public:
         targetRefLength_ = CLIMB_PREPARE_LENGTH;
         chassis_->needGimbalLaunch(true);
         chassis_->allowGimbalExitLaunch(false);
-        wzAngPid_ = &climbPrepareFollowVelPid;
         LOG::info("ChassisClimbPrepare", " enter");
     }
 

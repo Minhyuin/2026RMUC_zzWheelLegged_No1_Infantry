@@ -353,6 +353,7 @@ public:
     float lengthR() const;
     float length() const;
     float vel() const; // m/s
+    float wz() const;  // rad/s
     float wheelVel() const;
 
     void needGimbalLaunch(bool _need);
