@@ -16,7 +16,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_L = 0.17f;
 
     static constexpr float MAX_DS = 0.4f;
-    static constexpr float DIR_OFFSET_ANG = PI / 2.f;
+    static constexpr float DIR_OFFSET_ANG = PI / 2.f - PI / 4.f;
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -63,7 +63,7 @@ public:
         ref.ds = ds;
         ref.yaw = refYaw_;
         ref.dyaw = wz;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::SPIN>(ref);
 
         chassis_->ctrl();
     }
@@ -81,7 +81,10 @@ public:
         if (chassis_->msg.state == FSMState_e::STOP || chassis_->isTumble())
             return FSMState_e::STOP;
         else if (chassis_->msg.state != FSMState_e::SPIN)
-            return FSMState_e::SPIN_EXITING;
+            if (std::fabs(chassis_->wz()) < 2.f)
+                return FSMState_e::IDLE;
+            else
+                return FSMState_e::SPIN_EXITING;
         else
             return FSMState_e::SPIN;
     }
@@ -90,7 +93,7 @@ public:
     {
         WBRController::States_s ref{};
         ref.yaw = chassis_->yaw();
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
         chassis_->ctrl();
         return std::fabs(chassis_->vel()) < 0.5f && std::fabs(chassis_->phiGlobalL()) < 0.2f &&
                std::fabs(chassis_->phiGlobalR()) < 0.2f;

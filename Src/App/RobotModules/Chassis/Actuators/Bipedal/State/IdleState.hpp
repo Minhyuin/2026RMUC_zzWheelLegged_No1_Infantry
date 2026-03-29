@@ -8,10 +8,7 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.5f, 0.1f };
-static float idleLegLengthAngPidPD[2]{ 40.f, 0.0f };
-static float idleLegLengthVelPidPD[2]{ 80.f, 0.0f };
-float phiOffset = 0.f;
+static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 3.f, 0.1f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
@@ -34,8 +31,6 @@ public:
         refYaw_ = chassis_->yaw();
         refRoll_ = 0.f;
         refLength_ = chassis_->length();
-        chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1]);
-        chassis_->setLegLengthVelPidPD(idleLegLengthVelPidPD[0], idleLegLengthVelPidPD[1]);
         targetRefLength_ = IDLE_L;
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
@@ -52,7 +47,7 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
-        chassis_->setRoll(refRoll_); // 0
+        chassis_->setRoll(refRoll_);
 
         float targetYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;
         float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));
@@ -65,8 +60,7 @@ public:
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.q = OFFSET_Q;
-        ref.phil = ref.phir = phiOffset;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
 
         chassis_->ctrl();
 

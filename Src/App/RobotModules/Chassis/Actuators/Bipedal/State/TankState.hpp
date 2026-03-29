@@ -53,7 +53,7 @@ public:
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.q = OFFSET_Q;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
 
         chassis_->ctrl();
     }

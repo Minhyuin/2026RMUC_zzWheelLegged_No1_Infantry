@@ -5,7 +5,7 @@
 
 #include "MotorCommonMacros.hpp"
 
-static PositionalPid spinExitingFollowVelPid{ 7.0f, 0.f, 0.1f, 0.001f, 0.f, 1.5f, 0.1f };
+static PositionalPid spinExitingFollowVelPid{ 8.0f, 0.f, 0.1f, 0.001f, 0.f, 2.5f, 0.1f };
 
 namespace CHASSIS {
 
@@ -39,7 +39,7 @@ public:
         // WBR
         WBRController::States_s ref{};
         ref.yaw = refYaw_;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
 
         chassis_->ctrl();
     }
@@ -55,7 +55,7 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP || chassis_->isTumble())
             return FSMState_e::STOP;
-        else if (std::fabs(chassis_->wz()) < 0.1f)
+        else if (std::fabs(chassis_->wz()) < 0.5f)
             return FSMState_e::IDLE;
         else
             return FSMState_e::SPIN_EXITING;

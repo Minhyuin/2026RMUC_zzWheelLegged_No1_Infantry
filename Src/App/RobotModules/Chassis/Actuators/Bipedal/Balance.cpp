@@ -5,7 +5,7 @@
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
-void Bipedal::bal(const WBRController::States_s &_ref)
+template <WBRController::WBRControlMode_e M> void Bipedal::bal(const WBRController::States_s &_ref)
 {
     WBRController ::States_s errData;
     errData.s = _ref.s - s_;
@@ -19,12 +19,16 @@ void Bipedal::bal(const WBRController::States_s &_ref)
     errData.q = getMinorArc(_ref.q + Q_OFFSET, insData_.pitch);
     errData.dq = _ref.dq - insData_.body.gy;
     Matrix<10, 1> err{ errData.data };
-    Matrix<4, 1> u = WBRController::solve(err, legL_.state().L0, legR_.state().L0, legL_.floatFlag, legR_.floatFlag);
+    Matrix<4, 1> u = WBRController::solve<M>(err, legL_.state().L0, legR_.state().L0, legL_.floatFlag, legR_.floatFlag);
     legL_.setTw(u(0, 0));
     legR_.setTw(u(1, 0));
     legL_.setTp(u(2, 0) - antiSplitTp_);
     legR_.setTp(u(3, 0) + antiSplitTp_);
 }
+template void Bipedal::bal<WBRController::WBRControlMode_e::BALANCE>(const WBRController::States_s &_ref);
+template void Bipedal::bal<WBRController::WBRControlMode_e::SPIN>(const WBRController::States_s &_ref);
+template void Bipedal::bal<WBRController::WBRControlMode_e::CLIMB>(const WBRController::States_s &_ref);
+template void Bipedal::bal<WBRController::WBRControlMode_e::JUMP>(const WBRController::States_s &_ref);
 
 void Bipedal::bal(const WLController::States_s &_ref, float _yaw) { bal(_ref, _ref, _yaw); }
 

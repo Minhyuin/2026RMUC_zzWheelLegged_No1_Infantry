@@ -247,11 +247,12 @@ public:
     void bal(const WLController::States_s &_refL, const WLController::States_s &_refR, float _yaw);
 
     /**
-     * @brief base on WBR Model, balance the chassis with the given reference state
-     * 
-     * @param _ref 10D reference state in WBR model
-     */
-    void bal(const WBRController::States_s &_ref);
+    * @brief base on WBR Model, balance the chassis with the given reference state and yaw
+    * 
+    * @tparam M Control Mode
+    * @param _ref 10D reference state in WBR model 
+    */
+    template <WBRController::WBRControlMode_e M> void bal(const WBRController::States_s &_ref);
 
     /**
      * @brief base on ST Model, balance the chassis with the given reference state and yaw

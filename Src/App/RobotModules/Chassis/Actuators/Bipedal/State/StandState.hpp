@@ -3,6 +3,8 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+static float standLegLengthAngPidPD[2]{ 40.f, 0.0f };
+static float standLegLengthVelPidPD[2]{ 80.f, 0.0f };
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
@@ -36,6 +38,8 @@ public:
         startYaw_ = chassis_->yaw();
         chassis_->enableRoll();
         chassis_->setRoll(0.f);
+        chassis_->setLegLengthAngPidPD(standLegLengthAngPidPD[0], standLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(standLegLengthVelPidPD[0], standLegLengthVelPidPD[1]);
 
         if ((chassis_->phiL() + chassis_->phiR()) / 2.f <= JUDGE_PHI) {
             // 腿在后面
@@ -73,7 +77,7 @@ public:
             ref.yaw = startYaw_;
             ref.dyaw = wz;
             ref.q = targetBalancePitch_;
-            chassis_->bal(ref);
+            chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
         }
 
         if (chassis_->detectPitchRange(BALANCE_DETECT_THESHOLD, -BALANCE_DETECT_THESHOLD)) {

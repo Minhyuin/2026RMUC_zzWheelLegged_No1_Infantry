@@ -45,7 +45,7 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() || (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.33f)
+        if (chassis_->isFloating() || (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.4f)
             isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
@@ -60,7 +60,7 @@ public:
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.phir = ref.phil = OFFSET_PHI;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::CLIMB>(ref);
 
         chassis_->ctrl();
     }
@@ -78,12 +78,8 @@ public:
             return FSMState_e::STOP;
         if (isPrepareFinish_)
             return FSMState_e::CLIMB;
-        else if (chassis_->msg.state == FSMState_e::IDLE)
+        else if (chassis_->msg.state != FSMState_e::CLIMB_PREPARE)
             return FSMState_e::IDLE;
-        else if (chassis_->msg.state == FSMState_e::TANK)
-            return FSMState_e::TANK;
-        else if (chassis_->msg.state == FSMState_e::SPIN)
-            return FSMState_e::SPIN;
         else
             return FSMState_e::CLIMB_PREPARE;
     }
