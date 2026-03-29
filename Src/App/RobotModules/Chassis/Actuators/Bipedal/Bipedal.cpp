@@ -460,6 +460,8 @@ float Bipedal::length() const { return (legL_.state().L0 + legR_.state().L0) / 2
 
 float Bipedal::vel() const { return ds_; }
 
+float Bipedal::acc() const { return as_; }
+
 float Bipedal::wz() const { return wz_; }
 
 float Bipedal::wheelVel() const { return (motors_.WheelL->vel() + motors_.WheelR->vel()) * W_RADIUS / 2.f; }

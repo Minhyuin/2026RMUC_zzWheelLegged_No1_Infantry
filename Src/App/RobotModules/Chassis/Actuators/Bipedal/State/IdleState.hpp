@@ -9,7 +9,7 @@
 #include "Smooth.hpp"
 
 static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.5f, 0.1f };
-static float idleLegLengthAngPidPD[2]{ 30.f, 0.0f };
+static float idleLegLengthAngPidPD[2]{ 40.f, 0.0f };
 static float idleLegLengthVelPidPD[2]{ 80.f, 0.0f };
 float phiOffset = 0.f;
 

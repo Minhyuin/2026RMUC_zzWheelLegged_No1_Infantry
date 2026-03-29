@@ -5,7 +5,7 @@
 
 #include "MotorCommonMacros.hpp"
 
-static PositionalPid spinExitingFollowVelPid{ 7.0f, 0.f, 0.1f, 0.001f, 0.f, 2.f, 0.1f };
+static PositionalPid spinExitingFollowVelPid{ 7.0f, 0.f, 0.1f, 0.001f, 0.f, 1.5f, 0.1f };
 
 namespace CHASSIS {
 
@@ -19,35 +19,21 @@ public:
     void enter() final
     {
         chassis_->enter();
-        float &y = chassis_->deltaYaw;
-        float &&w = chassis_->wz();
-        if (y < 0.f && y > -PI / 2.f) {
-            if (w > 0.f)
-                targetDeltaYaw_ = PI;
-            else
-                targetDeltaYaw_ = 0;
-        } else if (y >= 0.f && y < PI / 2.f) {
-            if (w > 0.f)
-                targetDeltaYaw_ = 0;
-            else
-                targetDeltaYaw_ = PI;
-        } else if (y <= -PI / 2.f && y > -PI) {
-            if (w > 0.f)
-                targetDeltaYaw_ = PI;
-            else
-                targetDeltaYaw_ = 0;
-        } else {
-            if (w > 0.f)
-                targetDeltaYaw_ = 0;
-            else
-                targetDeltaYaw_ = PI;
-        }
+
+        const float y = chassis_->deltaYaw;
+        const float w = chassis_->wz();
+
+        // Equivalent to the original quadrant branches: choose PI when yaw half-plane and spin direction match.
+        const bool isNegativeHalfPlane = (y < 0.f && y > -PI);
+        targetDeltaYaw_ = ((w > 0.f) == isNegativeHalfPlane) ? PI : 0.f;
 
         LOG::info("ChassisSpinExiting", " enter");
     }
 
     void run() final
     {
+        chassis_->setFdFeedforward();
+
         float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw_));
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
         // WBR

@@ -10,10 +10,13 @@
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float MAX_WZ = 10.f;
-    static constexpr float SPIN_SPEED_BASE = 8.f;
-    static constexpr float SPIN_SPEED_VAR = 5.f;
+    static constexpr float SPIN_SPEED_CONST = 8.f;
+    static constexpr float SPIN_SPEED_BASE = 6.f;
+    static constexpr float SPIN_SPEED_VAR = 2.f;
     static constexpr float SPIN_L = 0.17f;
+
+    static constexpr float MAX_DS = 0.4f;
+    static constexpr float DIR_OFFSET_ANG = PI / 2.f;
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -25,6 +28,7 @@ public:
         refLength_ = chassis_->length();
         targetRefLength_ = SPIN_L;
         chassis_->setRoll(0);
+        spinCnt_ = 0;
         LOG::info("ChassisSpin", " enter");
     }
 
@@ -35,12 +39,28 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
+        float ds, wz;
+
+        // calculate wz in spin
+        arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
+        ds = std::clamp(ds, -MAX_DS, MAX_DS);
+        if (ds == 0)
+            wz = getVariableSpinVel();
+        else
+            wz = getConstantSpinVel();
+        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + (wz * 0.001f), -PI, PI));
+
+        // calculate ds in spin
+        float dirOffsetAng = wz > 0 ? -DIR_OFFSET_ANG : DIR_OFFSET_ANG;
+        float moveAng = atan2f(-chassis_->msg.vy, chassis_->msg.vx) + dirOffsetAng;
+        float deltaAng = PINYMOTOR::getMinorArc(moveAng, chassis_->deltaYaw);
+        if (deltaAng < PI / 2.f && deltaAng > -PI / 2.f) {
+            ds = -ds;
+        }
+
         // WBR
         WBRController::States_s ref{};
-        float wz = getSpinVel(spinCnt_++);
-        wz = std::clamp(wz, -MAX_WZ, MAX_WZ) * 0.001f; // convert to rad/ms
-        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
-        ref.ds = 0; // TODO: no spin ds temporary
+        ref.ds = ds;
         ref.yaw = refYaw_;
         ref.dyaw = wz;
         chassis_->bal(ref);
@@ -72,7 +92,8 @@ public:
         ref.yaw = chassis_->yaw();
         chassis_->bal(ref);
         chassis_->ctrl();
-        return std::fabs(chassis_->vel()) < 0.3f;
+        return std::fabs(chassis_->vel()) < 0.5f && std::fabs(chassis_->phiGlobalL()) < 0.2f &&
+               std::fabs(chassis_->phiGlobalR()) < 0.2f;
     }
 
 private:
@@ -85,12 +106,12 @@ private:
     bool spinDir_ = false; // true : left, false: right
     uint32_t spinCnt_ = 0;
 
-    float getSpinVel(uint32_t _cnt)
+    float getVariableSpinVel()
     {
-        // float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
-        // float rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
-        // return spinDir_ ? rslt : -rslt;
-        return spinDir_ ? SPIN_SPEED_BASE : -SPIN_SPEED_BASE;
+        float x = 2.1f * (static_cast<float>(spinCnt_++) * 0.001f);
+        float rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
+        return spinDir_ ? rslt : -rslt;
     }
+    float getConstantSpinVel() { return spinDir_ ? SPIN_SPEED_CONST : -SPIN_SPEED_CONST; }
 };
 } // namespace CHASSIS

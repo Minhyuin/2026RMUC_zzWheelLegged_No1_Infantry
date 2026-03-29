@@ -296,6 +296,16 @@ public:
      * @brief judge whether to stop based on the expected speed
      */
     bool detectNeedStop(float _expVel);
+
+    /**
+     * @brief detect if an angle is in the target range
+     * 
+     * @param _input input angle
+     * @param _startAng start angle
+     * @param _endAng end angle (counter-clockwise relative to start angle)
+     */
+    bool detectAng(float _input, float _startAng, float _endAng) const;
+
     /**
      * @brief base on the function detectAng to judge whether the pitch angle is in the target range
      * 
@@ -353,6 +363,7 @@ public:
     float lengthR() const;
     float length() const;
     float vel() const; // m/s
+    float acc() const; // m/s^2
     float wz() const;  // rad/s
     float wheelVel() const;
 
@@ -437,15 +448,6 @@ private:
      * @brief judge body is in the low displacement state
      */
     void detectStop();
-
-    /**
-     * @brief detect if an angle is in the target range
-     * 
-     * @param _input input angle
-     * @param _startAng start angle
-     * @param _endAng end angle (counter-clockwise relative to start angle)
-     */
-    bool detectAng(float _input, float _startAng, float _endAng) const;
 
     float phiGlobalL_ = 0.f;
     float phiGlobalR_ = 0.f;
