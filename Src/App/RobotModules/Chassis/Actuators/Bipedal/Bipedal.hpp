@@ -407,6 +407,7 @@ private:
     float yaw_ = 0.f;
 
     float ds_ = 0.f;
+    float vxFromWheel_ = 0.f;
     FILTER::LPFIIR3 wheelVelFltr_[2] = {
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },

@@ -57,8 +57,8 @@ public:
 
 private:
     float sigmaQ_ = 0.001f;     // process noise
-    float sigmaVelR_ = 0.0005f; // measurement noise for velocity
-    float sigmaAccR_ = 5.f;     // measurement noise for acceleration
+    float sigmaVelR_ = 0.0001f; // measurement noise for velocity
+    float sigmaAccR_ = 10.f;    // measurement noise for acceleration
 };
 
 } // namespace CHASSIS
