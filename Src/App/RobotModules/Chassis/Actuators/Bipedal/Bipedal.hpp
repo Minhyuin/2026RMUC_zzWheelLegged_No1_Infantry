@@ -399,7 +399,7 @@ private:
     PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 40.f, 0.f, 0.1f, 0.001f, 0.f, 5.5f, 0.f };
+    PositionalPid hipAngPidL_{ 20.f, 0.f, 0.0f, 0.001f, 0.f, 5.5f, 0.f };
     PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };

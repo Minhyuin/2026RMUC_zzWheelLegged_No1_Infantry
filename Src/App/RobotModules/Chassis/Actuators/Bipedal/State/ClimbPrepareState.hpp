@@ -45,7 +45,7 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() || (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.4f)
+        if (chassis_->isFloating() /* (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.4f*/)
             isPrepareFinish_ = true;
 
         float targetYaw = 0.f;

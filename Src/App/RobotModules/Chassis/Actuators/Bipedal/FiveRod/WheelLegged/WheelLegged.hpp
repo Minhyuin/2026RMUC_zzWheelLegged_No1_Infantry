@@ -81,6 +81,12 @@ public:
      */
     void setFdFeedforward(float _fd);
     /**
+     * @brief Set the additional feedforward torque
+     * 
+     * @param _tp unit: Nm
+     */
+    void setTpFeedforward(float _tp);
+    /**
      * @brief Set the expected Tp, which is used to control the leg swinging
      * 
      * @param _tp unit: Nm
@@ -118,6 +124,7 @@ private:
     LegState_s legState_{};
 
     float tp_ = 0.f;
+    float tpFeedforward_ = 0.f;
     float fd_ = 0.f;
     float fdFeedforward_ = 0.f;
     float tw_ = 0.f;
@@ -132,7 +139,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 50.f, 0.f };
+    GasSpring spring_{ 55.f, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

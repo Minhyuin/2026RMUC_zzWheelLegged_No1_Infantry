@@ -228,8 +228,15 @@ void Bipedal::update(void *_param)
     else
         lengthOffset_ = 0.f;
 
-    // update anti-split
+    // set tp feedforward
     antiSplitTp_ = antiSplitPid_.calc(phiGlobalL() - phiGlobalR(), 0); // TpL - offset, TpR + offset
+    // Approximate leg gravity torque around hip: tau = m * g * (L/2) * sin(phi_global).
+    float tpGravityCompL =
+            WheelLegged::MASS * WheelLegged::GRAVITY * (0.5f * legL_.state().L0) * arm_sin_f32(phiGlobalL());
+    float tpGravityCompR =
+            WheelLegged::MASS * WheelLegged::GRAVITY * (0.5f * legR_.state().L0) * arm_sin_f32(phiGlobalR());
+    legL_.setTpFeedforward(tpGravityCompL);
+    legR_.setTpFeedforward(tpGravityCompR);
 
     // stop detect
     detectStop();
