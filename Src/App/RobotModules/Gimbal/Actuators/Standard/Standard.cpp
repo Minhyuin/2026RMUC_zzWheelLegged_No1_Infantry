@@ -292,7 +292,17 @@ Gimbal::LaunchStrategy_e Standard::generateLaunchStrategy()
     return strategy;
 }
 
-bool Standard::isNeedLaunch() { return gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch; }
+static bool isNeedGimbalLaunchPrev = false;
+bool Standard::isNeedLaunch()
+{
+    bool rslt = !isNeedGimbalLaunchPrev && gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch;
+    if (isNeedGimbalLaunchPrev != gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch) {
+        LOG::info("Gimbal", "Receive launch command %d", gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch);
+        isNeedGimbalLaunchPrev = gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch;
+    }
+    return rslt;
+}
+
 bool Standard::isAllowExitLaunch()
 {
     return gimbalLaunchStrategyRxPacket_.data().isAllowExitLaunch || cmsg_.state == CHASSIS::FSMState_e::STOP;
