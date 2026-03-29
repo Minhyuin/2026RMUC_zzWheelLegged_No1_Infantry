@@ -11,6 +11,10 @@
 #include "./State/RunState.hpp"
 #include "./State/AutoState.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 volatile float PITCH_FEEDFORWARD = 0.f;
 
 using namespace GIMBAL;
@@ -90,6 +94,11 @@ void Standard::stop()
 
 void Standard::enter()
 {
+#if EXTENSION_BUZZER
+    BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+    BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
+
     motors_.pitch->cmd(MotorCmdType_e::ON);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }

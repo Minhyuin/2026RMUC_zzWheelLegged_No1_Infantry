@@ -5,7 +5,6 @@
 #include "StmLog.hpp"
 
 #include "MotorCommonMacros.hpp"
-#include "Smooth.hpp"
 #include "PidBasic.hpp"
 
 static PositionalPid autoPitchAngPID(70.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f);

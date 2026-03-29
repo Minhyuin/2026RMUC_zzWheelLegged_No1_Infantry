@@ -26,6 +26,10 @@
 #include "Referee.hpp"
 #endif
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 #define HIP_HANDLE   HCAN2
 #define WHEEL_HANDLE HCAN1
 #define COMM_HANDLE  HCAN3
@@ -174,6 +178,10 @@ void Bipedal::stop()
 
 void Bipedal::enter()
 {
+#if EXTENSION_BUZZER
+    BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 100);
+#endif
+
     legL_.enter();
     legR_.enter();
 }
