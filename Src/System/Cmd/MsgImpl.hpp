@@ -60,6 +60,7 @@ struct ChassisMsg_s : public Msg {
     float dl;
     float dphi; // only for debug
     bool needJump;
+    bool useCap;
 };
 
 struct GimbalMsg_s : public Msg {

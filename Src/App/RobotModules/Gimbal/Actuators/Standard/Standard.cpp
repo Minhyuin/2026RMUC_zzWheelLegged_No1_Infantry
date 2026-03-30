@@ -121,6 +121,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().dl = cmsg_.dl;
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
+        chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 

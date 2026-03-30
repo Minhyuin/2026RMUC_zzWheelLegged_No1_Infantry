@@ -312,7 +312,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
-                if (IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::SHIFT))
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::CTRL))
                     cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
@@ -326,6 +326,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
+                cMsg_.useCap = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
                 gMsg_.forceFire = IS_KEY_PRESS(rcData->KBM.key, VT13::E);
                 if (rcData->KBM.mouseRight) {
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;

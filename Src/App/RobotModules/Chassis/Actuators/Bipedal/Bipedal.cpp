@@ -199,6 +199,7 @@ void Bipedal::update(void *_param)
     msg.dl = chassisCtrlRxPacket_.data().dl;
     msg.droll = chassisCtrlRxPacket_.data().droll;
     msg.needJump = chassisCtrlRxPacket_.data().needJump;
+    msg.useCap = chassisCtrlRxPacket_.data().useCap;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
         motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||
@@ -237,6 +238,15 @@ void Bipedal::update(void *_param)
             WheelLegged::MASS * WheelLegged::GRAVITY * (0.5f * legR_.state().L0) * arm_sin_f32(phiGlobalR());
     legL_.setTpFeedforward(tpGravityCompL);
     legR_.setTpFeedforward(tpGravityCompR);
+
+    // use cap
+    if (msg.useCap) {
+        dsMaxF_ = MAX_VEL_RUSH_FRONT;
+        dsMaxB_ = MAX_VEL_RUSH_BACK;
+    } else {
+        dsMaxF_ = MAX_VEL_FRONT;
+        dsMaxB_ = MAX_VEL_BACK;
+    }
 
     // stop detect
     detectStop();

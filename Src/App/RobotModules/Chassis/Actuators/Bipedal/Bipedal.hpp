@@ -56,8 +56,10 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.769184f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.941683f;
 
-    static constexpr float MAX_VEL_FRONT = 2.f;
-    static constexpr float MAX_VEL_BACK = 1.f;
+    static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.5f;
+    static constexpr float MAX_VEL_FRONT = 1.5f;
+    static constexpr float MAX_VEL_BACK = 0.7f;
 
     static constexpr float MASS_BODY = 23.4f;
 
@@ -419,6 +421,8 @@ private:
 
     float yaw_ = 0.f;
 
+    float dsMaxF_ = MAX_VEL_FRONT;
+    float dsMaxB_ = MAX_VEL_BACK;
     float ds_ = 0.f;
     float vxFromWheel_ = 0.f;
     FILTER::LPFIIR3 wheelVelFltr_[2] = {
