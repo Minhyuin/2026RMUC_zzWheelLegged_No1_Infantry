@@ -62,9 +62,18 @@ void Bipedal::detectStop()
     if (lockSCount_ > 0)
         lockSCount_--;
     static bool slowSpeedFlag = false;
+    static float prevDs = 0.f;
+    static bool prevDsValid = false;
     if (lockSCount_ == 0) {
         if (detectNeedStop(this->msg.vx)) {
-            s_ = clamp(s_ + (ds_ * dt_), -MAX_S, MAX_S);
+            if (!prevDsValid) {
+                prevDs = ds_;
+                prevDsValid = true;
+            }
+            // Trapezoidal integration: s(k)=s(k-1)+((v(k-1)+v(k))/2)*dt
+            const float dsAvg = 0.5f * (prevDs + ds_);
+            s_ = clamp(s_ + (dsAvg * dt_), -MAX_S, MAX_S);
+            prevDs = ds_;
             if (ds_ < 0.1f && !slowSpeedFlag) {
                 slowSpeedFlag = true;
                 if (dsCmdBeforeStop_ > 0.f)
@@ -75,9 +84,14 @@ void Bipedal::detectStop()
         } else {
             s_ = 0;
             slowSpeedFlag = false;
+            prevDs = ds_;
+            prevDsValid = true;
         }
-        if (isFloating())
+        if (isFloating()) {
             s_ = 0;
+            prevDs = ds_;
+            prevDsValid = true;
+        }
     }
 }
 
