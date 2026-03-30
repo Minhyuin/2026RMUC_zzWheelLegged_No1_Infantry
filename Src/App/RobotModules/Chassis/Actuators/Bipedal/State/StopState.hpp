@@ -34,13 +34,14 @@ public:
         else if (chassis_->msg.state != FSMState_e::STOP) {
             chassis_->needGimbalLaunch(true); // wait for gimbal launch
             chassis_->allowGimbalExitLaunch(false);
-            if (freezeFlag_ && chassis_->isGimbalReset()) {
+            if (freezeFlag_) {
                 if (chassis_->isOverturn())
                     return FSMState_e::RESCUE;
-                else
+                if (chassis_->isGimbalReset()) {
                     return FSMState_e::LAUNCH;
-            } else
-                return FSMState_e::STOP;
+                }
+            }
+            return FSMState_e::STOP;
         }
         // if (chassis_->msg.state != FSMState_e::STOP)
         //     return FSMState_e::IDLE;

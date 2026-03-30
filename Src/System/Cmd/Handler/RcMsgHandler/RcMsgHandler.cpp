@@ -244,6 +244,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
         } else {
             if (!keyBoardCtrlFlag_) {
+                cMsg_.useCap = true;
                 if (rcData->gamepad.sw == VT13::Sw_e::N) {
                     gMsg_.state = GIMBAL::FSMState_e::RUN;
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
