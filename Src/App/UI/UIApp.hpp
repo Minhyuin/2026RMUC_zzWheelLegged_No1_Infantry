@@ -42,8 +42,8 @@ private:
     friend class Singleton<APP>;
 
     Client client_;
-    Info_s dynamicInfo_[DYNAIMIC_NUM] = {};
-    Info_s constInfo_[STATIC_NUM] = {};
+    DynamicUIInfos_u dynamicInfo_ = {};
+    StaticUIInfos_u constInfo_ = {};
     uint32_t updateCnt = 0;
     uint32_t resetCnt = 0;
 };

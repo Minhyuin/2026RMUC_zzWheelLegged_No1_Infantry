@@ -16,7 +16,7 @@ void APP::init()
     staticConfig(constInfo_);
 
     // 初始化UI链表
-    if (client_.initList(dynamicInfo_, DYNAIMIC_NUM, constInfo_, STATIC_NUM) == Status_e::ERROR) {
+    if (client_.initList(dynamicInfo_.list, DYNAIMIC_NUM, constInfo_.list, STATIC_NUM) == Status_e::ERROR) {
         LOG::error("UI", "List init failed");
     } else {
         LOG::info("UI", "List init success");
