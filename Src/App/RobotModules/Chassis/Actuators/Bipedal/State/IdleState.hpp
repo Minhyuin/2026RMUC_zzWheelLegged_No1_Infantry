@@ -42,6 +42,10 @@ public:
 
     void run() final
     {
+        if (chassis_->msg.reset) {
+            targetRefLength_ = IDLE_L;
+            refRoll_ = 0.f;
+        }
         targetRefLength_ += chassis_->msg.dl * 0.001f;
         refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
         chassis_->setLength(refLength_);

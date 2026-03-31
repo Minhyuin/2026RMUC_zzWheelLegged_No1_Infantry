@@ -61,12 +61,15 @@ struct ChassisMsg_s : public Msg {
     float dphi; // only for debug
     bool needJump;
     bool useCap;
+    bool reset;
 };
 
 struct GimbalMsg_s : public Msg {
     GIMBAL::FSMState_e state;
     float wRoll, wPitch, wYaw;
     bool forceFire;
+    bool resetTracker;
+    bool changeTarget;
 };
 
 struct ArmorBoosterMsg_s : public Msg {

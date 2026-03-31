@@ -122,6 +122,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
         chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
+        chassisCtrlTxPacket_.setData().reset = cmsg_.reset;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
@@ -152,8 +153,8 @@ void Standard::update(void *_param)
     vision.setData().bulletSpeed = -1;
 #endif
 
-    vision.setData().resetTracker = false;
-    vision.setData().changeTarget = false;
+    vision.setData().resetTracker = msg.resetTracker;
+    vision.setData().changeTarget = msg.changeTarget;
     vision.setData().roll = insData_.roll;
     vision.setData().pitch = insData_.pitch;
     vision.setData().yaw = insData_.yaw;

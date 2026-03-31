@@ -200,6 +200,7 @@ void Bipedal::update(void *_param)
     msg.droll = chassisCtrlRxPacket_.data().droll;
     msg.needJump = chassisCtrlRxPacket_.data().needJump;
     msg.useCap = chassisCtrlRxPacket_.data().useCap;
+    msg.reset = chassisCtrlRxPacket_.data().reset;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
         motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||
