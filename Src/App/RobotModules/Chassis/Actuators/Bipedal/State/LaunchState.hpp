@@ -4,11 +4,11 @@
 #include "StmLog.hpp"
 
 static float launchLegLengthAngPidPD[2]{ 20.f, 0.0f };
-static float launchLegLengthVelPidPD[2]{ 55.f, 0.0f };
+static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr float LAUNCH_DPHI = 3.f * 0.001f; // per ms
+    static constexpr float LAUNCH_DPHI = 4.f * 0.001f; // per ms
     static constexpr float LAUNCH_L = WheelLegged::MIN_L;
     static constexpr float LAUNCH_PHI_THRESHOLD = 0.1f;
     static constexpr float LAUNCH_L_THRESHOLD = 0.05f;
