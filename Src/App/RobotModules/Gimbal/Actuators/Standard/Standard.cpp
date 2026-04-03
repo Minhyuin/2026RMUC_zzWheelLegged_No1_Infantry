@@ -30,6 +30,11 @@ void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
     Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
+void GimbalStateTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+}
+
 void RefereeDataRxPacket::registerCallback()
 {
     Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
@@ -122,7 +127,8 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
         chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
-        chassisCtrlTxPacket_.setData().reset = cmsg_.reset;
+        chassisCtrlTxPacket_.setData().bodyReset = cmsg_.bodyReset;
+        chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
@@ -132,6 +138,11 @@ void Standard::update(void *_param)
     }
     if (!msg.forceFire)
         shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
+
+    gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
+    gimbalStateTxPacket_.setData().aiming = vision.data().control;
+    gimbalStateTxPacket_.setData().visionOnline = vision.pcState == Vision::PCState_e::ONLINE;
+    gimbalStateTxPacket_.setData().pitch = ins().pitch;
 
     // vision send
 #if EXTENSION_REFEREE

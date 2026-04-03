@@ -11,7 +11,7 @@ namespace UI {
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 用户配置区 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // 发送间隔时间(ms) 默认40ms (25HZ), 裁判系统上限是30HZ
-static constexpr uint8_t SEND_INTERVAL = 40;
+static constexpr uint16_t SEND_INTERVAL = 40;
 
 // 队列接收事件
 enum class Event_e : uint8_t { CHASSIS, GIMBAL, ARM, ARMORBOOSTER };
@@ -33,8 +33,8 @@ public:
 
     void updateChassis(const ChassisUIMsg_s &_msg);
     void updateGimbal(const GimbalUIMsg_s &_msg);
-    void updateArm(const ArmUIMsg_s &_msg);
     void updateArmorBooster(const ArmorBoosterUIMsg_s &_msg);
+    void updateArmorLoader(const ArmorLoaderUIMsg_s &_msg);
 
 protected:
 private:

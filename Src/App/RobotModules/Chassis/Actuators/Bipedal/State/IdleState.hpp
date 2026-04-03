@@ -42,7 +42,7 @@ public:
 
     void run() final
     {
-        if (chassis_->msg.reset) {
+        if (chassis_->msg.bodyReset) {
             targetRefLength_ = IDLE_L;
             refRoll_ = 0.f;
         }

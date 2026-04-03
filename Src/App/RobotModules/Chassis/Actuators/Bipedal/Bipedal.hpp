@@ -39,6 +39,12 @@ class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
+class GimbalStateRxPacket : public COMM::RxPacket<COMM::GimbalStatePacketType, 1> {
+public:
+    GimbalStateRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
     GimbalLaunchStrategyTxPacket() : TxPacket(50.f) {}
@@ -392,6 +398,7 @@ private:
 #endif
 
     ChassisCtrlRxPacket chassisCtrlRxPacket_;
+    GimbalStateRxPacket gimbalStateRxPacket_;
 
     RefereeDataTxPacket refereeDataTxPacket_;
     GimbalLaunchStrategyTxPacket gimbalLaunchStrategyTxPacket_;

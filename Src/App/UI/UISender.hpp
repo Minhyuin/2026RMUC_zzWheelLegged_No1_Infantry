@@ -58,7 +58,7 @@ private:
     UART_HandleTypeDef huart_;
     uint8_t *txBuf_; // DMA buffer for sending data
     std::function<uint8_t(uint8_t *, uint16_t)> send_;
-    ClientInfo_s clientInfo_{};
+    ClientInfo_s clientInfo_{ .robotID = 0x0003, .clientID = 0x0103 };
 };
 
 } // namespace UI

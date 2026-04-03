@@ -61,7 +61,8 @@ struct ChassisMsg_s : public Msg {
     float dphi; // only for debug
     bool needJump;
     bool useCap;
-    bool reset;
+    bool bodyReset;
+    bool uiReset;
 };
 
 struct GimbalMsg_s : public Msg {
@@ -108,6 +109,7 @@ struct GimbalYawMsg_s : public Msg {
 struct ChassisUIMsg_s {
     CHASSIS::FSMState_e state;
     float vel;
+    bool useCap;
     float capEnergyRatio;
     float chassisEnergyRatio;
 };
@@ -117,11 +119,6 @@ struct GimbalUIMsg_s {
     bool aiming;
     bool visionOnline;
     float pitchAng;
-    uint16_t enemyHP;
-};
-
-struct ArmUIMsg_s {
-    ARM::FSMState_e state;
 };
 
 struct ArmorLoaderUIMsg_s {

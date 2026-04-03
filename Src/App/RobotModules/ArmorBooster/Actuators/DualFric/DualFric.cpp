@@ -14,6 +14,11 @@
 using namespace ARMORBOOSTER;
 using namespace PINYMOTOR;
 
+void ArmorBoosterStatePacketType::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+}
+
 DualFric::DualFric()
 {
     InitConfig_s fricLConfig = {
@@ -65,6 +70,9 @@ void DualFric::update(void *_param)
 {
     if (xQueueReceive((((MsgBus_s *)_param)->armorBoosterQueue), &msg, 0) == pdTRUE) {
     };
+
+    armorBoosterStateTxPacket_.setData().armorBoosterRealState =
+            static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
 
     if (motors_.fricL->globalState != GlobalState_e::ONLINE || motors_.fricR->globalState != GlobalState_e::ONLINE) {
         msg.state = FSMState_e::OFF;

@@ -7,45 +7,6 @@
 #pragma clang diagnostic ignored "-Wmissing-designated-field-initializers"
 #endif
 
-static constexpr uint32_t CAP_ENERGY_ARC_START_ENG = 60;
-static constexpr uint32_t CAP_ENERGY_ARC_END_ENG = 119;
-
-static constexpr uint32_t CHASSIS_ENERGY_ARC_START_ENG = 60;
-static constexpr uint32_t CHASSIS_ENERGY_ARC_END_ENG = 118;
-
-// 真实弹道
-static constexpr uint32_t REAL_AIM_X = 960 - 22;
-
-// 行车线
-// 低头到最极限角度的参数
-static constexpr float UI_IMU_PITCH_MAX = 209.375f;
-static constexpr uint32_t DOWN_MOVE_LEFT_POS_START_X = 350;
-static constexpr uint32_t DOWN_MOVE_LEFT_POS_START_Y = 0;
-static constexpr uint32_t DOWN_MOVE_LEFT_POS_END_X = 630;
-static constexpr uint32_t DOWN_MOVE_LEFT_POS_END_Y = 400;
-static constexpr uint32_t DOWN_MOVE_RIGHT_POS_START_X = 1570;
-static constexpr uint32_t DOWN_MOVE_RIGHT_POS_START_Y = 0;
-static constexpr uint32_t DOWN_MOVE_RIGHT_POS_END_X = 1265;
-static constexpr uint32_t DOWN_MOVE_RIGHT_POS_END_Y = 400;
-
-// 抬头到极限角度的参数
-static constexpr float UI_IMU_PITCH_MIN = -627.f;
-static constexpr uint32_t UP_MOVE_LEFT_POS_START_X = 350;
-static constexpr uint32_t UP_MOVE_LEFT_POS_START_Y = 0;
-static constexpr uint32_t UP_MOVE_LEFT_POS_END_X = 830;
-static constexpr uint32_t UP_MOVE_LEFT_POS_END_Y = 200;
-static constexpr uint32_t UP_MOVE_RIGHT_POS_START_X = 1570;
-static constexpr uint32_t UP_MOVE_RIGHT_POS_START_Y = 0;
-static constexpr uint32_t UP_MOVE_RIGHT_POS_END_X = 1065;
-static constexpr uint32_t UP_MOVE_RIGHT_POS_END_Y = 200;
-
-// 小陀螺指示
-static constexpr uint32_t UI_SPINNING_DEG = 30;
-
-// 敌方血量
-static constexpr uint32_t MAX_HP_LEFT_POS_X = 959 - 300;
-static constexpr uint32_t MAX_HP_RIGHT_POS_X = 961 + 300;
-
 using namespace UI;
 
 // NOLINTBEGIN
@@ -202,19 +163,6 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     armorLoaderState.size = 20;
     std::strncpy(armorLoaderState.text, "STOP", sizeof(armorLoaderState.text) - 1);
 
-    auto &enemyHP = _info.enemyHP.config;
-    enemyHP = {};
-    enemyHP.priority = UI::Priority_e::LOW;
-    enemyHP.uiType = Type_e::LINE;
-    enemyHP.operateType = OperateType_e::MODIFY;
-    enemyHP.layer = 6;
-    enemyHP.color = Color_e::RED_BLUE;
-    enemyHP.width = 20;
-    enemyHP.startX = 959;
-    enemyHP.startY = 870;
-    enemyHP.endX = 961;
-    enemyHP.endY = 870;
-
     auto &drivingReferenceLineLeft = _info.drivingReferenceLineLeft.config;
     drivingReferenceLineLeft = {};
     drivingReferenceLineLeft.priority = UI::Priority_e::LOW;
@@ -261,12 +209,12 @@ void staticConfig(StaticUIInfos_u &_info)
     chassisVelArcBackground.layer = 3;
     chassisVelArcBackground.color = Color_e::CYAN_BLUE;
     chassisVelArcBackground.width = 3;
-    chassisVelArcBackground.startX = 870;
-    chassisVelArcBackground.startY = 540;
-    chassisVelArcBackground.endX = 500;
-    chassisVelArcBackground.endY = 500;
-    chassisVelArcBackground.startAngle = 230;
-    chassisVelArcBackground.endAngle = 310;
+    chassisVelArcBackground.startX = CHASSIS_SPD_ARC_START_X;
+    chassisVelArcBackground.startY = CHASSIS_SPD_ARC_START_Y;
+    chassisVelArcBackground.endX = CHASSIS_SPD_ARC_END_X;
+    chassisVelArcBackground.endY = CHASSIS_SPD_ARC_END_Y;
+    chassisVelArcBackground.startAngle = CHASSIS_SPD_ARC_START_ANG;
+    chassisVelArcBackground.endAngle = CHASSIS_SPD_ARC_END_ANG;
 
     auto &capEnergyBottomLine = _info.capEnergyBottomLine.config;
     capEnergyBottomLine = {};
@@ -350,17 +298,6 @@ void staticConfig(StaticUIInfos_u &_info)
     shooterString.startY = 760;
     shooterString.size = 20;
     std::strncpy(shooterString.text, "S:", sizeof(shooterString.text) - 1);
-
-    auto &enemyHPBackground = _info.enemyHPBackground.config;
-    enemyHPBackground = {};
-    enemyHPBackground.uiType = Type_e::RECTANGEL;
-    enemyHPBackground.layer = 5;
-    enemyHPBackground.color = Color_e::WHITE;
-    enemyHPBackground.width = 1;
-    enemyHPBackground.startX = 960 - 310;
-    enemyHPBackground.startY = 870 - 14;
-    enemyHPBackground.endX = 960 + 310;
-    enemyHPBackground.endY = 870 + 14;
 
     auto &crosshairVertical = _info.crosshairVertical.config;
     crosshairVertical = {};

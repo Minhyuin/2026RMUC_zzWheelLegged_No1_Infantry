@@ -8,7 +8,16 @@
 
 #include "IIR.hpp"
 
+#include "TxPacket.hpp"
+#include "PacketImpl.hpp"
+
 namespace ARMORBOOSTER {
+
+class ArmorBoosterStatePacketType : public COMM::TxPacket<COMM::ArmorBoosterStatePacketType> {
+    friend class DualFric;
+    ArmorBoosterStatePacketType() : TxPacket(10.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
+};
 
 class DualFric : public ArmorBooster {
     struct Motors_s {
@@ -39,6 +48,8 @@ public:
 
 private:
     Motors_s motors_;
+
+    ArmorBoosterStatePacketType armorBoosterStateTxPacket_;
 
     FILTER::LPFIIR3 velFltr_[2] = {
         { 500.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },

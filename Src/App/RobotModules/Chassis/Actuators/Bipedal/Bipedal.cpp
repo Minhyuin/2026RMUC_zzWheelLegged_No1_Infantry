@@ -25,6 +25,9 @@
 
 #if EXTENSION_REFEREE
 #include "Referee.hpp"
+#if APP_USE_UI
+#include "UIApp.hpp"
+#endif
 #endif
 
 #if EXTENSION_BUZZER
@@ -44,6 +47,14 @@ void ChassisCtrlRxPacket::registerCallback()
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("ChassisCtrlRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
+}
+
+void GimbalStateRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(&COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("GimbalStateRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
 void RefereeDataTxPacket::transmit(uint8_t *_buf, uint16_t _len)
@@ -200,7 +211,8 @@ void Bipedal::update(void *_param)
     msg.droll = chassisCtrlRxPacket_.data().droll;
     msg.needJump = chassisCtrlRxPacket_.data().needJump;
     msg.useCap = chassisCtrlRxPacket_.data().useCap;
-    msg.reset = chassisCtrlRxPacket_.data().reset;
+    msg.bodyReset = chassisCtrlRxPacket_.data().bodyReset;
+    msg.uiReset = chassisCtrlRxPacket_.data().uiReset;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
         motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||
@@ -261,6 +273,25 @@ void Bipedal::update(void *_param)
     refereeDataTxPacket_.setData().stageRemainTime = refereeData.gameStatus.stageRemainTime;
     refereeDataTxPacket_.setData().rateOfFire = refereeData.shootData.bulletFreq;
     refereeDataTxPacket_.setData().muzzleVel = refereeData.shootData.bulletSpeed;
+    // UI
+#if APP_USE_UI
+    if (msg.uiReset) {
+        UI::APP::instance().uiReInit();
+    }
+    ChassisUIMsg_s chassisUIMsgData{ .state = stateFactory_.getCurrentState()->getName(),
+                                     .vel = ds_,
+                                     .useCap = msg.useCap,
+                                     .capEnergyRatio = 0.99f,
+                                     .chassisEnergyRatio = 0.99f };
+    UI::APP::instance().updateChassis(chassisUIMsgData);
+
+    GimbalUIMsg_s gimbalUIMsgData{ .state =
+                                           static_cast<GIMBAL::FSMState_e>(gimbalStateRxPacket_.data().gimbalRealState),
+                                   .aiming = gimbalStateRxPacket_.data().aiming,
+                                   .visionOnline = gimbalStateRxPacket_.data().visionOnline,
+                                   .pitchAng = getMinorArc(gimbalStateRxPacket_.data().pitch, pitch()) };
+    UI::APP::instance().updateGimbal(gimbalUIMsgData);
+#endif
 #endif
 
     // update state

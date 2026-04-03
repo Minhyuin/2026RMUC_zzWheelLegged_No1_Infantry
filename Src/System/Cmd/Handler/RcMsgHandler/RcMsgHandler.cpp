@@ -16,6 +16,10 @@
 #include ARMORBOOSTER_FILE
 #endif
 
+#ifdef APP_USE_UI
+#include "UIApp.hpp"
+#endif
+
 #include "DT7.hpp"
 #include "ET08A.hpp"
 #include "VT13.hpp"
@@ -242,6 +246,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             alMsg_.state = ARMORLOADER::FSMState_e::STOP;
             alMsg_.fire = false;
             abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+#ifdef APP_USE_UI
+            cMsg_.uiReset = rcData->gamepad.pause && !rcDataPrev.gamepad.pause;
+#endif
         } else {
             if (!keyBoardCtrlFlag_) {
                 cMsg_.useCap = true;
@@ -341,7 +348,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 // other buttons
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
-                cMsg_.reset = IS_KEY_PRESS(rcData->KBM.key, VT13::Z);
+                cMsg_.bodyReset = IS_KEY_PRESS(rcData->KBM.key, VT13::Z);
 
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::X) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::X))
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
