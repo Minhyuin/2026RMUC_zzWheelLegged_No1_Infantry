@@ -109,6 +109,10 @@ struct GimbalYawMsg_s : public Msg {
 struct ChassisUIMsg_s {
     CHASSIS::FSMState_e state;
     float vel;
+    float deltaYaw;
+    float lengthL;
+    float lengthR;
+    float roll;
     bool useCap;
     float capEnergyRatio;
     float chassisEnergyRatio;

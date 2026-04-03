@@ -83,18 +83,58 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     chassisEnergyArc.startAngle = CHASSIS_ENERGY_ARC_START_ENG;
     chassisEnergyArc.endAngle = CHASSIS_ENERGY_ARC_END_ENG;
 
+    auto &chassisDirection = _info.chassisDirection.config;
+    chassisDirection = {};
+    chassisDirection.priority = UI::Priority_e::MID;
+    chassisDirection.uiType = Type_e::CIRCLE;
+    chassisDirection.operateType = OperateType_e::MODIFY;
+    chassisDirection.layer = 5;
+    chassisDirection.color = Color_e::RED_BLUE;
+    chassisDirection.width = 5;
+    chassisDirection.startX = 369;
+    chassisDirection.startY = 544;
+    chassisDirection.radius = 8;
+
+    auto &legLengthValue = _info.legLengthValue.config;
+    legLengthValue = {};
+    legLengthValue.priority = UI::Priority_e::LOW;
+    legLengthValue.uiType = Type_e::FLOAT;
+    legLengthValue.operateType = OperateType_e::MODIFY;
+    legLengthValue.layer = 1;
+    legLengthValue.color = Color_e::ORANGE;
+    legLengthValue.width = 2;
+    legLengthValue.startX = 940 - 200;
+    legLengthValue.startY = 40;
+    legLengthValue.floatNum = 0.f;
+    legLengthValue.decimal = 2;
+    legLengthValue.size = 15;
+
+    auto &chassisRollValue = _info.chassisRollValue.config;
+    chassisRollValue = {};
+    chassisRollValue.priority = UI::Priority_e::LOW;
+    chassisRollValue.uiType = Type_e::FLOAT;
+    chassisRollValue.operateType = OperateType_e::MODIFY;
+    chassisRollValue.layer = 1;
+    chassisRollValue.color = Color_e::ORANGE;
+    chassisRollValue.width = 2;
+    chassisRollValue.startX = 940 + 200;
+    chassisRollValue.startY = 40;
+    chassisRollValue.floatNum = 0.f;
+    chassisRollValue.decimal = 3;
+    chassisRollValue.size = 15;
+
     auto &visionState = _info.visionState.config;
     visionState = {};
-    visionState.priority = UI::Priority_e::HIGH;
+    visionState.priority = UI::Priority_e::MID;
     visionState.uiType = Type_e::RECTANGEL;
     visionState.operateType = OperateType_e::MODIFY;
     visionState.layer = 2;
     visionState.color = Color_e::WHITE;
     visionState.width = 1;
-    visionState.startX = 730;
-    visionState.startY = 350;
-    visionState.endX = 1260;
-    visionState.endY = 748;
+    visionState.startX = 960 - 300;
+    visionState.startY = 540 - 200;
+    visionState.endX = 960 + 300;
+    visionState.endY = 540 + 200;
     visionState.startAngle = 60;
     visionState.endAngle = 120;
 
@@ -263,6 +303,17 @@ void staticConfig(StaticUIInfos_u &_info)
     chassisEnergyArcBackground.endY = 206;
     chassisEnergyArcBackground.startAngle = 62;
     chassisEnergyArcBackground.endAngle = 120;
+
+    auto &legLengthAndChassisRollString = _info.legLengthAndChassisRollString.config;
+    legLengthAndChassisRollString = {};
+    legLengthAndChassisRollString.uiType = Type_e::CHAR;
+    legLengthAndChassisRollString.layer = 4;
+    legLengthAndChassisRollString.color = Color_e::GREEN;
+    legLengthAndChassisRollString.width = 2;
+    legLengthAndChassisRollString.startX = 960 - 50;
+    legLengthAndChassisRollString.startY = 40;
+    legLengthAndChassisRollString.size = 15;
+    std::strncpy(legLengthAndChassisRollString.text, "LEG/ROLL", sizeof(legLengthAndChassisRollString.text) - 1);
 
     auto &gimbalString = _info.gimbalString.config;
     gimbalString = {};

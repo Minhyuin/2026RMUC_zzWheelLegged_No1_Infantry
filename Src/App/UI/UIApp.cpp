@@ -77,6 +77,21 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
     dynamicInfo_.chassisEnergyArc.config.startAngle =
             CHASSIS_ENERGY_ARC_END_ENG - static_cast<uint32_t>(_msg.chassisEnergyRatio * CHASSIS_ENERGY_ARC_RANGE);
     client_.ready(&dynamicInfo_.chassisEnergyArc);
+
+    // chassisDirection
+    dynamicInfo_.chassisDirection.config.startX =
+            static_cast<int32_t>(CHASSIS_DIRECTION_RADIUS * arm_sin_f32(_msg.deltaYaw)) + REAL_AIM_X;
+    dynamicInfo_.chassisDirection.config.startY =
+            static_cast<int32_t>(CHASSIS_DIRECTION_RADIUS * arm_cos_f32(_msg.deltaYaw)) + REAL_AIM_Y;
+    client_.ready(&dynamicInfo_.chassisDirection);
+
+    // legLengthValue
+    dynamicInfo_.legLengthValue.config.floatNum = (_msg.lengthL + _msg.lengthR) / 2.f;
+    client_.ready(&dynamicInfo_.legLengthValue);
+
+    // chassisRollValue
+    dynamicInfo_.chassisRollValue.config.floatNum = _msg.roll;
+    client_.ready(&dynamicInfo_.chassisRollValue);
 }
 
 void APP::updateGimbal(const GimbalUIMsg_s &_msg)
@@ -189,12 +204,13 @@ void APP::updateArmorBooster(const ArmorBoosterUIMsg_s &_msg)
 
 void APP::task()
 {
+    constexpr uint32_t RESET_DELAY = 2000 / SEND_INTERVAL;
     if (xTaskGetTickCount() - updateCnt >= SEND_INTERVAL) {
         updateCnt = xTaskGetTickCount();
         if (!client_.isCharInit || !client_.isGraphicInit) {
             client_.sendInit();
             resetCnt = 0;
-        } else if (resetCnt >= pdMS_TO_TICKS(20))
+        } else if (resetCnt >= RESET_DELAY)
             client_.send();
         resetCnt++;
     }

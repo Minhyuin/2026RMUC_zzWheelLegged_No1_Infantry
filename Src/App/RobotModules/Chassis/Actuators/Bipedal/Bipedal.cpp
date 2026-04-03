@@ -280,6 +280,10 @@ void Bipedal::update(void *_param)
     }
     ChassisUIMsg_s chassisUIMsgData{ .state = stateFactory_.getCurrentState()->getName(),
                                      .vel = ds_,
+                                     .deltaYaw = deltaYaw,
+                                     .lengthL = lengthL(),
+                                     .lengthR = lengthR(),
+                                     .roll = insData_.roll,
                                      .useCap = msg.useCap,
                                      .capEnergyRatio = 0.99f,
                                      .chassisEnergyRatio = 0.99f };

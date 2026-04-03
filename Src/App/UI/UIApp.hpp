@@ -11,7 +11,7 @@ namespace UI {
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 用户配置区 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // 发送间隔时间(ms) 默认40ms (25HZ), 裁判系统上限是30HZ
-static constexpr uint16_t SEND_INTERVAL = 40;
+static constexpr uint16_t SEND_INTERVAL = 35;
 
 // 队列接收事件
 enum class Event_e : uint8_t { CHASSIS, GIMBAL, ARM, ARMORBOOSTER };
