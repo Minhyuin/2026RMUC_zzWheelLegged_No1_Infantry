@@ -253,12 +253,16 @@ void Bipedal::update(void *_param)
     legR_.setTpFeedforward(tpGravityCompR);
 
     // use cap
+    static constexpr float MAX_VEL_ATTENUATION_FACTOR = 0.3f;
+    static constexpr float LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
+    float normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
+    float velAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);
     if (msg.useCap) {
-        dsMaxF_ = MAX_VEL_RUSH_FRONT;
-        dsMaxB_ = MAX_VEL_RUSH_BACK;
+        dsMaxF_ = MAX_VEL_RUSH_FRONT * velAttenuationFactor;
+        dsMaxB_ = MAX_VEL_RUSH_BACK * velAttenuationFactor;
     } else {
-        dsMaxF_ = MAX_VEL_FRONT;
-        dsMaxB_ = MAX_VEL_BACK;
+        dsMaxF_ = MAX_VEL_FRONT * velAttenuationFactor;
+        dsMaxB_ = MAX_VEL_BACK * velAttenuationFactor;
     }
 
     // stop detect

@@ -47,7 +47,11 @@ public:
             refRoll_ = 0.f;
         }
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        if (chassis_->isFloating()) {
+            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.0001f);
+        } else {
+            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0003f);
+        }
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;

@@ -129,6 +129,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
         chassisCtrlTxPacket_.setData().bodyReset = cmsg_.bodyReset;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
+        
     };
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 

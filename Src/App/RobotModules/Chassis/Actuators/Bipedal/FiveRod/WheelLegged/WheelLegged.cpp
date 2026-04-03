@@ -99,7 +99,7 @@ float WheelLegged::minL(float _phi) const
 
 void WheelLegged::setLegLengthAngPidPD(float _kp, float _kd)
 {
-    lengthAngPid_.setParam(_kp, 0.f, _kd, 0.001f, 0.f, LENGTH_ANG_PID_OUTMAX);
+    lengthAngPid_.setParam(_kp, LENGTH_ANG_PID_KI, _kd, 0.001f, LENGTH_ANG_PID_IMAX, LENGTH_ANG_PID_OUTMAX);
 }
 
 void WheelLegged::setLegLengthVelPidPD(float _kp, float _kd)

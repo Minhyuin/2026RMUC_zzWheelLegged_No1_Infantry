@@ -15,8 +15,8 @@ bool Bipedal::isTumble() const
     return fabs(phiGlobalL()) > 0.7f || fabs(phiGlobalR()) > 0.7f || fabs(pitch()) > 0.45f;
 }
 
-static constexpr float DANG_FREEZE_THRESHOLD = 0.2f;
-static constexpr uint16_t FREEZE_MAX_TIME = 500;
+static constexpr float DANG_FREEZE_THRESHOLD = 0.3f;
+static constexpr uint16_t FREEZE_MAX_TIME = 100;
 bool Bipedal::isFreeze() const
 {
     static uint16_t freezeTime = 0;
