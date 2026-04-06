@@ -14,6 +14,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_BASE = 6.f;
     static constexpr float SPIN_SPEED_VAR = 2.f;
     static constexpr float SPIN_L = 0.17f;
+    static constexpr float STRETCH_L = 0.27f;
 
     static constexpr float MAX_DS = 0.4f;
     static constexpr float DIR_OFFSET_ANG = PI / 2.f - PI / 4.f;
@@ -27,6 +28,7 @@ public:
         refYaw_ = chassis_->yaw();
         refLength_ = chassis_->length();
         targetRefLength_ = SPIN_L;
+        strechPrev_ = chassis_->msg.stretch;
         refRoll_ = 0.f;
         spinCnt_ = 0;
         LOG::info("ChassisSpin", " enter");
@@ -34,8 +36,15 @@ public:
 
     void run() final
     {
-        targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        if (!strechPrev_ && chassis_->msg.stretch) {
+            targetRefLength_ = STRETCH_L;
+        } else if (strechPrev_ && !chassis_->msg.stretch) {
+            targetRefLength_ = SPIN_L;
+        } else
+            targetRefLength_ += chassis_->msg.dl * 0.001f;
+        strechPrev_ = chassis_->msg.stretch;
+
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -107,6 +116,8 @@ private:
     float refYaw_ = 0.f;
     float refLength_ = 0.f;
     float targetRefLength_ = SPIN_L;
+
+    bool strechPrev_ = false;
 
     float refRoll_ = 0;
 

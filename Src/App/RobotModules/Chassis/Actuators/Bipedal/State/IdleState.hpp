@@ -16,6 +16,7 @@ class IdleState : public FSMState<FSMState_e> {
     static constexpr float MAX_ACC_BACK = 0.7f;
     static constexpr float MAX_ACC_FRONT = 0.7f;
     static constexpr float IDLE_L = WheelLegged::MIN_L;
+    static constexpr float STRETCH_L = 0.28f;
 
 public:
     IdleState(Bipedal *_chassis)
@@ -34,6 +35,7 @@ public:
         targetRefLength_ = IDLE_L;
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
+        strechPrev_ = chassis_->msg.stretch;
         chassis_->needGimbalLaunch(false);
         chassis_->allowGimbalExitLaunch(true);
 
@@ -42,15 +44,19 @@ public:
 
     void run() final
     {
-        if (chassis_->msg.bodyReset) {
+        if (!strechPrev_ && chassis_->msg.stretch) {
+            targetRefLength_ = STRETCH_L;
+        } else if (strechPrev_ && !chassis_->msg.stretch) {
             targetRefLength_ = IDLE_L;
             refRoll_ = 0.f;
-        }
-        targetRefLength_ += chassis_->msg.dl * 0.001f;
+        } else
+            targetRefLength_ += chassis_->msg.dl * 0.001f;
+        strechPrev_ = chassis_->msg.stretch;
+
         if (chassis_->isFloating()) {
             refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.0001f);
         } else {
-            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0003f);
+            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
         }
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
@@ -89,15 +95,13 @@ public:
             return FSMState_e::STOP;
         if (isJumpReady_)
             return FSMState_e::JUMP;
-        else if (chassis_->msg.state == FSMState_e::IDLE)
-            return FSMState_e::IDLE;
         else if (chassis_->msg.state == FSMState_e::TANK)
             return FSMState_e::TANK;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
         else if (chassis_->msg.state == FSMState_e::TEST)
             return FSMState_e::TEST;
-        else if (chassis_->msg.state == FSMState_e::CLIMB_PREPARE)
+        else if (chassis_->msg.needClimb)
             return FSMState_e::CLIMB_PREPARE;
         else
             return FSMState_e::IDLE;
@@ -113,6 +117,8 @@ private:
 
     bool isJumpReady_ = false;
     bool needJumpPrev_ = false;
+
+    bool strechPrev_ = false;
 };
 
 } // namespace CHASSIS

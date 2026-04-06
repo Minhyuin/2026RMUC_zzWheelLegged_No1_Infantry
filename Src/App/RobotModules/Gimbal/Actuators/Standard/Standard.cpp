@@ -136,11 +136,13 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().dl = cmsg_.dl;
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
+        chassisCtrlTxPacket_.setData().needClimb = cmsg_.needClimb;
+        chassisCtrlTxPacket_.setData().stretch = cmsg_.stretch;
         chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
-        chassisCtrlTxPacket_.setData().bodyReset = cmsg_.bodyReset;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
     };
-    if (cmsg_.state != CHASSIS::FSMState_e::STOP && stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)
+    if (cmsg_.state != CHASSIS::FSMState_e::STOP &&
+        stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(
                 CHASSIS::FSMState_e::TANK); // when gimbal is in U_TURN, chassis can only be in TANK or STOP
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();

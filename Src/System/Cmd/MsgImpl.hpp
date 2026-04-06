@@ -60,8 +60,9 @@ struct ChassisMsg_s : public Msg {
     float dl;
     float dphi; // only for debug
     bool needJump;
+    bool needClimb;
+    bool stretch;
     bool useCap;
-    bool bodyReset;
     bool uiReset;
 };
 

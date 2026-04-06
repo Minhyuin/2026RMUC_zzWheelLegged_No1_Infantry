@@ -41,7 +41,7 @@ public:
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00035f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
@@ -78,7 +78,7 @@ public:
             return FSMState_e::STOP;
         if (isPrepareFinish_)
             return FSMState_e::CLIMB;
-        else if (chassis_->msg.state != FSMState_e::CLIMB_PREPARE)
+        else if (!chassis_->msg.needClimb)
             return FSMState_e::IDLE;
         else
             return FSMState_e::CLIMB_PREPARE;

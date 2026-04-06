@@ -143,8 +143,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             cMsg_.wz = -static_cast<float>(rcData->rc.ch2) / CH_RANGE * INPUT_WZ_MAX;
             alMsg_.fire = false;
             if (sl == SW::DOWN) {
-                cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
+                cMsg_.needClimb = true;
             } else {
+                cMsg_.needClimb = false;
                 cMsg_.state = CHASSIS::FSMState_e::SPIN;
             }
             gMsg_.state = GIMBAL::FSMState_e::RUN;
@@ -206,8 +207,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             cMsg_.wz = -static_cast<float>(rcData->ch2) / CH_RANGE * INPUT_WZ_MAX;
             alMsg_.fire = false;
             if (sl == SW::DOWN) {
-                cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
+                cMsg_.needClimb = true;
             } else {
+                cMsg_.needClimb = false;
                 cMsg_.state = CHASSIS::FSMState_e::SPIN;
             }
             gMsg_.state = GIMBAL::FSMState_e::RUN;
@@ -272,8 +274,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 }
                 if (rcData->gamepad.trigger)
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
-                if (rcData->gamepad.pause)
-                    cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
+                cMsg_.needClimb = rcData->gamepad.pause;
 
                 cMsg_.vx = static_cast<float>(rcData->gamepad.ch[1]) / CH_RANGE * INPUT_VX_MAX;
                 cMsg_.vy = -static_cast<float>(rcData->gamepad.ch[0]) / CH_RANGE * INPUT_VX_MAX;
@@ -315,19 +316,16 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 
                 // length and roll
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::F)) {
-                    cMsg_.vx = cMsg_.vy = 0;
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::W)) {
-                        cMsg_.dl = SMOOTH::slopeFollowing(INPUT_DL_MAX, cMsg_.dl, KEYBOARD_ENABLE_ACC);
-                    }
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::S)) {
-                        cMsg_.dl = SMOOTH::slopeFollowing(-INPUT_DL_MAX, cMsg_.dl, KEYBOARD_ENABLE_ACC);
-                    }
+                    cMsg_.vy = 0;
+                    cMsg_.stretch = true;
                     if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
                         cMsg_.droll = SMOOTH::slopeFollowing(-INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
                     }
                     if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
                         cMsg_.droll = SMOOTH::slopeFollowing(INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
                     }
+                } else {
+                    cMsg_.stretch = false;
                 }
 
                 // gimbal
@@ -348,14 +346,11 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 // other buttons
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
-                cMsg_.bodyReset = IS_KEY_PRESS(rcData->KBM.key, VT13::Z);
 
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::X) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::X))
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Q) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Q))
                     gMsg_.state = GIMBAL::FSMState_e::U_TURN;
-                if (IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::CTRL))
-                    cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
@@ -368,6 +363,8 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
+                cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL);
+                cMsg_.needClimb = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && IS_KEY_PRESS(rcData->KBM.key, VT13::F);
                 cMsg_.useCap = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
             }
         }
