@@ -231,8 +231,8 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                                           gMsg_.state = GIMBAL::FSMState_e::RUN;
                                           return true;
                                       }()) :
-                              (IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::C) &&
-                               IS_KEY_PRESS(rcData->KBM.key, VT13::B)) ?
+                              (IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::C)/*&&
+                               IS_KEY_PRESS(rcData->KBM.key, VT13::B)*/) ?
                                       false :
                               (lastSwitch_ != static_cast<uint8_t>(VT13::Sw_e::C)) ? false :
                                                                                      ctrlFlag_) :
@@ -353,7 +353,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::X) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::X))
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Q) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Q))
-                    cMsg_.state = CHASSIS::FSMState_e::TANK;
+                    gMsg_.state = GIMBAL::FSMState_e::U_TURN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::CTRL))
                     cMsg_.state = CHASSIS::FSMState_e::CLIMB_PREPARE;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {

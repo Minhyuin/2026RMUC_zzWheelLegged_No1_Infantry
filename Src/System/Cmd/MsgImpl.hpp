@@ -23,7 +23,7 @@ enum class FSMState_e : uint8_t {
 } // namespace CHASSIS
 
 namespace GIMBAL {
-enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN, AUTO };
+enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN, AUTO, U_TURN };
 }
 
 namespace ARMORBOOSTER {

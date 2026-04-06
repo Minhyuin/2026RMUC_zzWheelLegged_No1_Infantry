@@ -301,4 +301,28 @@ public:
     }
 };
 
+class ChassisStatePacketType {
+public:
+    static constexpr uint8_t LEN = 4;
+    static constexpr uint16_t ID = 0x27;
+    struct ProtoData_s {
+        uint8_t chassisRealState;
+    };
+    union Data_u {
+        struct Data_s {
+            uint8_t chassisRealState : 4;
+            uint32_t reversed : 28;
+        } content;
+        uint8_t bytes[LEN];
+    } data;
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        Data_u::Data_s &d = _data.content;
+        d.chassisRealState = _protoData.chassisRealState;
+    }
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        _protoData.chassisRealState = _data.content.chassisRealState;
+    }
+};
 } // namespace COMM

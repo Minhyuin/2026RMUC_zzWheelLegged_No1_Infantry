@@ -10,6 +10,7 @@
 #include "./State/LaunchState.hpp"
 #include "./State/RunState.hpp"
 #include "./State/AutoState.hpp"
+#include "./State/UTurnState.hpp"
 
 #if EXTENSION_BUZZER
 #include "Buzzer.hpp"
@@ -51,6 +52,14 @@ void GimbalLaunchStrategyRxPacket ::registerCallback()
     LOG::info("GimbalLaunchStrategyRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
+void ChassisStateRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("ChassisStateRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
+}
+
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
@@ -83,6 +92,7 @@ Standard::Standard()
 
     this->stateFactory_.addState(FSMState_e::RUN, std::make_unique<RunState>(this));
     this->stateFactory_.addState(FSMState_e::AUTO, std::make_unique<AutoState>(this));
+    this->stateFactory_.addState(FSMState_e::U_TURN, std::make_unique<UTurnState>(this));
     this->stateFactory_.addState(FSMState_e::LAUNCH, std::make_unique<LaunchState>(this));
     this->stateFactory_.addState(FSMState_e::STOP, std::make_unique<StopState>(this));
     this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
@@ -129,8 +139,10 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
         chassisCtrlTxPacket_.setData().bodyReset = cmsg_.bodyReset;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
-        
     };
+    if (cmsg_.state != CHASSIS::FSMState_e::STOP && stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)
+        chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(
+                CHASSIS::FSMState_e::TANK); // when gimbal is in U_TURN, chassis can only be in TANK or STOP
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
     if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg_, 0) == pdTRUE) {

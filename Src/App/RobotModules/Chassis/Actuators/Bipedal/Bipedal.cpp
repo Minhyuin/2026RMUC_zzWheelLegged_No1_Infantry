@@ -67,6 +67,11 @@ void GimbalLaunchStrategyTxPacket::transmit(uint8_t *_buf, uint16_t _len)
     Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
 }
 
+void ChassisStateTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+}
+
 Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter::instance().insTopic, &insData_))
 {
     InitConfig_s rfDM8009Config = {
@@ -267,6 +272,9 @@ void Bipedal::update(void *_param)
 
     // stop detect
     detectStop();
+
+    // send state to gimbal
+    chassisStateTxPacket_.setData().chassisRealState = static_cast<uint8_t>(msg.state);
 
     // send referee data to gimbal
 #if EXTENSION_REFEREE

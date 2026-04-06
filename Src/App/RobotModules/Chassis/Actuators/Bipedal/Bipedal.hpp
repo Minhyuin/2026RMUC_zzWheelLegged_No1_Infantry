@@ -51,6 +51,12 @@ class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStr
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
+class ChassisStateTxPacket : public COMM::TxPacket<COMM::ChassisStatePacketType> {
+    friend class Bipedal;
+    ChassisStateTxPacket() : TxPacket(10.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
+};
+
 class Bipedal : public Chassis {
     /*
         FLOOR_TO_HIP1 = 29.54 / 180 * pi; % HIP1与地面的夹角，由地面指向HIP1
@@ -402,6 +408,7 @@ private:
 
     RefereeDataTxPacket refereeDataTxPacket_;
     GimbalLaunchStrategyTxPacket gimbalLaunchStrategyTxPacket_;
+    ChassisStateTxPacket chassisStateTxPacket_;
 
     Axis1Odom odom_;
 

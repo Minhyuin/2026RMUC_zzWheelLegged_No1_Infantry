@@ -101,6 +101,8 @@ public:
 
         if (gimbal_->msg.state == FSMState_e::AUTO && gimbal_->vision.data().control)
             return FSMState_e::AUTO;
+        else if (gimbal_->msg.state == FSMState_e::U_TURN)
+            return FSMState_e::U_TURN;
         else
             return FSMState_e::RUN;
     }

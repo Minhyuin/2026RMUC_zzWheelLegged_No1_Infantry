@@ -46,6 +46,12 @@ public:
     void registerCallback() final;
 };
 
+class ChassisStateRxPacket : public COMM::RxPacket<COMM::ChassisStatePacketType, 1> {
+    friend class Standard;
+    ChassisStateRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
 class Standard : public Gimbal {
     struct Motors_s {
         PINYMOTOR::IMotor *pitch;
@@ -86,6 +92,11 @@ public:
 
     LaunchStrategy_e generateLaunchStrategy();
 
+    CHASSIS::FSMState_e chassisState() const
+    {
+        return static_cast<CHASSIS::FSMState_e>(chassisStateRxPacket_.data().chassisRealState);
+    }
+
     void stop();
     void enter();
     void update(void *_param);
@@ -104,6 +115,7 @@ private:
 
     RefereeDataRxPacket refereeDataRxPacket_;
     GimbalLaunchStrategyRxPacket gimbalLaunchStrategyRxPacket_;
+    ChassisStateRxPacket chassisStateRxPacket_;
 
     ChassisMsg_s cmsg_{};      // master keep it temporary
     ArmorLoaderMsg_s almsg_{}; // master keep it temporary
