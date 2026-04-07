@@ -13,6 +13,9 @@
 
 #if EXTENSION_REFEREE
 #include "Referee.hpp"
+#if APP_USE_UI
+#include "UIApp.hpp"
+#endif
 #endif
 
 using namespace ARMORLOADER;
@@ -24,6 +27,14 @@ void ShooterCtrlRxPacket::registerCallback()
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("ShooterCtrlRxPacket", " Receive cb registered, uId:0x%hx", uid());
+}
+
+void ArmorBoosterStateRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("ArmorBoosterStateRxPacket", " Receive cb registered, uId:0x%hx", uid());
 }
 
 Dial::Dial()
@@ -52,7 +63,6 @@ void Dial::stop() { motors_.dial->cmd(MotorCmdType_e::OFF); }
 
 void Dial::enter()
 {
-    blockCnt = 0;
     motors_.dial->setZeroAng(); // reset multipCirAng and cirNum
     motors_.dial->cmd(MotorCmdType_e::ON);
 }
@@ -84,6 +94,17 @@ void Dial::update(void *_param)
         barrelHeat_ -= static_cast<float>(refereeData.gameRobotStatus.shooterCoolingValue) * 0.001f;
     msg.fire &= barrelHeat_ <=
                 static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit) - BARREL_HEAT_THRESHOLD_OFFSET;
+#if APP_USE_UI
+    ArmorLoaderUIMsg_s armorLoaderUIMsgData{
+        .state = stateFactory_.getCurrentState()->getName(),
+    };
+    UI::APP::instance().updateArmorLoader(armorLoaderUIMsgData);
+
+    ArmorBoosterUIMsg_s armorBoosterUIMsgData{
+        .state = static_cast<ARMORBOOSTER::FSMState_e>(armorBoosterStateRxPacket_.data().armorBoosterRealState),
+    };
+    UI::APP::instance().updateArmorBooster(armorBoosterUIMsgData);
+#endif
 #endif
 
     vel_ = velFltr_.process(dial()->vel());

@@ -18,9 +18,6 @@ static PositionalPid runPitchVelPID(0.5f, 100.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid runYawAngPID(40.f, 150.f, 1.f, 0.001f, 0.3f, 10.f, 0.f);
 static PositionalPid runYawVelPID(0.3f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
-static PositionalPid runFixYawAngPID(50.f, 100.f, 0.3f, 0.001f, 1.f, 3.5f, 0.f);
-static PositionalPid runFixYawVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
-
 namespace GIMBAL {
 
 class RunState : public FSMState<FSMState_e> {
@@ -54,8 +51,6 @@ public:
         cmdImuPitchAng_ = gimbal_->ins().pitch;
         cmdImuYawAng_ = gimbal_->ins().yaw;
 
-        needLaunchCounter_ = 0;
-
         gimbal_->enter();
 
         LOG::info("GimbalRun", "enter");
@@ -83,11 +78,8 @@ public:
         // cmdImuYawAngWithOffset_ = PINYMOTOR::clampArc(
         //         cmdImuYawAngWithOffset_, imuYawMinAng_, imuYawMaxAng_);
 
-        needLaunchCounter_ = needLaunchCounter_ > MAX_NEED_LAUNCH_CNT ? MAX_NEED_LAUNCH_CNT : needLaunchCounter_ + 1;
-
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAngWithOffset_);
         gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, cmdImuYawAngWithOffset_);
-        // gimbal_->ctrlMotorYaw(&runFixYawAngPID, &runFixYawVelPID,0);
     }
 
     void exit() final
@@ -96,8 +88,6 @@ public:
         pids_.pitchVelPid->reset();
         pids_.yawAngPid->reset();
         pids_.yawVelPid->reset();
-        runFixYawAngPID.reset();
-        runFixYawVelPID.reset();
         LOG::info("GimbalRun", "exit");
     }
 
@@ -106,11 +96,13 @@ public:
         if (gimbal_->msg.state == FSMState_e::STOP)
             return FSMState_e::STOP;
 
-        if (gimbal_->isNeedLaunch() && needLaunchCounter_ >= MAX_NEED_LAUNCH_CNT)
+        if (gimbal_->isNeedLaunch())
             return FSMState_e::LAUNCH;
 
-        if (gimbal_->msg.state == FSMState_e::AUTO && gimbal_->vision.data().control && !gimbal_->msg.forceHumanProxy)
+        if (gimbal_->msg.state == FSMState_e::AUTO && gimbal_->vision.data().control)
             return FSMState_e::AUTO;
+        else if (gimbal_->msg.state == FSMState_e::U_TURN)
+            return FSMState_e::U_TURN;
         else
             return FSMState_e::RUN;
     }
@@ -120,10 +112,8 @@ private:
 
     Pids_s pids_;
 
-    float imuYawMinAng_ = IMU_YAW_START_ANG;
-    float imuYawMaxAng_ = IMU_YAW_END_ANG;
-
-    uint16_t needLaunchCounter_ = 0;
+    // float imuYawMinAng_ = IMU_YAW_START_ANG;
+    // float imuYawMaxAng_ = IMU_YAW_END_ANG;
 
     float cmdImuPitchAng_;
     float cmdImuPitchAngWithOffset_;

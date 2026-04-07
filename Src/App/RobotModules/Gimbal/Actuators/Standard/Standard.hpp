@@ -22,9 +22,15 @@ class ChassisCtrlTxPacket : public COMM::TxPacket<COMM::ChassisCtrlPacketType> {
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
-class ShooterCtrlTxPacket : public COMM::TxPacket<COMM::ArmorLoaderPacketType> {
+class ShooterCtrlTxPacket : public COMM::TxPacket<COMM::ArmorLoaderCtrlPacketType> {
     friend class Standard;
     ShooterCtrlTxPacket() : TxPacket(500.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
+};
+
+class GimbalStateTxPacket : public COMM::TxPacket<COMM::GimbalStatePacketType> {
+    friend class Standard;
+    GimbalStateTxPacket() : TxPacket(30.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -40,6 +46,12 @@ public:
     void registerCallback() final;
 };
 
+class ChassisStateRxPacket : public COMM::RxPacket<COMM::ChassisStatePacketType, 1> {
+    friend class Standard;
+    ChassisStateRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
 class Standard : public Gimbal {
     struct Motors_s {
         PINYMOTOR::IMotor *pitch;
@@ -47,18 +59,18 @@ class Standard : public Gimbal {
     };
 
 public:
-    static constexpr float PITCH_LAUNCH_ANG = 0.322922677f;
-    static constexpr float YAW_LAUNCH_ANG = 3.9233954f;
+    static constexpr float PITCH_LAUNCH_ANG = 4.71229315f;
+    static constexpr float YAW_LAUNCH_ANG = 2.26506090f;
 
     static constexpr float PITCH_MOTOR_FREQ = 1000.f;
     static constexpr float YAW_MOTOR_FREQ = 1000.f;
 
-    static constexpr float YAW_INERTIA = 0.0397887f;
-    static constexpr float YAW_FRICTION = 0.f; // 0.0932377f;
-    static constexpr float YAW_COULOMB = 0.f;  // 0.253459f;
+    static constexpr float YAW_INERTIA = 0.0201694f;
+    static constexpr float YAW_FRICTION = 0.f; // 0.109081
+    static constexpr float YAW_COULOMB = 0.f;  // 0.105144
 
     // "REVERSE flag" is true when imu and motor have different direction
-    static constexpr bool PITCH_REVERSE = false;
+    static constexpr bool PITCH_REVERSE = true;
     static constexpr bool YAW_REVERSE = false;
 
     Standard();
@@ -80,6 +92,11 @@ public:
 
     LaunchStrategy_e generateLaunchStrategy();
 
+    CHASSIS::FSMState_e chassisState() const
+    {
+        return static_cast<CHASSIS::FSMState_e>(chassisStateRxPacket_.data().chassisRealState);
+    }
+
     void stop();
     void enter();
     void update(void *_param);
@@ -94,9 +111,11 @@ private:
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
     ShooterCtrlTxPacket shooterCtrlTxPacket_;
+    GimbalStateTxPacket gimbalStateTxPacket_;
 
     RefereeDataRxPacket refereeDataRxPacket_;
     GimbalLaunchStrategyRxPacket gimbalLaunchStrategyRxPacket_;
+    ChassisStateRxPacket chassisStateRxPacket_;
 
     ChassisMsg_s cmsg_{};      // master keep it temporary
     ArmorLoaderMsg_s almsg_{}; // master keep it temporary

@@ -3,6 +3,8 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+static float standLegLengthAngPidPD[2]{ 45.f, 0.0f };
+static float standLegLengthVelPidPD[2]{ 80.f, 0.0f };
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
@@ -20,8 +22,8 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float TARGET_PITCH_FORWARD = 0.1f;
     static constexpr float TARGET_PITCH_BACKWARD = 0.1f;
 
-    static constexpr float S_FEEDFORWARD_FORWARD = -0.7f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -0.05f;
+    static constexpr float S_FEEDFORWARD_FORWARD = -0.3f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.6f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 1000; // ms
 
 public:
@@ -35,6 +37,9 @@ public:
         startLength_ = STAND_L;
         startYaw_ = chassis_->yaw();
         chassis_->enableRoll();
+        chassis_->setRoll(0.f);
+        chassis_->setLegLengthAngPidPD(standLegLengthAngPidPD[0], standLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(standLegLengthVelPidPD[0], standLegLengthVelPidPD[1]);
 
         if ((chassis_->phiL() + chassis_->phiR()) / 2.f <= JUDGE_PHI) {
             // 腿在后面
@@ -55,7 +60,6 @@ public:
     {
         chassis_->setLength(startLength_);
         chassis_->setFdFeedforward();
-        chassis_->setRoll(chassis_->roll());
 
         // ST
         if (model_ == Model_e::ST) {
@@ -73,7 +77,7 @@ public:
             ref.yaw = startYaw_;
             ref.dyaw = wz;
             ref.q = targetBalancePitch_;
-            chassis_->bal(ref);
+            chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
         }
 
         if (chassis_->detectPitchRange(BALANCE_DETECT_THESHOLD, -BALANCE_DETECT_THESHOLD)) {

@@ -10,8 +10,8 @@
 static volatile float launchPitchStep = 0.6f * 0.001f;
 static volatile float launchYawStep = 0.5f * 0.001f;
 
-static PositionalPid launchPitchAngPID(30.f, 20.f, 0.1f, 0.001f, 1.0f, 3.f, 0.f);
-static PositionalPid launchPitchVelPID(0.5f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
+static PositionalPid launchPitchAngPID(50.f, 20.f, 0.1f, 0.001f, 1.0f, 5.f, 0.f);
+static PositionalPid launchPitchVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
 static PositionalPid launchYawAngPID(50.f, 100.f, 0.3f, 0.001f, 1.f, 3.5f, 0.f);
 static PositionalPid launchYawVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
 
@@ -33,7 +33,7 @@ class LaunchState : public FSMState<FSMState_e> {
 
     static constexpr float TARGET_YAW_CHENGE_THESHOLD = 1.9625f; // rad
 
-    static constexpr float PITCH_LAUNCH_ANG = -0.f;
+    static constexpr float PITCH_LAUNCH_ANG = -0.15f;
 
 public:
     LaunchState(Standard *_gimbal) : FSMState<FSMState_e>(FSMState_e::LAUNCH), gimbal_(_gimbal)
@@ -101,7 +101,7 @@ public:
 
         if (launchFinish_[0] && launchFinish_[1])
             gimbal_->loadResetState(true);
-   
+
         gimbal_->ctrlMotorPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdMotorPitchAng_);
         if (launchFinish_[0])
             gimbal_->ctrlMotorYaw(pids_.yawAngPid, pids_.yawVelPid, cmdMotorYawAng_);

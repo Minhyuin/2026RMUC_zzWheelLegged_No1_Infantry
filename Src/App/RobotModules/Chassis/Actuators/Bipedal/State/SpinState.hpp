@@ -10,10 +10,14 @@
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float MAX_WZ = 6.28f;
-    static constexpr float SPIN_SPEED_BASE = 2.f;
-    static constexpr float SPIN_SPEED_VAR = 5.f;
+    static constexpr float SPIN_SPEED_CONST = 8.f;
+    static constexpr float SPIN_SPEED_BASE = 6.f;
+    static constexpr float SPIN_SPEED_VAR = 2.f;
     static constexpr float SPIN_L = 0.17f;
+    static constexpr float STRETCH_L = 0.27f;
+
+    static constexpr float MAX_DS = 0.4f;
+    static constexpr float DIR_OFFSET_ANG = PI / 2.f - PI / 4.f;
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -24,33 +28,55 @@ public:
         refYaw_ = chassis_->yaw();
         refLength_ = chassis_->length();
         targetRefLength_ = SPIN_L;
-        isJumpReady_ = false;
-        needJumpPrev_ = chassis_->msg.needJump;
-        chassis_->setRoll(0);
+        strechPrev_ = chassis_->msg.stretch;
+        refRoll_ = 0.f;
+        spinCnt_ = 0;
         LOG::info("ChassisSpin", " enter");
     }
 
     void run() final
     {
-        targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        if (!strechPrev_ && chassis_->msg.stretch) {
+            targetRefLength_ = STRETCH_L;
+        } else if (strechPrev_ && !chassis_->msg.stretch) {
+            targetRefLength_ = SPIN_L;
+        } else
+            targetRefLength_ += chassis_->msg.dl * 0.001f;
+        strechPrev_ = chassis_->msg.stretch;
+
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
+        refRoll_ += chassis_->msg.droll * 0.001f;
+        chassis_->setRoll(refRoll_);
+
+        float ds, wz;
+
+        // calculate wz in spin
+        arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
+        ds = std::clamp(ds, -MAX_DS, MAX_DS);
+        if (ds == 0)
+            wz = getVariableSpinVel();
+        else
+            wz = getConstantSpinVel();
+        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + (wz * 0.001f), -PI, PI));
+
+        // calculate ds in spin
+        float dirOffsetAng = wz > 0 ? -DIR_OFFSET_ANG : DIR_OFFSET_ANG;
+        float moveAng = atan2f(-chassis_->msg.vy, chassis_->msg.vx) + dirOffsetAng;
+        float deltaAng = PINYMOTOR::getMinorArc(moveAng, chassis_->deltaYaw);
+        if (deltaAng < PI / 2.f && deltaAng > -PI / 2.f) {
+            ds = -ds;
+        }
 
         // WBR
         WBRController::States_s ref{};
-        float wz = getSpinVel(spinCnt_++);
-        wz = std::clamp(wz, -MAX_WZ, MAX_WZ) * 0.001f; // convert to rad/ms
-        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + wz, -PI, PI));
-        ref.ds = 0; // TODO: no spin ds temporary
+        ref.ds = ds;
         ref.yaw = refYaw_;
         ref.dyaw = wz;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::SPIN>(ref);
 
         chassis_->ctrl();
-
-        isJumpReady_ = needJumpPrev_ && !chassis_->msg.needJump;
-        needJumpPrev_ = chassis_->msg.needJump;
     }
 
     void exit() final
@@ -65,27 +91,23 @@ public:
     {
         if (chassis_->msg.state == FSMState_e::STOP || chassis_->isTumble())
             return FSMState_e::STOP;
-        if (isJumpReady_)
-            return FSMState_e::JUMP;
-        else if (chassis_->msg.state == FSMState_e::IDLE)
-            return FSMState_e::IDLE;
-        else if (chassis_->msg.state == FSMState_e::TANK)
-            return FSMState_e::TANK;
-        else if (chassis_->msg.state == FSMState_e::SPIN)
-            return FSMState_e::SPIN;
-        else if (chassis_->msg.state == FSMState_e::CLIMB_PREPARE)
-            return FSMState_e::CLIMB_PREPARE;
+        else if (chassis_->msg.state != FSMState_e::SPIN)
+            if (std::fabs(chassis_->wz()) < 2.f)
+                return FSMState_e::IDLE;
+            else
+                return FSMState_e::SPIN_EXITING;
         else
             return FSMState_e::SPIN;
     }
 
-    /// @brief speed change spinning
-    float getSpinVel(uint32_t _cnt)
+    bool change() final
     {
-        float x = 2.1f * (static_cast<float>(_cnt) * 0.001f);
-        float rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
-        return spinDir_ ? rslt : -rslt;
-        // return spinDir_ ? SPIN_SPEED_BASE : -SPIN_SPEED_BASE;
+        WBRController::States_s ref{};
+        ref.yaw = chassis_->yaw();
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
+        chassis_->ctrl();
+        return std::fabs(chassis_->vel()) < 0.5f && std::fabs(chassis_->phiGlobalL()) < 0.2f &&
+               std::fabs(chassis_->phiGlobalR()) < 0.2f;
     }
 
 private:
@@ -95,10 +117,19 @@ private:
     float refLength_ = 0.f;
     float targetRefLength_ = SPIN_L;
 
+    bool strechPrev_ = false;
+
+    float refRoll_ = 0;
+
     bool spinDir_ = false; // true : left, false: right
     uint32_t spinCnt_ = 0;
 
-    bool isJumpReady_ = false;
-    bool needJumpPrev_ = false;
+    float getVariableSpinVel()
+    {
+        float x = 2.1f * (static_cast<float>(spinCnt_++) * 0.001f);
+        float rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
+        return spinDir_ ? rslt : -rslt;
+    }
+    float getConstantSpinVel() { return spinDir_ ? SPIN_SPEED_CONST : -SPIN_SPEED_CONST; }
 };
 } // namespace CHASSIS

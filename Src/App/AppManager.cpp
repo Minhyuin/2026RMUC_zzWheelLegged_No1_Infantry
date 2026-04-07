@@ -72,7 +72,7 @@ void AppManager::initApp()
 
     cmd.init();
 
-#if APP_USE_UI
+#if APP_USE_UI && TARGET_SLAVE
     UI::APP::instance().init();
     schedule([]() { UI::APP::instance().task(); });
 #endif

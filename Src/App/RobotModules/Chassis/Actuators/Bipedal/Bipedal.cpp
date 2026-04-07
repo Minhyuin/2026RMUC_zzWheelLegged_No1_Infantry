@@ -17,6 +17,7 @@
 #include "./State/IdleState.hpp"
 #include "./State/TankState.hpp"
 #include "./State/SpinState.hpp"
+#include "./State/SpinExitingState.hpp"
 #include "./State/ClimbState.hpp"
 #include "./State/ClimbPrepareState.hpp"
 #include "./State/JumpState.hpp"
@@ -24,6 +25,13 @@
 
 #if EXTENSION_REFEREE
 #include "Referee.hpp"
+#if APP_USE_UI
+#include "UIApp.hpp"
+#endif
+#endif
+
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
 #endif
 
 #define HIP_HANDLE   HCAN2
@@ -41,12 +49,25 @@ void ChassisCtrlRxPacket::registerCallback()
     LOG::info("ChassisCtrlRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
+void GimbalStateRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(&COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("GimbalStateRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
+}
+
 void RefereeDataTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
     Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
 }
 
 void GimbalLaunchStrategyTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+}
+
+void ChassisStateTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
     Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
 }
@@ -141,6 +162,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     this->stateFactory_.addState(FSMState_e::IDLE, std::make_unique<IdleState>(this));
     this->stateFactory_.addState(FSMState_e::TANK, std::make_unique<TankState>(this));
     this->stateFactory_.addState(FSMState_e::SPIN, std::make_unique<SpinState>(this));
+    this->stateFactory_.addState(FSMState_e::SPIN_EXITING, std::make_unique<SpinExitingState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB, std::make_unique<ClimbState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB_PREPARE, std::make_unique<ClimbPrepareState>(this));
     this->stateFactory_.addState(FSMState_e::JUMP, std::make_unique<JumpState>(this));
@@ -174,6 +196,10 @@ void Bipedal::stop()
 
 void Bipedal::enter()
 {
+#if EXTENSION_BUZZER
+    BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 100);
+#endif
+
     legL_.enter();
     legR_.enter();
 }
@@ -189,6 +215,10 @@ void Bipedal::update(void *_param)
     msg.dl = chassisCtrlRxPacket_.data().dl;
     msg.droll = chassisCtrlRxPacket_.data().droll;
     msg.needJump = chassisCtrlRxPacket_.data().needJump;
+    msg.needClimb = chassisCtrlRxPacket_.data().needClimb;
+    msg.stretch = chassisCtrlRxPacket_.data().stretch;
+    msg.useCap = chassisCtrlRxPacket_.data().useCap;
+    msg.uiReset = chassisCtrlRxPacket_.data().uiReset;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
         motors_.HipRB->globalState != GlobalState_e::ONLINE || motors_.HipRF->globalState != GlobalState_e::ONLINE ||
@@ -218,11 +248,34 @@ void Bipedal::update(void *_param)
     else
         lengthOffset_ = 0.f;
 
-    // update anti-split
+    // set tp feedforward
     antiSplitTp_ = antiSplitPid_.calc(phiGlobalL() - phiGlobalR(), 0); // TpL - offset, TpR + offset
+    // Approximate leg gravity torque around hip: tau = m * g * (L/2) * sin(phi_global).
+    float tpGravityCompL =
+            WheelLegged::MASS * WheelLegged::GRAVITY * (0.5f * legL_.state().L0) * arm_sin_f32(phiGlobalL());
+    float tpGravityCompR =
+            WheelLegged::MASS * WheelLegged::GRAVITY * (0.5f * legR_.state().L0) * arm_sin_f32(phiGlobalR());
+    legL_.setTpFeedforward(tpGravityCompL);
+    legR_.setTpFeedforward(tpGravityCompR);
+
+    // use cap
+    static constexpr float MAX_VEL_ATTENUATION_FACTOR = 0.3f;
+    static constexpr float LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
+    float normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
+    float velAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);
+    if (msg.useCap) {
+        dsMaxF_ = MAX_VEL_RUSH_FRONT * velAttenuationFactor;
+        dsMaxB_ = MAX_VEL_RUSH_BACK * velAttenuationFactor;
+    } else {
+        dsMaxF_ = MAX_VEL_FRONT * velAttenuationFactor;
+        dsMaxB_ = MAX_VEL_BACK * velAttenuationFactor;
+    }
 
     // stop detect
     detectStop();
+
+    // send state to gimbal
+    chassisStateTxPacket_.setData().chassisRealState = static_cast<uint8_t>(msg.state);
 
     // send referee data to gimbal
 #if EXTENSION_REFEREE
@@ -233,6 +286,29 @@ void Bipedal::update(void *_param)
     refereeDataTxPacket_.setData().stageRemainTime = refereeData.gameStatus.stageRemainTime;
     refereeDataTxPacket_.setData().rateOfFire = refereeData.shootData.bulletFreq;
     refereeDataTxPacket_.setData().muzzleVel = refereeData.shootData.bulletSpeed;
+    // UI
+#if APP_USE_UI
+    if (msg.uiReset) {
+        UI::APP::instance().uiReInit();
+    }
+    ChassisUIMsg_s chassisUIMsgData{ .state = stateFactory_.getCurrentState()->getName(),
+                                     .vel = ds_,
+                                     .deltaYaw = deltaYaw,
+                                     .lengthL = lengthL(),
+                                     .lengthR = lengthR(),
+                                     .roll = insData_.roll,
+                                     .useCap = msg.useCap,
+                                     .capEnergyRatio = 0.99f,
+                                     .chassisEnergyRatio = 0.99f };
+    UI::APP::instance().updateChassis(chassisUIMsgData);
+
+    GimbalUIMsg_s gimbalUIMsgData{ .state =
+                                           static_cast<GIMBAL::FSMState_e>(gimbalStateRxPacket_.data().gimbalRealState),
+                                   .aiming = gimbalStateRxPacket_.data().aiming,
+                                   .visionOnline = gimbalStateRxPacket_.data().visionOnline,
+                                   .pitchAng = getMinorArc(gimbalStateRxPacket_.data().pitch, pitch()) };
+    UI::APP::instance().updateGimbal(gimbalUIMsgData);
+#endif
 #endif
 
     // update state
@@ -254,207 +330,3 @@ void Bipedal::ctrl()
     legL_.ctrl();
     legR_.ctrl();
 }
-
-void Bipedal::enableJump()
-{
-    legL_.needJumping = true;
-    legR_.needJumping = true;
-}
-
-void Bipedal::disableJump()
-{
-    legL_.needJumping = false;
-    legR_.needJumping = false;
-}
-
-void Bipedal::disableHip()
-{
-    legL_.setTp(0);
-    legR_.setTp(0);
-    legL_.setLegLengthAngPidPD(0, 0);
-    legR_.setLegLengthAngPidPD(0, 0);
-    legL_.setLegLengthVelPidPD(0, 0);
-    legR_.setLegLengthVelPidPD(0, 0);
-    legL_.setFdFeedforward(0);
-    legR_.setFdFeedforward(0);
-}
-
-void Bipedal::enableRoll() { rollControlFlag = true; }
-
-void Bipedal::disableRoll() { rollControlFlag = false; }
-
-void Bipedal::feedS(float _s) { s_ = _s; }
-
-void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
-
-void Bipedal::setRoll(float _roll) { setRoll_ = std::clamp(_roll, -MAX_ABS_ROLL, MAX_ABS_ROLL); }
-
-void Bipedal::setLegLengthAngPidPD(float _kp, float _kd)
-{
-    legL_.setLegLengthAngPidPD(_kp, _kd);
-    legR_.setLegLengthAngPidPD(_kp, _kd);
-}
-
-void Bipedal::setLegLengthVelPidPD(float _kp, float _kd)
-{
-    legL_.setLegLengthVelPidPD(_kp, _kd);
-    legR_.setLegLengthVelPidPD(_kp, _kd);
-}
-
-void Bipedal::setLengthSmooth(float _l, float _step) { setLengthSmooth(_l, _l, _step); }
-void Bipedal::setLengthSmooth(float _lL, float _lR, float _step)
-{
-    float deltaL = _lL - legL_.state().L0;
-    deltaL = clamp(deltaL, -_step, _step);
-    float deltaR = _lR - legR_.state().L0;
-    deltaR = clamp(deltaR, -_step, _step);
-    setLength(legL_.state().L0 + deltaL, legR_.state().L0 + deltaR);
-}
-void Bipedal::setLengthSmoothL(float _l, float _step)
-{
-    float delta = _l - legL_.state().L0;
-    delta = clamp(delta, -_step, _step);
-    setLengthL(legL_.state().L0 + delta);
-}
-void Bipedal::setLengthSmoothR(float _l, float _step)
-{
-    float delta = _l - legR_.state().L0;
-    delta = clamp(delta, -_step, _step);
-    setLengthR(legR_.state().L0 + delta);
-}
-
-void Bipedal::setLength(float _l) { setLength(_l, _l); }
-
-void Bipedal::setLength(float _lL, float _lR)
-{
-    setLengthL(_lL + lengthOffset_);
-    setLengthR(_lR - lengthOffset_);
-}
-
-void Bipedal::setLengthL(float _l) { legL_.setL(_l); }
-
-void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
-
-void Bipedal::setFdFeedforward()
-{
-    // F_gravity = 1/2 * M * g * cos(phi)
-    // F_inertial = 1/2 * M * (L / 2 / R_l * dyaw * ds)
-    float gravityF = 0.5f * MASS_BODY * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
-    float inertialF = 0.5f * MASS_BODY * (0.5f * lengthL() / W_DISTANCE_HALF * insData_.body.gz * ds_);
-    float fdL = gravityF - inertialF;
-    gravityF = 0.5f * MASS_BODY * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
-    inertialF = 0.5f * MASS_BODY * (0.5f * lengthR() / W_DISTANCE_HALF * insData_.body.gz * ds_);
-    float fdR = gravityF + inertialF;
-    setFdFeedforward(fdL, fdR);
-}
-
-void Bipedal::setFdFeedforward(float _fd) { setFdFeedforward(_fd, _fd); }
-
-void Bipedal::setFdFeedforward(float _fdL, float _fdR)
-{
-    legL_.setFdFeedforward(_fdL);
-    legR_.setFdFeedforward(_fdR);
-}
-
-void Bipedal::setHipPhiRot(float _dphi) { setHipPhiRot(_dphi, _dphi); }
-void Bipedal::setHipPhiRot(float _dphiL, float _dphiR)
-{
-    setHipPhiRotL(_dphiL);
-    setHipPhiRotR(_dphiR);
-}
-
-void Bipedal::setHipPhiRotL(float _dphi)
-{
-    if (_dphi == 0)
-        hipAngPidL_.reset();
-    setHipPhiL(legL_.state().phi0 + (_dphi * 0.001f));
-}
-void Bipedal::setHipPhiRotR(float _dphi)
-{
-    if (_dphi == 0)
-        hipAngPidR_.reset();
-    setHipPhiR(legR_.state().phi0 + (_dphi * 0.001f));
-}
-
-void Bipedal::setHipPhi(float _phi) { setHipPhi(_phi, _phi); }
-
-void Bipedal::setHipPhi(float _phiL, float _phiR)
-{
-    setHipPhiL(_phiL);
-    setHipPhiR(_phiR);
-}
-
-void Bipedal::setHipPhiL(float _phi)
-{
-    float hipVelL = hipAngPidL_.calc(getMinorArc(_phi, phiL()), 0);
-    float tpL = hipVelPidL_.calc(hipVelL, legL_.state().dphi0);
-    legL_.setTp(tpL);
-}
-
-void Bipedal::setHipPhiR(float _phi)
-{
-    float hipVelR = hipAngPidR_.calc(getMinorArc(_phi, phiR()), 0);
-    float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0);
-    legR_.setTp(tpR);
-}
-
-void Bipedal::setHipPhiGlobal(float _phi) { setHipPhiGlobal(_phi, _phi); }
-
-void Bipedal::setHipPhiGlobal(float _phiL, float _phiR)
-{
-    setHipPhiGlobalL(_phiL);
-    setHipPhiGlobalR(_phiR);
-}
-
-void Bipedal::setHipPhiGlobalL(float _phi)
-{
-    float hipVelL = hipAngPidL_.calc(getMinorArc(_phi, phiGlobalL()), 0);
-    float tpL = hipVelPidL_.calc(hipVelL, legL_.state().dphi0 + insData_.body.gy);
-    legL_.setTp(tpL);
-}
-
-void Bipedal::setHipPhiGlobalR(float _phi)
-{
-    float hipVelR = hipAngPidR_.calc(getMinorArc(_phi, phiGlobalR()), 0);
-    float tpR = hipVelPidR_.calc(hipVelR, legR_.state().dphi0 + insData_.body.gy);
-    legR_.setTp(tpR);
-}
-
-void Bipedal::setHipTp(float _tp) { setHipTp(_tp, _tp); }
-
-void Bipedal::setHipTp(float _tpL, float _tpR)
-{
-    legL_.setTp(_tpL);
-    legR_.setTp(_tpR);
-}
-
-float Bipedal::yaw() const { return yaw_; }
-
-float Bipedal::pitch() const { return insData_.pitch; }
-
-float Bipedal::roll() const { return insData_.roll; }
-
-float Bipedal::phiL() const { return legL_.state().phi0; }
-
-float Bipedal::phiR() const { return legR_.state().phi0; }
-
-float Bipedal::phiGlobalL() const { return phiGlobalL_; }
-
-float Bipedal::phiGlobalR() const { return phiGlobalR_; }
-
-float Bipedal::lengthL() const { return legL_.state().L0; }
-
-float Bipedal::lengthR() const { return legR_.state().L0; }
-
-float Bipedal::length() const { return (legL_.state().L0 + legR_.state().L0) / 2.f; }
-
-float Bipedal::vel() const { return ds_; }
-
-void Bipedal::needGimbalLaunch(bool _need)
-{
-    gimbalLaunchStrategyTxPacket_.setData().isLegLFront = detectPhiLRange(-3.14f, -0.1f);
-    gimbalLaunchStrategyTxPacket_.setData().isLegRFront = detectPhiRRange(-3.14f, -0.1f);
-    gimbalLaunchStrategyTxPacket_.setData().isNeedGimbalLaunch = _need;
-}
-
-void Bipedal::allowGimbalExitLaunch(bool _allow) { gimbalLaunchStrategyTxPacket_.setData().isAllowExitLaunch = _allow; }

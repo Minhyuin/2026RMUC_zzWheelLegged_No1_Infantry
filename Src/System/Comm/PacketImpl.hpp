@@ -62,9 +62,13 @@ public:
         float vy;    // must be in [-3.2, 3.1]
         float dl;    // must be in [-0.16, 0.15]
         float droll; // must be in [-0.8, 0.7]
-        float wz;    // must be in [-3.2, 3.1]
         bool needJump;
+        bool needClimb;
+        bool stretch;
+        bool useCap;
+        bool bodyReset;
         float deltaYaw;
+        bool uiReset;
     };
 #pragma pack(push, 1)
     union Data_u {
@@ -74,12 +78,15 @@ public:
             int8_t vy : 6;    // [-32, 31]
             int8_t dl : 5;    // [-16, 15]
             int8_t droll : 4; // [-8, 7]
-            int8_t wz : 6;    // [-32, 31]
             uint8_t needJump : 1;
+            uint8_t needClimb : 1;
+            uint8_t stretch : 1;
+            uint8_t useCap : 1;
             int16_t deltaYaw : 16;
             uint8_t chassisExptState : 4;
             uint8_t gimbalRealState : 4;
-            uint32_t reversed : 11;
+            uint8_t uiReset : 1;
+            uint16_t reversed : 14;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -92,11 +99,14 @@ public:
         d.vy = static_cast<int8_t>(_protoData.vy * 10.f);
         d.dl = static_cast<int8_t>(_protoData.dl * 100.f);
         d.droll = static_cast<int8_t>(_protoData.droll * 10.f);
-        d.wz = static_cast<int8_t>(_protoData.wz * 10.f);
         d.needJump = _protoData.needJump;
+        d.needClimb = _protoData.needClimb;
+        d.stretch = _protoData.stretch;
+        d.useCap = _protoData.useCap;
         d.chassisExptState = _protoData.chassisExptState;
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
+        d.uiReset = _protoData.uiReset;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -105,15 +115,18 @@ public:
         _protoData.vy = static_cast<float>(_data.content.vy) / 10.f;
         _protoData.dl = static_cast<float>(_data.content.dl) / 100.f;
         _protoData.droll = static_cast<float>(_data.content.droll) / 10.f;
-        _protoData.wz = static_cast<float>(_data.content.wz) / 10.f;
         _protoData.needJump = _data.content.needJump;
+        _protoData.needClimb = _data.content.needClimb;
+        _protoData.stretch = _data.content.stretch;
+        _protoData.useCap = _data.content.useCap;
         _protoData.chassisExptState = _data.content.chassisExptState;
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);
+        _protoData.uiReset = _data.content.uiReset;
     }
 };
 
-class ArmorLoaderPacketType {
+class ArmorLoaderCtrlPacketType {
 public:
     static constexpr uint8_t LEN = 4;
     static constexpr uint16_t ID = 0x22;
@@ -143,10 +156,76 @@ public:
     }
 };
 
-class RefereePacketType {
+class GimbalStatePacketType {
 public:
     static constexpr uint8_t LEN = 8;
     static constexpr uint16_t ID = 0x23;
+    struct ProtoData_s {
+        uint8_t gimbalRealState;
+        bool visionOnline;
+        bool aiming;
+        float pitch;
+    };
+    union Data_u {
+        struct Data_s {
+            uint8_t gimbalRealState : 4;
+            uint8_t visionOnline : 1;
+            uint8_t aiming : 1;
+            int16_t pitch : 16;
+            uint32_t reversed1 : 10;
+            uint32_t reversed2 : 32;
+        } content;
+        uint8_t bytes[LEN];
+    } data;
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        Data_u::Data_s &d = _data.content;
+        d.gimbalRealState = _protoData.gimbalRealState;
+        d.visionOnline = _protoData.visionOnline;
+        d.aiming = _protoData.aiming;
+        d.pitch = convertToInt16(_protoData.pitch);
+        d.reversed1 = 0;
+        d.reversed2 = 0;
+    }
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        _protoData.gimbalRealState = _data.content.gimbalRealState;
+        _protoData.visionOnline = _data.content.visionOnline;
+        _protoData.aiming = _data.content.aiming;
+        _protoData.pitch = convertToFloat(_data.content.pitch);
+    }
+};
+
+class ArmorBoosterStatePacketType {
+public:
+    static constexpr uint8_t LEN = 4;
+    static constexpr uint16_t ID = 0x24;
+    struct ProtoData_s {
+        uint8_t armorBoosterRealState;
+    };
+    union Data_u {
+        struct Data_s {
+            uint8_t armorBoosterRealState : 4;
+            uint32_t reversed : 28;
+        } content;
+        uint8_t bytes[LEN];
+    } data;
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        Data_u::Data_s &d = _data.content;
+        d.armorBoosterRealState = _protoData.armorBoosterRealState;
+        d.reversed = 0;
+    }
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        _protoData.armorBoosterRealState = _data.content.armorBoosterRealState;
+    }
+};
+
+class RefereePacketType {
+public:
+    static constexpr uint8_t LEN = 8;
+    static constexpr uint16_t ID = 0x25;
     struct ProtoData_s {
         uint8_t color;
         bool isPlay;
@@ -192,7 +271,7 @@ public:
 class GimbalLaunchStrategyPacketType {
 public:
     static constexpr uint8_t LEN = 8;
-    static constexpr uint16_t ID = 0x24;
+    static constexpr uint16_t ID = 0x26;
     struct ProtoData_s {
         bool isLegLFront;
         bool isLegRFront;
@@ -227,4 +306,28 @@ public:
     }
 };
 
+class ChassisStatePacketType {
+public:
+    static constexpr uint8_t LEN = 4;
+    static constexpr uint16_t ID = 0x27;
+    struct ProtoData_s {
+        uint8_t chassisRealState;
+    };
+    union Data_u {
+        struct Data_s {
+            uint8_t chassisRealState : 4;
+            uint32_t reversed : 28;
+        } content;
+        uint8_t bytes[LEN];
+    } data;
+    static constexpr void compress(const ProtoData_s &_protoData, Data_u &_data)
+    {
+        Data_u::Data_s &d = _data.content;
+        d.chassisRealState = _protoData.chassisRealState;
+    }
+    static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
+    {
+        _protoData.chassisRealState = _data.content.chassisRealState;
+    }
+};
 } // namespace COMM

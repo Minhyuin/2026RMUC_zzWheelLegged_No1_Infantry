@@ -8,20 +8,21 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.5f, 0.1f };
-static float idleLegLengthAngPidPD[2]{ 30.f, 0.0f };
-static float idleLegLengthVelPidPD[2]{ 80.f, 0.0f };
-float phiOffset = 0.f;
+static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 3.f, 0.1f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 0.5f;
-    static constexpr float MAX_ACC_FRONT = 1.0f;
+    static constexpr float MAX_ACC_BACK = 0.7f;
+    static constexpr float MAX_ACC_FRONT = 0.7f;
     static constexpr float IDLE_L = WheelLegged::MIN_L;
+    static constexpr float STRETCH_L = 0.28f;
 
 public:
-    IdleState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis) {}
+    IdleState(Bipedal *_chassis)
+            : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis), wzAngPid_(&idleFollowVelPid)
+    {
+    }
 
     void enter() final
     {
@@ -31,26 +32,36 @@ public:
         refYaw_ = chassis_->yaw();
         refRoll_ = 0.f;
         refLength_ = chassis_->length();
-        chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1]);
-        chassis_->setLegLengthVelPidPD(idleLegLengthVelPidPD[0], idleLegLengthVelPidPD[1]);
         targetRefLength_ = IDLE_L;
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
+        strechPrev_ = chassis_->msg.stretch;
         chassis_->needGimbalLaunch(false);
         chassis_->allowGimbalExitLaunch(true);
 
-        wzAngPid_ = &idleFollowVelPid;
         LOG::info("ChassisIdle", " enter");
     }
 
     void run() final
     {
-        targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0002f);
+        if (!strechPrev_ && chassis_->msg.stretch) {
+            targetRefLength_ = STRETCH_L;
+        } else if (strechPrev_ && !chassis_->msg.stretch) {
+            targetRefLength_ = IDLE_L;
+            refRoll_ = 0.f;
+        } else
+            targetRefLength_ += chassis_->msg.dl * 0.001f;
+        strechPrev_ = chassis_->msg.stretch;
+
+        if (chassis_->isFloating()) {
+            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.0001f);
+        } else {
+            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
+        }
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
-        // refRoll_ += chassis_->msg.droll * 0.001f;
-        chassis_->setRoll(refRoll_); // 0
+        refRoll_ += chassis_->msg.droll * 0.001f;
+        chassis_->setRoll(refRoll_);
 
         float targetYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;
         float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));
@@ -63,8 +74,7 @@ public:
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
         ref.q = OFFSET_Q;
-        ref.phil = ref.phir = phiOffset;
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
 
         chassis_->ctrl();
 
@@ -85,15 +95,13 @@ public:
             return FSMState_e::STOP;
         if (isJumpReady_)
             return FSMState_e::JUMP;
-        else if (chassis_->msg.state == FSMState_e::IDLE)
-            return FSMState_e::IDLE;
         else if (chassis_->msg.state == FSMState_e::TANK)
             return FSMState_e::TANK;
         else if (chassis_->msg.state == FSMState_e::SPIN)
             return FSMState_e::SPIN;
         else if (chassis_->msg.state == FSMState_e::TEST)
             return FSMState_e::TEST;
-        else if (chassis_->msg.state == FSMState_e::CLIMB_PREPARE)
+        else if (chassis_->msg.needClimb)
             return FSMState_e::CLIMB_PREPARE;
         else
             return FSMState_e::IDLE;
@@ -109,6 +117,8 @@ private:
 
     bool isJumpReady_ = false;
     bool needJumpPrev_ = false;
+
+    bool strechPrev_ = false;
 };
 
 } // namespace CHASSIS

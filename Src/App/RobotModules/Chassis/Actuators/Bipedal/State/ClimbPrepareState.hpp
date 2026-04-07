@@ -13,14 +13,17 @@ static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.1
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
-    static constexpr float OFFSET_Q = 0.f;
+    static constexpr float OFFSET_PHI = 0.2f;
     static constexpr float MAX_ACC_BACK = 0.5f;
-    static constexpr float MAX_ACC_FRONT = 1.0f;
-    static constexpr float MAX_SPEED = 1.5f;
+    static constexpr float MAX_ACC_FRONT = 0.7f;
+    static constexpr float MAX_SPEED = 1.f;
     static constexpr float CLIMB_PREPARE_LENGTH = WheelLegged::MAX_L;
 
 public:
-    ClimbPrepareState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis) {}
+    ClimbPrepareState(Bipedal *_chassis)
+            : FSMState<FSMState_e>(FSMState_e::CLIMB_PREPARE), chassis_(_chassis), wzAngPid_(&climbPrepareFollowVelPid)
+    {
+    }
 
     void enter() final
     {
@@ -32,18 +35,17 @@ public:
         targetRefLength_ = CLIMB_PREPARE_LENGTH;
         chassis_->needGimbalLaunch(true);
         chassis_->allowGimbalExitLaunch(false);
-        wzAngPid_ = &climbPrepareFollowVelPid;
         LOG::info("ChassisClimbPrepare", " enter");
     }
 
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00035f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() /*&& (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.2f*/)
+        if (chassis_->isFloating() /* (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.4f*/)
             isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
@@ -57,9 +59,8 @@ public:
         chassis_->msg.vx = std::clamp(chassis_->msg.vx, -MAX_SPEED, MAX_SPEED);
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.q = OFFSET_Q;
-        ref.phil = ref.phir = 0.1f;
-        chassis_->bal(ref);
+        ref.phir = ref.phil = OFFSET_PHI;
+        chassis_->bal<WBRController::WBRControlMode_e::CLIMB>(ref);
 
         chassis_->ctrl();
     }
@@ -77,12 +78,8 @@ public:
             return FSMState_e::STOP;
         if (isPrepareFinish_)
             return FSMState_e::CLIMB;
-        else if (chassis_->msg.state == FSMState_e::IDLE)
+        else if (!chassis_->msg.needClimb)
             return FSMState_e::IDLE;
-        else if (chassis_->msg.state == FSMState_e::TANK)
-            return FSMState_e::TANK;
-        else if (chassis_->msg.state == FSMState_e::SPIN)
-            return FSMState_e::SPIN;
         else
             return FSMState_e::CLIMB_PREPARE;
     }

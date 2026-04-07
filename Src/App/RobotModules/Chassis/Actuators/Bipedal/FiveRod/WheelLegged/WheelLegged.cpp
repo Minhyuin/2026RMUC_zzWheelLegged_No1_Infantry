@@ -70,11 +70,11 @@ void WheelLegged::ctrl()
 {
     fdFromSpring_ = spring_.computeForce(0); // TODO: maybe the spring force will change with other params
     float setVd = lengthAngPid_.calc(setL_, legState_.L0);
-    fd_ = lengthVelPid_.calc(setVd, legState_.vd) + fdFeedforward_;
+    fd_ = lengthVelPid_.calc(setVd, legState_.vd);
     if (!needJumping)
         fd_ -= fdFromSpring_;
 
-    Matrix<2, 1> u = vmc_.forwardTorq(tp_, fd_);
+    Matrix<2, 1> u = vmc_.forwardTorq(tp_ + tpFeedforward_, fd_ + fdFeedforward_);
 
     tau1_ = std::fmin(std::fmax(u(0, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
     tau4_ = std::fmin(std::fmax(u(1, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
@@ -99,7 +99,7 @@ float WheelLegged::minL(float _phi) const
 
 void WheelLegged::setLegLengthAngPidPD(float _kp, float _kd)
 {
-    lengthAngPid_.setParam(_kp, 0.f, _kd, 0.001f, 0.f, LENGTH_ANG_PID_OUTMAX);
+    lengthAngPid_.setParam(_kp, LENGTH_ANG_PID_KI, _kd, 0.001f, LENGTH_ANG_PID_IMAX, LENGTH_ANG_PID_OUTMAX);
 }
 
 void WheelLegged::setLegLengthVelPidPD(float _kp, float _kd)
@@ -110,5 +110,6 @@ void WheelLegged::setLegLengthVelPidPD(float _kp, float _kd)
 void WheelLegged::setL(float _l) { setL_ = fmin(fmax(_l, minL(legState_.phi0)), MAX_L); }
 
 void WheelLegged::setFdFeedforward(float _fd) { fdFeedforward_ = _fd; }
+void WheelLegged::setTpFeedforward(float _tp) { tpFeedforward_ = _tp; }
 void WheelLegged::setTp(float _tp) { tp_ = _tp; }
 void WheelLegged::setTw(float _tw) { tw_ = _tw; }

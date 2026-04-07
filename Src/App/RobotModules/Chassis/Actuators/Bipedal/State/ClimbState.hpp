@@ -7,7 +7,7 @@ namespace CHASSIS {
 class ClimbState : public FSMState<FSMState_e> {
     static constexpr float CLIMB_PHI = 1.45f;
     static constexpr float CLIMB_DPHI = 4.f * 0.001f;
-    static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.1f;
+    static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.15f;
 
 public:
     ClimbState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::CLIMB), chassis_(_chassis) {}

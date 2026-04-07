@@ -5,8 +5,11 @@
 
 #include <cmath>
 
-namespace ARMORLOADER {
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
 
+namespace ARMORLOADER {
 class BlockState : public FSMState<FSMState_e> {
     static constexpr float BLOCK_TORQ = 0.5f;
 
@@ -19,6 +22,10 @@ public:
 
     void enter() final
     {
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 100);
+#endif
+
         loader_->enter();
         dirCnt_ = 0;
         restoreCnt_ = 0;

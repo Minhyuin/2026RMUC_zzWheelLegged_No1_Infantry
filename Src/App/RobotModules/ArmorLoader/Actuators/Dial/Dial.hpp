@@ -11,9 +11,15 @@
 
 namespace ARMORLOADER {
 
-class ShooterCtrlRxPacket : public COMM::RxPacket<COMM::ArmorLoaderPacketType, 1> {
+class ShooterCtrlRxPacket : public COMM::RxPacket<COMM::ArmorLoaderCtrlPacketType, 1> {
     friend class Dial;
     ShooterCtrlRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
+class ArmorBoosterStateRxPacket : public COMM::RxPacket<COMM::ArmorBoosterStatePacketType, 1> {
+    friend class Dial;
+    ArmorBoosterStateRxPacket() { registerCallback(); }
     void registerCallback() final;
 };
 
@@ -33,7 +39,7 @@ public:
 
     static constexpr float BLOCK_CURRENT = 2.f;    // A
     static constexpr float BLOCK_SPEED_MIN = 0.3f; // rad/s
-    static constexpr uint16_t BLOCK_CNT_MAX = 200.f;
+    static constexpr uint16_t BLOCK_CNT_MAX = 500.f;
 
     static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 20.f;
 
@@ -79,6 +85,7 @@ private:
     FILTER::LPF velFltr_{ DIAL_MOTOR_FREQ, 50.f };
 
     ShooterCtrlRxPacket shooterCtrlRxPacket_;
+    ArmorBoosterStateRxPacket armorBoosterStateRxPacket_;
 
     float vel_;  // rad/s
     float curr_; // A

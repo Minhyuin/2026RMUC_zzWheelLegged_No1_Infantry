@@ -39,9 +39,21 @@ class RefereeDataTxPacket : public COMM::TxPacket<COMM::RefereePacketType> {
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
+class GimbalStateRxPacket : public COMM::RxPacket<COMM::GimbalStatePacketType, 1> {
+public:
+    GimbalStateRxPacket() { registerCallback(); }
+    void registerCallback() final;
+};
+
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
     GimbalLaunchStrategyTxPacket() : TxPacket(50.f) {}
+    void transmit(uint8_t *_buf, uint16_t _len) final;
+};
+
+class ChassisStateTxPacket : public COMM::TxPacket<COMM::ChassisStatePacketType> {
+    friend class Bipedal;
+    ChassisStateTxPacket() : TxPacket(10.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -56,6 +68,8 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 3.150903f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 0.101128f;
 
+    static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.5f;
     static constexpr float MAX_VEL_FRONT = 2.f;
     static constexpr float MAX_VEL_BACK = 1.f;
 
@@ -78,8 +92,8 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_FORWARD =
             -0.7f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.15f;
-    static constexpr float PHI_OFFSET = 0.1f;
+    static constexpr float Q_OFFSET = 0.11f;
+    static constexpr float PHI_OFFSET = 0.05f;
 
 public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
@@ -247,11 +261,12 @@ public:
     void bal(const WLController::States_s &_refL, const WLController::States_s &_refR, float _yaw);
 
     /**
-     * @brief base on WBR Model, balance the chassis with the given reference state
-     * 
-     * @param _ref 10D reference state in WBR model
-     */
-    void bal(const WBRController::States_s &_ref);
+    * @brief base on WBR Model, balance the chassis with the given reference state and yaw
+    * 
+    * @tparam M Control Mode
+    * @param _ref 10D reference state in WBR model 
+    */
+    template <WBRController::WBRControlMode_e M> void bal(const WBRController::States_s &_ref);
 
     /**
      * @brief base on ST Model, balance the chassis with the given reference state and yaw
@@ -296,6 +311,16 @@ public:
      * @brief judge whether to stop based on the expected speed
      */
     bool detectNeedStop(float _expVel);
+
+    /**
+     * @brief detect if an angle is in the target range
+     * 
+     * @param _input input angle
+     * @param _startAng start angle
+     * @param _endAng end angle (counter-clockwise relative to start angle)
+     */
+    bool detectAng(float _input, float _startAng, float _endAng) const;
+
     /**
      * @brief base on the function detectAng to judge whether the pitch angle is in the target range
      * 
@@ -353,6 +378,9 @@ public:
     float lengthR() const;
     float length() const;
     float vel() const; // m/s
+    float acc() const; // m/s^2
+    float wz() const;  // rad/s
+    float wheelVel() const;
 
     void needGimbalLaunch(bool _need);
     void allowGimbalExitLaunch(bool _allow);
@@ -376,17 +404,19 @@ private:
 #endif
 
     ChassisCtrlRxPacket chassisCtrlRxPacket_;
+    GimbalStateRxPacket gimbalStateRxPacket_;
 
     RefereeDataTxPacket refereeDataTxPacket_;
     GimbalLaunchStrategyTxPacket gimbalLaunchStrategyTxPacket_;
+    ChassisStateTxPacket chassisStateTxPacket_;
 
     Axis1Odom odom_;
 
     PositionalPid rollAngPid_{ 90.f, 120.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.01f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 40.f, 0.f, 0.1f, 0.001f, 0.f, 5.f, 0.f };
-    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
+    PositionalPid hipAngPidL_{ 10.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipVelPidL_{ 12.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
@@ -405,7 +435,10 @@ private:
 
     float yaw_ = 0.f;
 
+    float dsMaxF_ = MAX_VEL_FRONT;
+    float dsMaxB_ = MAX_VEL_BACK;
     float ds_ = 0.f;
+    float vxFromWheel_ = 0.f;
     FILTER::LPFIIR3 wheelVelFltr_[2] = {
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
@@ -434,15 +467,6 @@ private:
      * @brief judge body is in the low displacement state
      */
     void detectStop();
-
-    /**
-     * @brief detect if an angle is in the target range
-     * 
-     * @param _input input angle
-     * @param _startAng start angle
-     * @param _endAng end angle (counter-clockwise relative to start angle)
-     */
-    bool detectAng(float _input, float _startAng, float _endAng) const;
 
     float phiGlobalL_ = 0.f;
     float phiGlobalR_ = 0.f;

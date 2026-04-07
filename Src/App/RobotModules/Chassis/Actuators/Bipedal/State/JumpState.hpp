@@ -39,7 +39,7 @@ public:
         WBRController::States_s ref{};
         ref.ds = chassis_->vel();
         ref.yaw = chassis_->yaw();
-        chassis_->bal(ref);
+        chassis_->bal<WBRController::WBRControlMode_e::JUMP>(ref);
         chassis_->ctrl();
     }
 
@@ -153,7 +153,7 @@ private:
         }
         void run() final
         {
-            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.00005f);
+            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.0001f);
             parent_.chassis_->setLength(refLength_);
             parent_.chassis_->setFdFeedforward();
         }

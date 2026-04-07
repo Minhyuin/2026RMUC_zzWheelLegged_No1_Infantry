@@ -14,11 +14,13 @@ class WheelLegged {
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.9f;
 
     static constexpr float LENGTH_ANG_PID_OUTMAX = 6.f;
+    static constexpr float LENGTH_ANG_PID_KI = 10.f;
+    static constexpr float LENGTH_ANG_PID_IMAX = 1.f;
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
 public:
-    static constexpr float MAX_L = 0.330f; // 0.337014049
-    static constexpr float MIN_L = 0.165f; // 0.16051326
+    static constexpr float MAX_L = 0.325f; // 0.337014049
+    static constexpr float MIN_L = 0.170f; // 0.16051326
 
     static constexpr float MASS_WHEEL = 0.334f + 0.179f;
     static constexpr float MASS_LEG = 1.43744054f;
@@ -81,6 +83,12 @@ public:
      */
     void setFdFeedforward(float _fd);
     /**
+     * @brief Set the additional feedforward torque
+     * 
+     * @param _tp unit: Nm
+     */
+    void setTpFeedforward(float _tp);
+    /**
      * @brief Set the expected Tp, which is used to control the leg swinging
      * 
      * @param _tp unit: Nm
@@ -118,6 +126,7 @@ private:
     LegState_s legState_{};
 
     float tp_ = 0.f;
+    float tpFeedforward_ = 0.f;
     float fd_ = 0.f;
     float fdFeedforward_ = 0.f;
     float tw_ = 0.f;
@@ -132,12 +141,14 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 0.f, 0.f };
+    GasSpring spring_{ 55.f, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;
 
-    PositionalPid lengthAngPid_{ 50.f, 0.f, 0.5f, 0.001f, 0.f, LENGTH_ANG_PID_OUTMAX, 0.f };
+    PositionalPid lengthAngPid_{
+        50.f, LENGTH_ANG_PID_KI, 0.5f, 0.001f, LENGTH_ANG_PID_IMAX, LENGTH_ANG_PID_OUTMAX, 0.f
+    };
     PositionalPid lengthVelPid_{ 30.f, 0.f, 0.f, 0.001f, 0.f, LENGTH_VEL_PID_OUTMAX, 0.f };
 
     PINYMOTOR::IMotor *hip1_;

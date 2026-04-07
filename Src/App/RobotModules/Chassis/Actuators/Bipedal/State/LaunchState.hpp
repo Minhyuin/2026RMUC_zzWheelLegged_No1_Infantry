@@ -4,7 +4,7 @@
 #include "StmLog.hpp"
 
 static float launchLegLengthAngPidPD[2]{ 20.f, 0.0f };
-static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
+static float launchLegLengthVelPidPD[2]{ 55.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
@@ -59,6 +59,7 @@ public:
     void run() final
     {
         chassis_->setLength(LAUNCH_L);
+        chassis_->setFdFeedforward(0.f);
 
         // 缩腿
         if (legPos_[0] == LegPos_e::FRONT)
@@ -107,7 +108,7 @@ public:
         }
         chassis_->setHipPhiR(refPhiR_);
 
-        chassis_->noBal(chassis_->msg.vx, 0);
+        chassis_->noBal(chassis_->msg.vx == 0.f ? chassis_->wheelVel() : chassis_->msg.vx, 0);
 
         chassis_->ctrl();
     }

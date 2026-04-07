@@ -10,28 +10,35 @@
 #include "./State/LaunchState.hpp"
 #include "./State/RunState.hpp"
 #include "./State/AutoState.hpp"
+#include "./State/UTurnState.hpp"
 
-#define GIMBAL_HANDLE HCAN1
-#define COMM_HANDLE   HCAN1
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
 
-volatile float PITCH_FEEDFORWARD = 2.0f;
+volatile float PITCH_FEEDFORWARD = 0.f;
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
 
 void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
 void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&COMM_HANDLE, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+}
+
+void GimbalStateTxPacket::transmit(uint8_t *_buf, uint16_t _len)
+{
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
 void RefereeDataRxPacket::registerCallback()
 {
-    Can::instance().registerCallback(&COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("RefereeDataRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -39,16 +46,24 @@ void RefereeDataRxPacket::registerCallback()
 
 void GimbalLaunchStrategyRxPacket ::registerCallback()
 {
-    Can::instance().registerCallback(&COMM_HANDLE, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("GimbalLaunchStrategyRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
 }
 
+void ChassisStateRxPacket::registerCallback()
+{
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+        xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
+    });
+    LOG::info("ChassisStateRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
+}
+
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&GIMBAL_HANDLE),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 2,
@@ -62,7 +77,7 @@ Standard::Standard()
     LOG::info("Gimbal", "Pitch zeros has set to %f", motors_.pitch->data().zeroAng);
 
     InitConfig_s yawConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&GIMBAL_HANDLE),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,
@@ -77,6 +92,7 @@ Standard::Standard()
 
     this->stateFactory_.addState(FSMState_e::RUN, std::make_unique<RunState>(this));
     this->stateFactory_.addState(FSMState_e::AUTO, std::make_unique<AutoState>(this));
+    this->stateFactory_.addState(FSMState_e::U_TURN, std::make_unique<UTurnState>(this));
     this->stateFactory_.addState(FSMState_e::LAUNCH, std::make_unique<LaunchState>(this));
     this->stateFactory_.addState(FSMState_e::STOP, std::make_unique<StopState>(this));
     this->stateFactory_.init(this->stateFactory_.getNextState(FSMState_e::STOP));
@@ -93,6 +109,11 @@ void Standard::stop()
 
 void Standard::enter()
 {
+#if EXTENSION_BUZZER
+    BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+    BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
+
     motors_.pitch->cmd(MotorCmdType_e::ON);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
@@ -114,16 +135,29 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;
         chassisCtrlTxPacket_.setData().dl = cmsg_.dl;
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
-        chassisCtrlTxPacket_.setData().wz = cmsg_.wz;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
+        chassisCtrlTxPacket_.setData().needClimb = cmsg_.needClimb;
+        chassisCtrlTxPacket_.setData().stretch = cmsg_.stretch;
+        chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
+        chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
     };
+    if (cmsg_.state != CHASSIS::FSMState_e::STOP &&
+        stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)
+        chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(
+                CHASSIS::FSMState_e::TANK); // when gimbal is in U_TURN, chassis can only be in TANK or STOP
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
     if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg_, 0) == pdTRUE) {
         shooterCtrlTxPacket_.setData().armorLoaderExptState = static_cast<uint8_t>(almsg_.state);
         shooterCtrlTxPacket_.setData().fire = almsg_.fire;
     }
-    shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
+    if (!msg.forceFire)
+        shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
+
+    gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
+    gimbalStateTxPacket_.setData().aiming = vision.data().control;
+    gimbalStateTxPacket_.setData().visionOnline = vision.pcState == Vision::PCState_e::ONLINE;
+    gimbalStateTxPacket_.setData().pitch = ins().pitch;
 
     // vision send
 #if EXTENSION_REFEREE
@@ -145,8 +179,8 @@ void Standard::update(void *_param)
     vision.setData().bulletSpeed = -1;
 #endif
 
-    vision.setData().resetTracker = false;
-    vision.setData().changeTarget = false;
+    vision.setData().resetTracker = msg.resetTracker;
+    vision.setData().changeTarget = msg.changeTarget;
     vision.setData().roll = insData_.roll;
     vision.setData().pitch = insData_.pitch;
     vision.setData().yaw = insData_.yaw;
@@ -286,7 +320,17 @@ Gimbal::LaunchStrategy_e Standard::generateLaunchStrategy()
     return strategy;
 }
 
-bool Standard::isNeedLaunch() { return gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch; }
+static bool isNeedGimbalLaunchPrev = false;
+bool Standard::isNeedLaunch()
+{
+    bool rslt = !isNeedGimbalLaunchPrev && gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch;
+    if (isNeedGimbalLaunchPrev != gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch) {
+        LOG::info("Gimbal", "Receive launch command %d", gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch);
+        isNeedGimbalLaunchPrev = gimbalLaunchStrategyRxPacket_.data().isNeedGimbalLaunch;
+    }
+    return rslt;
+}
+
 bool Standard::isAllowExitLaunch()
 {
     return gimbalLaunchStrategyRxPacket_.data().isAllowExitLaunch || cmsg_.state == CHASSIS::FSMState_e::STOP;

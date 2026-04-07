@@ -6,11 +6,24 @@
 
 
 namespace CHASSIS {
-enum class FSMState_e : uint8_t { STOP = 0, RESCUE, LAUNCH, STAND, IDLE, SPIN, TANK, CLIMB_PREPARE, CLIMB, JUMP, TEST };
-}
+enum class FSMState_e : uint8_t {
+    STOP = 0,
+    RESCUE,
+    LAUNCH,
+    STAND,
+    IDLE,
+    TANK,
+    SPIN,
+    SPIN_EXITING,
+    CLIMB_PREPARE,
+    CLIMB,
+    JUMP,
+    TEST
+};
+} // namespace CHASSIS
 
 namespace GIMBAL {
-enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN, AUTO };
+enum class FSMState_e : uint8_t { STOP = 0, LAUNCH, RUN, AUTO, U_TURN };
 }
 
 namespace ARMORBOOSTER {
@@ -47,12 +60,18 @@ struct ChassisMsg_s : public Msg {
     float dl;
     float dphi; // only for debug
     bool needJump;
+    bool needClimb;
+    bool stretch;
+    bool useCap;
+    bool uiReset;
 };
 
 struct GimbalMsg_s : public Msg {
     GIMBAL::FSMState_e state;
     float wRoll, wPitch, wYaw;
-    bool forceHumanProxy;
+    bool forceFire;
+    bool resetTracker;
+    bool changeTarget;
 };
 
 struct ArmorBoosterMsg_s : public Msg {
@@ -90,14 +109,25 @@ struct GimbalYawMsg_s : public Msg {
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ temp cache ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 struct ChassisUIMsg_s {
     CHASSIS::FSMState_e state;
+    float vel;
+    float deltaYaw;
+    float lengthL;
+    float lengthR;
+    float roll;
+    bool useCap;
+    float capEnergyRatio;
+    float chassisEnergyRatio;
 };
 
 struct GimbalUIMsg_s {
     GIMBAL::FSMState_e state;
+    bool aiming;
+    bool visionOnline;
+    float pitchAng;
 };
 
-struct ArmUIMsg_s {
-    ARM::FSMState_e state;
+struct ArmorLoaderUIMsg_s {
+    ARMORLOADER::FSMState_e state;
 };
 
 struct ArmorBoosterUIMsg_s {
