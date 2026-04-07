@@ -18,6 +18,8 @@ class WheelLegged {
     static constexpr float LENGTH_ANG_PID_IMAX = 1.f;
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
 
+    static constexpr float SPRING_FD = 55.f;
+
 public:
     static constexpr float MAX_L = 0.325f; // 0.337014049
     static constexpr float MIN_L = 0.170f; // 0.16051326
@@ -46,6 +48,11 @@ public:
      * @brief enable all motors
      */
     void enter();
+
+    /**
+     * @brief set floating mode
+     */
+    void setFloatMode(bool _flag);
 
     /**
      * @brief run the vmc solver, update leg state
@@ -125,6 +132,8 @@ public:
 private:
     LegState_s legState_{};
 
+    bool floatMode_ = false;
+
     float tp_ = 0.f;
     float tpFeedforward_ = 0.f;
     float fd_ = 0.f;
@@ -141,7 +150,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 55.f, 0.f };
+    GasSpring spring_{ SPRING_FD, 0.f };
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

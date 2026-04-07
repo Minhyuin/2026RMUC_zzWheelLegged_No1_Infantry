@@ -31,6 +31,9 @@ void WheelLegged::enter()
     wheel_->cmd(MotorCmdType_e::ON);
 }
 
+void WheelLegged::setFloatMode(bool _flag) { floatMode_ = _flag; }
+
+
 void WheelLegged::stateUpdate(float _dt)
 {
     // TODO: maybe need a filter to smooth data
@@ -63,26 +66,31 @@ bool WheelLegged::isFloating(float _az, float _q)
     fnThreshold_ = FLOATING_THRESHOLD + OFFSET_THRESHOLD +
                    ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) *
                     OFFSET_THRESHOLD_FOR_LENGTH);
-    return floatFlag = fn_ < fnThreshold_;
+    return floatFlag = floatMode_ ? fn_ < fnThreshold_ : false;
 }
 
+float FLOAT_FD = 50.f;
 void WheelLegged::ctrl()
 {
     fdFromSpring_ = spring_.computeForce(0); // TODO: maybe the spring force will change with other params
+    // fdFromSpring_ = SPRING_FD; // debug
     float setVd = lengthAngPid_.calc(setL_, legState_.L0);
     fd_ = lengthVelPid_.calc(setVd, legState_.vd);
     if (!needJumping)
         fd_ -= fdFromSpring_;
+    float tpInput = tp_ + tpFeedforward_;
+    float fdInput = fd_ + fdFeedforward_;
+    if (floatFlag)
+        fdInput = std::clamp(fdInput, -FLOAT_FD, FLOAT_FD);
+    Matrix<2, 1> u = vmc_.forwardTorq(tpInput, fdInput);
 
-    Matrix<2, 1> u = vmc_.forwardTorq(tp_ + tpFeedforward_, fd_ + fdFeedforward_);
-
-    tau1_ = std::fmin(std::fmax(u(0, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
-    tau4_ = std::fmin(std::fmax(u(1, 0), -MAX_HIP_CTRL_TORQ), MAX_HIP_CTRL_TORQ);
+    tau1_ = std::clamp(u(0, 0), -MAX_HIP_CTRL_TORQ, MAX_HIP_CTRL_TORQ);
+    tau4_ = std::clamp(u(1, 0), -MAX_HIP_CTRL_TORQ, MAX_HIP_CTRL_TORQ);
 
     hip1_->cmdTorq(tau1_);
     hip4_->cmdTorq(tau4_);
 
-    tw_ = std::fmin(std::fmax(tw_, -MAX_WHEEL_CTRL_TORQ), MAX_WHEEL_CTRL_TORQ);
+    tw_ = std::clamp(tw_, -MAX_WHEEL_CTRL_TORQ, MAX_WHEEL_CTRL_TORQ);
     wheel_->cmdTorq(tw_);
 
     // hip1_->cmdTorq(0);

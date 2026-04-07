@@ -52,12 +52,7 @@ public:
         } else
             targetRefLength_ += chassis_->msg.dl * 0.001f;
         strechPrev_ = chassis_->msg.stretch;
-
-        if (chassis_->isFloating()) {
-            refLength_ = SMOOTH::slopeFollowing(WheelLegged::MAX_L, refLength_, 0.0001f);
-        } else {
-            refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
-        }
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;

@@ -113,7 +113,11 @@ public:
         chassis_->ctrl();
     }
 
-    void exit() final { LOG::info("ChassisLaunch", " exit"); }
+    void exit() final
+    {
+        chassis_->enableFloat();
+        LOG::info("ChassisLaunch", " exit");
+    }
 
 
     FSMState_e checkChange() final

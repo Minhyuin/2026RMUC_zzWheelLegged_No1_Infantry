@@ -13,6 +13,7 @@ public:
     {
         chassis_->stop();
         chassis_->setFdFeedforward(0, 0);
+        chassis_->disableFloat();
         freezeFlag_ = false;
         LOG::info("ChassisStop", " enter");
     }

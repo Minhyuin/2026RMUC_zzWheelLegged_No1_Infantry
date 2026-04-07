@@ -69,8 +69,8 @@ class Bipedal : public Chassis {
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.941683f;
 
     static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
-    static constexpr float MAX_VEL_RUSH_BACK = 1.5f;
-    static constexpr float MAX_VEL_FRONT = 1.5f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.7f;
+    static constexpr float MAX_VEL_FRONT = 1.f;
     static constexpr float MAX_VEL_BACK = 0.7f;
 
     static constexpr float MASS_BODY = 23.4f;
@@ -138,6 +138,16 @@ public:
      * @brief turn off roll control
      */
     void disableRoll();
+
+    /**
+     * @brief enable switch to floating state
+     */
+    void enableFloat();
+
+    /**
+     * @brief disable switch to floating state
+     */
+    void disableFloat();
 
     /**
      * @brief check if the gimbal is resetting (i.e., the pitch or yaw angle is in a certain range)
