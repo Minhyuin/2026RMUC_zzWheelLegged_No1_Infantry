@@ -109,14 +109,12 @@ struct GimbalYawMsg_s : public Msg {
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ temp cache ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 struct ChassisUIMsg_s {
     CHASSIS::FSMState_e state;
-    float vel;
     float deltaYaw;
     float lengthL;
     float lengthR;
     float roll;
     bool useCap;
     float capEnergyRatio;
-    float chassisEnergyRatio;
 };
 
 struct GimbalUIMsg_s {
@@ -124,6 +122,7 @@ struct GimbalUIMsg_s {
     bool aiming;
     bool visionOnline;
     float pitchAng;
+    bool needClimb;
 };
 
 struct ArmorLoaderUIMsg_s {

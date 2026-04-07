@@ -291,22 +291,24 @@ void Bipedal::update(void *_param)
     if (msg.uiReset) {
         UI::APP::instance().uiReInit();
     }
-    ChassisUIMsg_s chassisUIMsgData{ .state = stateFactory_.getCurrentState()->getName(),
-                                     .vel = ds_,
-                                     .deltaYaw = deltaYaw,
-                                     .lengthL = lengthL(),
-                                     .lengthR = lengthR(),
-                                     .roll = insData_.roll,
-                                     .useCap = msg.useCap,
-                                     .capEnergyRatio = 0.99f,
-                                     .chassisEnergyRatio = 0.99f };
+    ChassisUIMsg_s chassisUIMsgData{
+        .state = stateFactory_.getCurrentState()->getName(),
+        .deltaYaw = deltaYaw,
+        .lengthL = lengthL(),
+        .lengthR = lengthR(),
+        .roll = insData_.roll,
+        .useCap = msg.useCap,
+        .capEnergyRatio = 0.99f,
+    };
     UI::APP::instance().updateChassis(chassisUIMsgData);
 
-    GimbalUIMsg_s gimbalUIMsgData{ .state =
-                                           static_cast<GIMBAL::FSMState_e>(gimbalStateRxPacket_.data().gimbalRealState),
-                                   .aiming = gimbalStateRxPacket_.data().aiming,
-                                   .visionOnline = gimbalStateRxPacket_.data().visionOnline,
-                                   .pitchAng = getMinorArc(gimbalStateRxPacket_.data().pitch, pitch()) };
+    GimbalUIMsg_s gimbalUIMsgData{
+        .state = static_cast<GIMBAL::FSMState_e>(gimbalStateRxPacket_.data().gimbalRealState),
+        .aiming = gimbalStateRxPacket_.data().aiming,
+        .visionOnline = gimbalStateRxPacket_.data().visionOnline,
+        .pitchAng = getMinorArc(gimbalStateRxPacket_.data().pitch, pitch()),
+        .needClimb = msg.needClimb,
+    };
     UI::APP::instance().updateGimbal(gimbalUIMsgData);
 #endif
 #endif
