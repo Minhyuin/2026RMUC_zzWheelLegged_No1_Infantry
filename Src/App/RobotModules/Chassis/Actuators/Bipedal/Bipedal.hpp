@@ -405,6 +405,10 @@ private:
     WheelLegged legL_;
     WheelLegged legR_;
 
+#if EXTENSION_SUPERCAP
+    CAP hipCap_{ &HCAN1, 0x224, 0x225 };
+#endif
+
     Subscriber<INS_SYS::INSData_s> *insSub_;
     INS_SYS::INSData_s insData_ = {};
 

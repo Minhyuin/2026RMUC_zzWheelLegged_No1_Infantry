@@ -62,7 +62,7 @@ struct ChassisMsg_s : public Msg {
     bool needJump;
     bool needClimb;
     bool stretch;
-    bool useCap;
+    bool useWheelCap;
     bool uiReset;
 };
 
@@ -113,7 +113,7 @@ struct ChassisUIMsg_s {
     float lengthL;
     float lengthR;
     float roll;
-    bool useCap;
+    bool useWheelCap;
     float capEnergyRatio;
 };
 

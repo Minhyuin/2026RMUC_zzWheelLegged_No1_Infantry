@@ -10,7 +10,7 @@ namespace CHASSIS {
 
 class WheelLegged {
     // 4个电机输出电流过大达到电池负载阈值，会严重影响姿态，需要并入超电来提高物理上限
-    static constexpr float MAX_HIP_CTRL_TORQ = 20.f;
+    static constexpr float MAX_HIP_CTRL_TORQ = 40.f;
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.9f;
 
     static constexpr float LENGTH_ANG_PID_OUTMAX = 6.f;

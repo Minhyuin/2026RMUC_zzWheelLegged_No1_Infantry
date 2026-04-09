@@ -10,8 +10,4 @@ public:
 
 protected:
     StateFactory<CHASSIS::FSMState_e> stateFactory_;
-
-#if EXTENSION_SUPERCAP
-    CAP cap_{ &HCAN3 };
-#endif
 };
