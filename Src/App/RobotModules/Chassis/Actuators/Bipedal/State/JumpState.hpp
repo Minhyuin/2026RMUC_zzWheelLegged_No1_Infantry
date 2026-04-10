@@ -11,7 +11,7 @@ class JumpState : public FSMState<FSMState_e> {
     static constexpr float JUMP_L = WheelLegged::MAX_L;
     static constexpr float LAND_L = WheelLegged::MAX_L + ((WheelLegged::MAX_L - WheelLegged::MIN_L) / 2.f);
 
-    static constexpr float JUMP_FD = 180.f;
+    static constexpr float JUMP_FD = 100.f;
 
     enum class JumpFSMState_e : uint8_t { PREPARE, JUMPING, SOAR, LAND };
 
@@ -99,6 +99,7 @@ private:
         void enter() final
         {
             parent_.chassis_->enableJump();
+            parent_.chassis_->disableFdLimit();
             parent_.chassis_->setFdFeedforward(JUMP_FD);
             parent_.chassis_->setLength(JUMP_L);
             LOG::info("Jumping", " enter");
@@ -124,10 +125,15 @@ private:
         void enter() final
         {
             parent_.chassis_->disableJump();
-            parent_.chassis_->setLength(PREPARE_L);
+            refLength_ = parent_.chassis_->length();
             LOG::info("JumpSoar", " enter");
         }
-        void run() final { parent_.chassis_->setFdFeedforward(); }
+        void run() final
+        {
+            refLength_ = SMOOTH::slopeFollowing(PREPARE_L, refLength_, 0.0001f);
+            parent_.chassis_->setLength(refLength_);
+            parent_.chassis_->setFdFeedforward(0);
+        }
         void exit() final { LOG::info("JumpSoar", " exit"); }
         JumpFSMState_e checkChange() final
         {
@@ -139,6 +145,7 @@ private:
 
     private:
         JumpState &parent_;
+        float refLength_ = 0;
     };
 
     // Land state : fall for landing (redundancy), then finish jump when touching ground
@@ -148,12 +155,13 @@ private:
         void enter() final
         {
             parent_.chassis_->disableJump();
+            parent_.chassis_->enableFdLimit();
             refLength_ = parent_.chassis_->length();
             LOG::info("JumpLand", " enter");
         }
         void run() final
         {
-            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.0001f);
+            refLength_ = SMOOTH::slopeFollowing(LAND_L, refLength_, 0.00005f);
             parent_.chassis_->setLength(refLength_);
             parent_.chassis_->setFdFeedforward();
         }

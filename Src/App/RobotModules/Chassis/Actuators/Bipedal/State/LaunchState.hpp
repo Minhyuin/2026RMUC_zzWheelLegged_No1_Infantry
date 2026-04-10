@@ -26,6 +26,7 @@ public:
         isLengthFinish_[0] = isLengthFinish_[1] = false;
         isOverturn_ = chassis_->isOverturn();
         chassis_->disableRoll();
+        chassis_->disableFdLimit();
         refPhiL_ = chassis_->phiL();
         refPhiR_ = chassis_->phiR();
         chassis_->setLegLengthAngPidPD(launchLegLengthAngPidPD[0], launchLegLengthAngPidPD[1]);
@@ -115,7 +116,7 @@ public:
 
     void exit() final
     {
-        chassis_->enableFloat();
+        chassis_->enableFdLimit();
         LOG::info("ChassisLaunch", " exit");
     }
 

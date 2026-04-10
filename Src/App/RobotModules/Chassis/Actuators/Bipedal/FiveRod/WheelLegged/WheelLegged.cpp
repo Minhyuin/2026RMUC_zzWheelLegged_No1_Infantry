@@ -31,7 +31,7 @@ void WheelLegged::enter()
     wheel_->cmd(MotorCmdType_e::ON);
 }
 
-void WheelLegged::setFloatMode(bool _flag) { floatMode_ = _flag; }
+void WheelLegged::setFdLimitFlag(bool _flag) { fdLimitFlag_ = _flag; }
 
 
 void WheelLegged::stateUpdate(float _dt)
@@ -66,21 +66,22 @@ bool WheelLegged::isFloating(float _az, float _q)
     fnThreshold_ = FLOATING_THRESHOLD + OFFSET_THRESHOLD +
                    ((legState_.L0 - WheelLegged::MIN_L) / (WheelLegged::MAX_L - WheelLegged::MIN_L) *
                     OFFSET_THRESHOLD_FOR_LENGTH);
-    return floatFlag = floatMode_ ? fn_ < fnThreshold_ : false;
+    return floatFlag = fn_ < fnThreshold_;
 }
 
-float FLOAT_FD = 50.f;
+float FLOAT_FD = 90.f;
 void WheelLegged::ctrl()
 {
     fdFromSpring_ = spring_.computeForce(0); // TODO: maybe the spring force will change with other params
     // fdFromSpring_ = SPRING_FD; // debug
     float setVd = lengthAngPid_.calc(setL_, legState_.L0);
     fd_ = lengthVelPid_.calc(setVd, legState_.vd);
-    if (!needJumping)
+    if (!needJumping) {
         fd_ -= fdFromSpring_;
+    }
     float tpInput = tp_ + tpFeedforward_;
     float fdInput = fd_ + fdFeedforward_;
-    if (floatFlag)
+    if (floatFlag && fdLimitFlag_)
         fdInput = std::clamp(fdInput, -FLOAT_FD, FLOAT_FD);
     Matrix<2, 1> u = vmc_.forwardTorq(tpInput, fdInput);
 

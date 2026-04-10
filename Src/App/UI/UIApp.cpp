@@ -49,7 +49,7 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
     if (_msg.capEnergyRatio < 0.3f)
         dynamicInfo_.capEnergyBar.config.color = Color_e::ORANGE;
     else {
-        if (_msg.useCap)
+        if (_msg.useWheelCap)
             dynamicInfo_.capEnergyBar.config.color = Color_e::YELLOW;
         else
             dynamicInfo_.capEnergyBar.config.color = Color_e::WHITE;

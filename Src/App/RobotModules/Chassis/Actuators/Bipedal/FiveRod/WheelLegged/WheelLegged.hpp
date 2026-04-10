@@ -10,15 +10,13 @@ namespace CHASSIS {
 
 class WheelLegged {
     // 4个电机输出电流过大达到电池负载阈值，会严重影响姿态，需要并入超电来提高物理上限
-    static constexpr float MAX_HIP_CTRL_TORQ = 20.f;
+    static constexpr float MAX_HIP_CTRL_TORQ = 30.f;
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.9f;
 
     static constexpr float LENGTH_ANG_PID_OUTMAX = 6.f;
     static constexpr float LENGTH_ANG_PID_KI = 10.f;
     static constexpr float LENGTH_ANG_PID_IMAX = 1.f;
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
-
-    static constexpr float SPRING_FD = 55.f;
 
 public:
     static constexpr float MAX_L = 0.325f; // 0.337014049
@@ -31,6 +29,8 @@ public:
     static constexpr float MASS = MASS_WHEEL + MASS_LEG;
 
     static constexpr float FLOATING_THRESHOLD = MASS_WHEEL * GRAVITY;
+
+    WheelLegged(float _springFd, float _springRb = 0.f) : spring_{ _springFd, _springRb } {}
 
     /**
      * @brief WheelLegged singleton initialize
@@ -50,9 +50,9 @@ public:
     void enter();
 
     /**
-     * @brief set floating mode
+     * @brief set the flag to limit fd
      */
-    void setFloatMode(bool _flag);
+    void setFdLimitFlag(bool _flag);
 
     /**
      * @brief run the vmc solver, update leg state
@@ -132,7 +132,7 @@ public:
 private:
     LegState_s legState_{};
 
-    bool floatMode_ = false;
+    bool fdLimitFlag_ = false;
 
     float tp_ = 0.f;
     float tpFeedforward_ = 0.f;
@@ -150,7 +150,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ SPRING_FD, 0.f };
+    GasSpring spring_;
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

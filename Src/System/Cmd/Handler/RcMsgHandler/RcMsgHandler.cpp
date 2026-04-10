@@ -253,7 +253,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 #endif
         } else {
             if (!keyBoardCtrlFlag_) {
-                cMsg_.useCap = true;
+                cMsg_.useWheelCap = true;
                 if (rcData->gamepad.sw == VT13::Sw_e::N) {
                     gMsg_.state = GIMBAL::FSMState_e::RUN;
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
@@ -365,7 +365,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 }
                 cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL);
                 cMsg_.needClimb = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && IS_KEY_PRESS(rcData->KBM.key, VT13::F);
-                cMsg_.useCap = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
+                cMsg_.useWheelCap = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
             }
         }
         memcpy(&rcDataPrev, rcData, sizeof(VT13::RcData_s));

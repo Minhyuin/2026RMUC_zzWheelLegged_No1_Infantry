@@ -217,7 +217,7 @@ void Bipedal::update(void *_param)
     msg.needJump = chassisCtrlRxPacket_.data().needJump;
     msg.needClimb = chassisCtrlRxPacket_.data().needClimb;
     msg.stretch = chassisCtrlRxPacket_.data().stretch;
-    msg.useCap = chassisCtrlRxPacket_.data().useCap;
+    msg.useWheelCap = chassisCtrlRxPacket_.data().useWheelCap;
     msg.uiReset = chassisCtrlRxPacket_.data().uiReset;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
@@ -258,12 +258,19 @@ void Bipedal::update(void *_param)
     legL_.setTpFeedforward(tpGravityCompL);
     legR_.setTpFeedforward(tpGravityCompR);
 
-    // use cap
+    // hip cap
+#if EXTENSION_SUPERCAP
+    static constexpr float CHARGE_POWER_LIMIT = 30.f;
+    static constexpr float CHARGE_SLACK_ENERGY = 60.f;
+    hipCap_.capTask(true, false, false, false, 255, CHARGE_POWER_LIMIT, CHARGE_SLACK_ENERGY);
+#endif
+
+    // wheel cap
     static constexpr float MAX_VEL_ATTENUATION_FACTOR = 0.3f;
     static constexpr float LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
     float normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
     float velAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);
-    if (msg.useCap) {
+    if (msg.useWheelCap) {
         dsMaxF_ = MAX_VEL_RUSH_FRONT * velAttenuationFactor;
         dsMaxB_ = MAX_VEL_RUSH_BACK * velAttenuationFactor;
     } else {
@@ -297,7 +304,7 @@ void Bipedal::update(void *_param)
         .lengthL = lengthL(),
         .lengthR = lengthR(),
         .roll = insData_.roll,
-        .useCap = msg.useCap,
+        .useWheelCap = msg.useWheelCap,
         .capEnergyRatio = 0.99f,
     };
     UI::APP::instance().updateChassis(chassisUIMsgData);

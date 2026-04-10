@@ -33,16 +33,16 @@ void Bipedal::enableRoll() { rollControlFlag = true; }
 
 void Bipedal::disableRoll() { rollControlFlag = false; }
 
-void Bipedal::enableFloat()
+void Bipedal::enableFdLimit()
 {
-    legL_.setFloatMode(true);
-    legR_.setFloatMode(true);
+    legL_.setFdLimitFlag(true);
+    legR_.setFdLimitFlag(true);
 }
 
-void Bipedal::disableFloat()
+void Bipedal::disableFdLimit()
 {
-    legL_.setFloatMode(false);
-    legR_.setFloatMode(false);
+    legL_.setFdLimitFlag(false);
+    legR_.setFdLimitFlag(false);
 }
 
 void Bipedal::feedS(float _s) { s_ = _s; }

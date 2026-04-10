@@ -140,14 +140,14 @@ public:
     void disableRoll();
 
     /**
-     * @brief enable switch to floating state
+     * @brief limit leg fd
      */
-    void enableFloat();
+    void enableFdLimit();
 
     /**
-     * @brief disable switch to floating state
+     * @brief unlimit leg fd, but still limited by the max torque of the motors
      */
-    void disableFloat();
+    void disableFdLimit();
 
     /**
      * @brief check if the gimbal is resetting (i.e., the pitch or yaw angle is in a certain range)
@@ -402,8 +402,12 @@ public:
 private:
     Motors_s motors_;
 
-    WheelLegged legL_;
-    WheelLegged legR_;
+    WheelLegged legL_{ 95.f };
+    WheelLegged legR_{ 95.f };
+
+#if EXTENSION_SUPERCAP
+    CAP hipCap_{ &HCAN1, 0x224, 0x225 };
+#endif
 
     Subscriber<INS_SYS::INSData_s> *insSub_;
     INS_SYS::INSData_s insData_ = {};
