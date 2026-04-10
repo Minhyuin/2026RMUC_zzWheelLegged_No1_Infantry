@@ -260,7 +260,7 @@ void Bipedal::update(void *_param)
 
     // hip cap
 #if EXTENSION_SUPERCAP
-    static constexpr float CHARGE_POWER_LIMIT = 120.f;
+    static constexpr float CHARGE_POWER_LIMIT = 30.f;
     static constexpr float CHARGE_SLACK_ENERGY = 60.f;
     hipCap_.capTask(true, false, false, false, 255, CHARGE_POWER_LIMIT, CHARGE_SLACK_ENERGY);
 #endif
