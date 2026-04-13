@@ -19,7 +19,16 @@ template <WBRController::WBRControlMode_e M> void Bipedal::bal(const WBRControll
     errData.q = getMinorArc(_ref.q + Q_OFFSET, insData_.pitch);
     errData.dq = _ref.dq - insData_.body.gy;
     Matrix<10, 1> err{ errData.data };
-    Matrix<4, 1> u = WBRController::solve<M>(err, legL_.state().L0, legR_.state().L0, legL_.floatFlag, legR_.floatFlag);
+    Matrix<4, 10> k = WBRController::gain<M>(legL_.state().L0, legR_.state().L0);
+    Matrix<4, 1> u = k * err;
+    if (legL_.floatFlag) {
+        u(0, 0) = 0;
+        u(2, 0) = err(4, 0) * k(2, 4) + err(5, 0) * k(2, 5) + err(6, 0) * k(2, 6) + err(7, 0) * k(2, 7);
+    }
+    if (legR_.floatFlag) {
+        u(1, 0) = 0;
+        u(3, 0) = err(4, 0) * k(3, 4) + err(5, 0) * k(3, 5) + err(6, 0) * k(3, 6) + err(7, 0) * k(3, 7);
+    }
     legL_.setTw(u(0, 0));
     legR_.setTw(u(1, 0));
     legL_.setTp(u(2, 0) - antiSplitTp_);

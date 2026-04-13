@@ -31,8 +31,7 @@ public:
 
     WBRController() = default;
 
-    template <WBRControlMode_e M>
-    static Matrix<4, 1> solve(const Matrix<10, 1> &_errX, float _lL, float _lR, bool _isFloatingL, bool _isFloatingR)
+    template <WBRControlMode_e M> static Matrix<4, 10> gain(float _lL, float _lR)
     {
         Matrix<4, 10> k = Matrix<4, 10>::zeros();
         if constexpr (M == WBRControlMode_e::BALANCE) {
@@ -44,16 +43,7 @@ public:
         } else if (M == WBRControlMode_e::JUMP) {
             k = kComputeJump(_lL, _lR);
         }
-        Matrix<4, 1> u = k * _errX;
-        if (_isFloatingL) {
-            u(0, 0) = 0;
-            u(2, 0) = _errX(4, 0) * k(2, 4) + _errX(5, 0) * k(2, 5) + _errX(6, 0) * k(2, 6) + _errX(7, 0) * k(2, 7);
-        }
-        if (_isFloatingR) {
-            u(1, 0) = 0;
-            u(3, 0) = _errX(4, 0) * k(3, 4) + _errX(5, 0) * k(3, 5) + _errX(6, 0) * k(3, 6) + _errX(7, 0) * k(3, 7);
-        }
-        return u;
+        return k;
     }
 
 private:
