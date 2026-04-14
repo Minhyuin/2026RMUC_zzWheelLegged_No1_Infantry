@@ -47,9 +47,10 @@ bool Bipedal::detectFloating()
 
 bool Bipedal::detectNeedStop(float _expVel)
 {
-    static constexpr float STOP_CMD_THRESHOLD = 0.3f;
-    // static constexpr float STOP_VEL_THRESHOLD = 0.4f;
-    if (std::fabs(_expVel) < STOP_CMD_THRESHOLD /*&& std::fabs(ds_) < STOP_VEL_THRESHOLD*/) {
+    static constexpr float STOP_CMD_THRESHOLD = 0.1f;
+    static constexpr float STOP_VEL_FRONT_THRESHOLD = 0.3f;
+    static constexpr float STOP_VEL_BACK_THRESHOLD = -1.f;
+    if (std::fabs(_expVel) < STOP_CMD_THRESHOLD && STOP_VEL_BACK_THRESHOLD < ds_ && ds_ < STOP_VEL_FRONT_THRESHOLD) {
         return true;
     } else {
         dsCmdBeforeStop_ = _expVel;
@@ -74,7 +75,7 @@ void Bipedal::detectStop()
             const float dsAvg = 0.5f * (prevDs + ds_);
             s_ = clamp(s_ + (dsAvg * dt_), -MAX_S, MAX_S);
             prevDs = ds_;
-            if (ds_ < 0.1f && !slowSpeedFlag) {
+            if (!slowSpeedFlag) {
                 slowSpeedFlag = true;
                 if (dsCmdBeforeStop_ > 0.f)
                     s_ = S_FEEDFORWARD_FORWARD;
@@ -162,4 +163,31 @@ void Bipedal::updateBody()
 
     wz_ = insData_.earth.gz;
     wx_ = insData_.earth.gx;
+}
+
+void Bipedal::updatePowerLimit()
+{
+    auto powerLimitFactor = (powerLimit_ - 50.f) / (120.f - 50.f);
+    static constexpr auto MAX_VEL_ATTENUATION_FACTOR = 0.3f;
+    static constexpr auto LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
+    auto normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
+    auto lengthAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);
+    static constexpr auto RANGE_TRANSLATION_FRONT_ACC = MAX_TRANSLATION_FRONT_ACC - BASE_TRANSLATION_FRONT_ACC;
+    static constexpr auto RANGE_TRANSLATION_BACK_ACC = MAX_TRANSLATION_BACK_ACC - BASE_TRANSLATION_BACK_ACC;
+    static constexpr auto RANGE_FRONT_VEL = MAX_VEL_RUSH_FRONT - BASE_VEL_FRONT;
+    static constexpr auto RANGE_BACK_VEL = MAX_VEL_RUSH_BACK - BASE_VEL_BACK;
+    static constexpr auto RANGE_ROTATION_ACC = MAX_ROTATION_ACC - BASE_ROTATION_ACC;
+    if (msg.useWheelCap) {
+        dsMaxF_ = MAX_VEL_RUSH_FRONT * lengthAttenuationFactor;
+        dsMaxB_ = MAX_VEL_RUSH_BACK * lengthAttenuationFactor;
+        translationFrontAcc_ = MAX_TRANSLATION_FRONT_ACC;
+        translationBackAcc_ = MAX_TRANSLATION_BACK_ACC;
+        rotationAcc_ = MAX_ROTATION_ACC;
+    } else {
+        dsMaxF_ = BASE_VEL_FRONT + powerLimitFactor * RANGE_FRONT_VEL * lengthAttenuationFactor;
+        dsMaxB_ = BASE_VEL_BACK + powerLimitFactor * RANGE_BACK_VEL * lengthAttenuationFactor;
+        translationFrontAcc_ = BASE_TRANSLATION_FRONT_ACC + powerLimitFactor * RANGE_TRANSLATION_FRONT_ACC;
+        translationBackAcc_ = BASE_TRANSLATION_BACK_ACC + powerLimitFactor * RANGE_TRANSLATION_BACK_ACC;
+        rotationAcc_ = BASE_ROTATION_ACC + powerLimitFactor * RANGE_ROTATION_ACC;
+    }
 }

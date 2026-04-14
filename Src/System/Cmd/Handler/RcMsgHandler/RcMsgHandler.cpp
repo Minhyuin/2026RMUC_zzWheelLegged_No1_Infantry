@@ -253,7 +253,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 #endif
         } else {
             if (!keyBoardCtrlFlag_) {
-                cMsg_.useWheelCap = true;
+                if (rcData->gamepad.pause && !rcDataPrev.gamepad.pause) {
+                    cMsg_.useWheelCap = !cMsg_.useWheelCap;
+                }
                 if (rcData->gamepad.sw == VT13::Sw_e::N) {
                     gMsg_.state = GIMBAL::FSMState_e::RUN;
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;

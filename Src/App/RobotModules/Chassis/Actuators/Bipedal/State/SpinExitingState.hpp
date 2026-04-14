@@ -20,11 +20,11 @@ public:
     {
         chassis_->enter();
 
-        const float y = chassis_->deltaYaw;
-        const float w = chassis_->wz();
+        const auto y = chassis_->deltaYaw;
+        const auto w = chassis_->wz();
 
         // Equivalent to the original quadrant branches: choose PI when yaw half-plane and spin direction match.
-        const bool isNegativeHalfPlane = (y < 0.f && y > -PI);
+        const auto isNegativeHalfPlane = (y < 0.f && y > -PI);
         targetDeltaYaw_ = ((w > 0.f) == isNegativeHalfPlane) ? PI : 0.f;
 
         LOG::info("ChassisSpinExiting", " enter");
@@ -34,7 +34,9 @@ public:
     {
         chassis_->setFdFeedforward();
 
-        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw_));
+        const auto &rotationAcc = chassis_->getRotationAcc();
+        const auto wz = std::clamp(wzAngPid_->calc(PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw_), 0),
+                                   -rotationAcc, rotationAcc);
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
         // WBR
         WBRController::States_s ref{};

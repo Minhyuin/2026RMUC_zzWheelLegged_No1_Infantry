@@ -260,36 +260,39 @@ void Bipedal::update(void *_param)
 
     // hip cap
 #if EXTENSION_SUPERCAP
-    static constexpr float CHARGE_POWER_LIMIT = 30.f;
-    static constexpr float CHARGE_SLACK_ENERGY = 60.f;
-    hipCap_.capTask(true, false, false, false, 255, CHARGE_POWER_LIMIT, CHARGE_SLACK_ENERGY);
+    hipCap_.enable();
+    hipCap_.setChargePowerLimit(5);
+    hipCap_.setChargeEnergySlack(60);
+    hipCap_.task();
 #endif
 
     // wheel cap
-    static constexpr float MAX_VEL_ATTENUATION_FACTOR = 0.3f;
-    static constexpr float LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
-    float normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
-    float velAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);
-    if (msg.useWheelCap) {
-        dsMaxF_ = MAX_VEL_RUSH_FRONT * velAttenuationFactor;
-        dsMaxB_ = MAX_VEL_RUSH_BACK * velAttenuationFactor;
-    } else {
-        dsMaxF_ = MAX_VEL_FRONT * velAttenuationFactor;
-        dsMaxB_ = MAX_VEL_BACK * velAttenuationFactor;
-    }
+#if EXTENSION_SUPERCAP
+#if EXTENSION_REFEREE
+    const auto &refereeData = referee->receiver.getRefereeData();
+    auto isAlive = refereeData.gameRobotStatus.currentHP > 0;
+    powerLimit_ = std::clamp(static_cast<float>(refereeData.gameRobotStatus.chassisPowerLimit), 50.f, 120.f);
+    wheelCap_.setChargeEnergySlack(refereeData.powerHeatData.chassisPowerBuffer);
+    if (isAlive)
+        wheelCap_.enable();
+    else
+        wheelCap_.disable();
+#else
+    wheelCap_.enable(); // default enable
+    wheelCap_.setChargeEnergySlack(60);
+#endif
+    wheelCap_.setChargePowerLimit(static_cast<uint16_t>(powerLimit_));
+    wheelCap_.task();
+#endif
 
-    // stop detect
-    detectStop();
-
-    // send state to gimbal
-    chassisStateTxPacket_.setData().chassisRealState = static_cast<uint8_t>(msg.state);
+    // limit spd and acc
+    updatePowerLimit();
 
     // send referee data to gimbal
 #if EXTENSION_REFEREE
-    const auto &refereeData = referee->receiver.getRefereeData();
     refereeDataTxPacket_.setData().color = refereeData.gameRobotStatus.robotId >= 101 ? 1 : 0;
     refereeDataTxPacket_.setData().isPlay = refereeData.gameStatus.gameProgress == 4;
-    refereeDataTxPacket_.setData().isAlive = refereeData.gameRobotStatus.currentHP > 0;
+    refereeDataTxPacket_.setData().isAlive = isAlive;
     refereeDataTxPacket_.setData().stageRemainTime = refereeData.gameStatus.stageRemainTime;
     refereeDataTxPacket_.setData().rateOfFire = refereeData.shootData.bulletFreq;
     refereeDataTxPacket_.setData().muzzleVel = refereeData.shootData.bulletSpeed;
@@ -320,6 +323,12 @@ void Bipedal::update(void *_param)
 #endif
 #endif
 
+    // send state to gimbal
+    chassisStateTxPacket_.setData().chassisRealState = static_cast<uint8_t>(msg.state);
+
+    // stop detect
+    detectStop();
+
     // update state
     this->stateFactory_.update();
 }
@@ -327,7 +336,8 @@ void Bipedal::update(void *_param)
 void Bipedal::loadDeltaYaw()
 {
     // Master Board method
-    insSub_->receive();
+    if (insSub_->receive())
+        insData_.pitch = insData_.pitch - REAL_Q_OFFSET;
     deltaYaw = getMinorArc(chassisCtrlRxPacket_.data().deltaYaw, 0.f);
 
     cosYaw = arm_cos_f32(deltaYaw);

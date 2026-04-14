@@ -2,7 +2,6 @@
 
 #include "FSMState.hpp"
 #include "TopicRouter.hpp"
-#include "SuperCap.hpp"
 
 class Chassis {
 public:
