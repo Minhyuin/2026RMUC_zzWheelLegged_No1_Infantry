@@ -2,6 +2,16 @@
 
 using namespace CHASSIS;
 
+float Bipedal::getTranslationFrontAcc() const { return translationFrontAcc_; }
+
+float Bipedal::getTranslationBackAcc() const { return translationBackAcc_; }
+
+float Bipedal::getTranslationMaxFrontVel() const { return dsMaxF_; }
+
+float Bipedal::getTranslationMaxBackVel() const { return dsMaxB_; }
+
+float Bipedal::getRotationAcc() const { return rotationAcc_; }
+
 float Bipedal::yaw() const { return yaw_; }
 
 float Bipedal::pitch() const { return insData_.pitch; }

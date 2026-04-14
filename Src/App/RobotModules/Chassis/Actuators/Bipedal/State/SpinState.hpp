@@ -17,7 +17,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float STRETCH_L = 0.27f;
 
     static constexpr float MAX_DS = 0.4f;
-    static constexpr float DIR_OFFSET_ANG = PI / 2.f - PI / 4.f;
+    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 4.f);
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -55,11 +55,16 @@ public:
         // calculate wz in spin
         arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
         ds = std::clamp(ds, -MAX_DS, MAX_DS);
-        if (ds == 0)
-            wz = getVariableSpinVel();
+        if (chassis_->msg.useWheelCap)
+            accelFactor_ = SMOOTH::slopeFollowing(1, accelFactor_, 0.007f);
         else
-            wz = getConstantSpinVel();
-        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(refYaw_ + (wz * 0.001f), -PI, PI));
+            accelFactor_ = SMOOTH::slopeFollowing(1, accelFactor_, 0.001f);
+        if (ds == 0)
+            wz = getVariableSpinVel() * accelFactor_;
+        else
+            wz = getConstantSpinVel() * accelFactor_;
+        float newRefYaw = refYaw_ + (wz * 0.001f);
+        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(newRefYaw, -PI, PI));
 
         // calculate ds in spin
         float dirOffsetAng = wz > 0 ? -DIR_OFFSET_ANG : DIR_OFFSET_ANG;
@@ -82,6 +87,7 @@ public:
     void exit() final
     {
         spinCnt_ = 0;
+        accelFactor_ = 0.f;
         spinDir_ = !spinDir_;
         LOG::info("ChassisSpin", " exit");
     }
@@ -121,13 +127,16 @@ private:
 
     float refRoll_ = 0;
 
+    float accelFactor_ = 0.f;
     bool spinDir_ = false; // true : left, false: right
     uint32_t spinCnt_ = 0;
 
     float getVariableSpinVel()
     {
-        float x = 2.1f * (static_cast<float>(spinCnt_++) * 0.001f);
-        float rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
+        float x = 2.f * (static_cast<float>(spinCnt_++) * 0.001f);
+        if (!chassis_->msg.useWheelCap)
+            x *= 2.f;
+        const auto rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
         return spinDir_ ? rslt : -rslt;
     }
     float getConstantSpinVel() { return spinDir_ ? SPIN_SPEED_CONST : -SPIN_SPEED_CONST; }

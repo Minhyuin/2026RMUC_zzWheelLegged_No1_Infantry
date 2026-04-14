@@ -13,8 +13,6 @@ static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 3.f, 0.1f
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 0.7f;
-    static constexpr float MAX_ACC_FRONT = 0.7f;
     static constexpr float IDLE_L = WheelLegged::MIN_L;
     static constexpr float STRETCH_L = 0.28f;
 
@@ -58,15 +56,19 @@ public:
         refRoll_ += chassis_->msg.droll * 0.001f;
         chassis_->setRoll(refRoll_);
 
-        float targetYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;
-        float wz = -wzAngPid_->calc(0, PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetYaw));
+        float targetDeltaYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;
+        const auto &rotationAcc = chassis_->getRotationAcc();
+        float wz = std::clamp(wzAngPid_->calc(PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw), 0),
+                              -rotationAcc, rotationAcc);
         // float wz = 0;
-        float ds = (chassis_->msg.vx * chassis_->cosYaw) - (chassis_->msg.vy * chassis_->sinYaw);
+        float ds = ((chassis_->msg.vx * chassis_->cosYaw) - (chassis_->msg.vy * chassis_->sinYaw)) *
+                   (std::max(1.f - (std::fabs(chassis_->wz()) / rotationAcc), 0.4f));
 
         // WBR
         WBRController::States_s ref{};
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
-        ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
+        ref.ds = std::clamp(ds, chassis_->vel() - chassis_->getTranslationBackAcc(),
+                            chassis_->vel() + chassis_->getTranslationFrontAcc());
         ref.yaw = refYaw_;
         ref.q = OFFSET_Q;
         chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);

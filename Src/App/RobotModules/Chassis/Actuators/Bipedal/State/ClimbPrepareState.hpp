@@ -13,10 +13,10 @@ static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.1
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
-    static constexpr float OFFSET_PHI = 0.2f;
+    static constexpr float OFFSET_PHI = 0.25f;
     static constexpr float MAX_ACC_BACK = 0.5f;
     static constexpr float MAX_ACC_FRONT = 0.7f;
-    static constexpr float MAX_SPEED = 1.f;
+    static constexpr float MAX_SPEED = 1.2f;
     static constexpr float CLIMB_PREPARE_LENGTH = WheelLegged::MAX_L;
 
 public:

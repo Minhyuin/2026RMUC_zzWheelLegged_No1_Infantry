@@ -31,9 +31,9 @@ public:
 
     WBRController() = default;
 
-    template <WBRControlMode_e M> static Matrix<4, 10> gain(float _lL, float _lR)
+    template <WBRControlMode_e M> static auto gain(float _lL, float _lR)
     {
-        Matrix<4, 10> k = Matrix<4, 10>::zeros();
+        auto k = Matrix<4, 10>::zeros();
         if constexpr (M == WBRControlMode_e::BALANCE) {
             k = kComputeBalance(_lL, _lR);
         } else if (M == WBRControlMode_e::SPIN) {

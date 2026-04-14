@@ -13,8 +13,6 @@ static PositionalPid tankFollowVelPid{ 5.0f, 1.f, 0.05f, 0.001f, 0.1f, 1.5f, 0.1
 namespace CHASSIS {
 class TankState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
-    static constexpr float MAX_ACC_BACK = 1.f;
-    static constexpr float MAX_ACC_FRONT = 1.f;
 
 public:
     TankState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::TANK), chassis_(_chassis) {}
@@ -50,7 +48,8 @@ public:
         // WBR
         WBRController::States_s ref{};
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
-        ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
+        ref.ds = std::clamp(ds, chassis_->vel() - chassis_->getTranslationBackAcc(),
+                            chassis_->vel() + chassis_->getTranslationFrontAcc());
         ref.yaw = refYaw_;
         ref.q = OFFSET_Q;
         chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
