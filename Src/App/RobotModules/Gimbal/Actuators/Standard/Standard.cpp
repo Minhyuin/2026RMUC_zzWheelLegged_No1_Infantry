@@ -63,7 +63,7 @@ void ChassisStateRxPacket::registerCallback()
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 2,
