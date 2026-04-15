@@ -5,7 +5,9 @@
         bool "rls"
         default y
 
-    config POWERCTRL_USE_REFEREE
-        bool "referee feedback"
-        default n    
+    config POWERCTRL_ENABLE_STEER_RLS
+        bool "enable steer rls"
+        depends on POWERCTRL_USE_RLS
+        default n
+
     endmenu

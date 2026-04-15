@@ -2,7 +2,7 @@
 
 #include "Bsp_can.hpp"
 
-#include "M3508.hpp"
+#include "DM3519.hpp"
 
 #include "Smooth.hpp"
 
@@ -22,28 +22,28 @@ void ArmorBoosterStatePacketType::transmit(uint8_t *_buf, uint16_t _len)
 DualFric::DualFric()
 {
     InitConfig_s fricLConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
         .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::QUAD_CURR,
-        .offsetId = 2,
+        .workMode = WorkMode_e::VDES,
+        .offsetId = 1,
         .txFreq = FRIC_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .isReverse = FRIC_REVERSE,
     };
-    motors_.fricL = new DJIMOTOR::M3508("FricL", fricLConfig);
+    motors_.fricL = new DMMOTOR::DM3519("FricL", fricLConfig);
 
     InitConfig_s fricRConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
         .comType = ComType_e::CAN,
-        .workMode = WorkMode_e::QUAD_CURR,
-        .offsetId = 3,
+        .workMode = WorkMode_e::VDES,
+        .offsetId = 2,
         .txFreq = FRIC_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
         .isReverse = !FRIC_REVERSE,
     };
-    motors_.fricR = new DJIMOTOR::M3508("FricR", fricRConfig);
+    motors_.fricR = new DMMOTOR::DM3519("FricR", fricRConfig);
 
     this->stateFactory_.addState(FSMState_e::ON, std::make_unique<OnState>(this));
     this->stateFactory_.addState(FSMState_e::OFF, std::make_unique<OffState>(this));
@@ -52,10 +52,6 @@ DualFric::DualFric()
 
 void DualFric::stop()
 {
-    fricPid_[0].reset();
-    fricPid_[1].reset();
-    antiDiffPid_.reset();
-
     motors_.fricL->cmd(MotorCmdType_e::OFF);
     motors_.fricR->cmd(MotorCmdType_e::OFF);
 }
@@ -84,18 +80,14 @@ void DualFric::update(void *_param)
 
 void DualFric::ctrl(float _vel)
 {
-    float curVelL = velFltr_[0].process(motors_.fricL->vel());
-    float curVelR = velFltr_[1].process(motors_.fricR->vel());
-    float diffVel = curVelL - curVelR;
-    float antiDiffPidOut = antiDiffPid_.calc(diffVel, 0);
-    float velErr = _vel - velFltr_[0].process(curVelL);
-    float pidOut = fricPid_[0].calc(velErr, 0);
-    motors_.fricL->cmdTorq(
-            std::clamp(pidOut - antiDiffPidOut, -DJIMOTOR::M3508::TORQ_RATED, DJIMOTOR::M3508::TORQ_RATED));
-    velErr = _vel - velFltr_[1].process(curVelR);
-    pidOut = fricPid_[1].calc(velErr, 0);
-    motors_.fricR->cmdTorq(
-            std::clamp(pidOut + antiDiffPidOut, -DJIMOTOR::M3508::TORQ_RATED, DJIMOTOR::M3508::TORQ_RATED));
+    // float velErr = _vel - velFltr_[0].process(motors_.fricL->vel());
+    // float pidOut = fricPid_[0].calc(velErr, 0);
+    // motors_.fricL->cmdTorq(pidOut);
+    // velErr = _vel - velFltr_[1].process(motors_.fricR->vel());
+    // pidOut = fricPid_[1].calc(velErr, 0);
+    // motors_.fricR->cmdTorq(pidOut);
+    motors_.fricR->cmdVel(_vel);
+    motors_.fricL->cmdVel(_vel);
 }
 
 void DualFric::on()
@@ -107,12 +99,11 @@ void DualFric::on()
 
 void DualFric::off()
 {
-    // if (std::fabs(motors_.fricL->vel() + motors_.fricR->vel()) < FRIC_STOP_THRESHOLD) {
-    stop();
-    // }
-    // else {
-    //     float constZero = 0;
-    //     SMOOTH::slopeFollowing(&constZero, &targetVel_, 0.5f);
-    //     ctrl(targetVel_);
-    // }
+    if (std::fabs(motors_.fricL->vel() + motors_.fricR->vel()) < FRIC_STOP_THRESHOLD) {
+        stop();
+    } else {
+        float constZero = 0;
+        SMOOTH::slopeFollowing(&constZero, &targetVel_, 0.2f);
+        ctrl(targetVel_);
+    }
 }

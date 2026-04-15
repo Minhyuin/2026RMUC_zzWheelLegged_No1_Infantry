@@ -30,6 +30,8 @@ public:
 
     static constexpr float FLOATING_THRESHOLD = MASS_WHEEL * GRAVITY;
 
+    WheelLegged(float _springFd, float _springRb = 0.f) : spring_{ _springFd, _springRb } {}
+
     /**
      * @brief WheelLegged singleton initialize
      * 
@@ -46,6 +48,11 @@ public:
      * @brief enable all motors
      */
     void enter();
+
+    /**
+     * @brief set the flag to limit fd
+     */
+    void setFdLimitFlag(bool _flag);
 
     /**
      * @brief run the vmc solver, update leg state
@@ -125,6 +132,8 @@ public:
 private:
     LegState_s legState_{};
 
+    bool fdLimitFlag_ = false;
+
     float tp_ = 0.f;
     float tpFeedforward_ = 0.f;
     float fd_ = 0.f;
@@ -141,7 +150,7 @@ private:
     VMC vmc_ = VMC();
     // VMCTest vmcTest_;
 
-    GasSpring spring_{ 55.f, 0.f };
+    GasSpring spring_;
     float fdFromSpring_ = 0;
 
     float setL_ = 0.f;

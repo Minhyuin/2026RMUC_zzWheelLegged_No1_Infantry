@@ -42,41 +42,19 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
         client_.ready(&dynamicInfo_.chassisState);
     }
 
-    // chassisSpdSlider
-    constexpr float CHASSIS_SPD_ARC_RANGE_HALF = (CHASSIS_SPD_ARC_END_ANG - CHASSIS_SPD_ARC_START_ANG) / 2.f;
-    constexpr float CHASSIS_SPD_ARC_CENTER = CHASSIS_SPD_ARC_START_ANG + CHASSIS_SPD_ARC_RANGE_HALF;
-    float chassisVel = std::max(-UI_CHASSIS_SPD_MAX, std::min(_msg.vel, UI_CHASSIS_SPD_MAX));
-    float sliderAng = (chassisVel / UI_CHASSIS_SPD_MAX * CHASSIS_SPD_ARC_RANGE_HALF) + CHASSIS_SPD_ARC_CENTER;
-    float sliderRad = sliderAng * PI / 180.f;
-    dynamicInfo_.chassisSpdSlider.config.startX =
-            static_cast<uint32_t>(CHASSIS_SPD_ARC_START_X + (arm_sin_f32(sliderRad) * CHASSIS_SPD_ARC_END_X));
-    dynamicInfo_.chassisSpdSlider.config.startY =
-            static_cast<uint32_t>(CHASSIS_SPD_ARC_START_Y + (arm_cos_f32(sliderRad) * CHASSIS_SPD_ARC_END_Y));
-    client_.ready(&dynamicInfo_.chassisSpdSlider);
-
-    // chassisSpdValue
-    dynamicInfo_.chassisSpdValue.config.floatNum = _msg.vel;
-    client_.ready(&dynamicInfo_.chassisSpdValue);
-
-    // capEnergyArc
-    constexpr float CAP_ENERGY_ARC_RANGE = CAP_ENERGY_ARC_END_ENG - CAP_ENERGY_ARC_START_ENG;
-    dynamicInfo_.capEnergyArc.config.startAngle =
-            CAP_ENERGY_ARC_END_ENG - static_cast<uint32_t>(_msg.capEnergyRatio * CAP_ENERGY_ARC_RANGE);
+    // capEnergyBar
+    constexpr float CAP_ENERGY_BAR_RANGE = CAP_ENERGY_BAR_END_X - CAP_ENERGY_BAR_START_X;
+    dynamicInfo_.capEnergyBar.config.endX =
+            CAP_ENERGY_BAR_START_X + static_cast<uint32_t>(_msg.capEnergyRatio * CAP_ENERGY_BAR_RANGE);
     if (_msg.capEnergyRatio < 0.3f)
-        dynamicInfo_.capEnergyArc.config.color = Color_e::ORANGE;
+        dynamicInfo_.capEnergyBar.config.color = Color_e::ORANGE;
     else {
-        if (_msg.useCap)
-            dynamicInfo_.capEnergyArc.config.color = Color_e::YELLOW;
+        if (_msg.useWheelCap)
+            dynamicInfo_.capEnergyBar.config.color = Color_e::YELLOW;
         else
-            dynamicInfo_.capEnergyArc.config.color = Color_e::WHITE;
+            dynamicInfo_.capEnergyBar.config.color = Color_e::WHITE;
     }
-    client_.ready(&dynamicInfo_.capEnergyArc);
-
-    // chassisEnergyArc
-    constexpr float CHASSIS_ENERGY_ARC_RANGE = CHASSIS_ENERGY_ARC_END_ENG - CHASSIS_ENERGY_ARC_START_ENG;
-    dynamicInfo_.chassisEnergyArc.config.startAngle =
-            CHASSIS_ENERGY_ARC_END_ENG - static_cast<uint32_t>(_msg.chassisEnergyRatio * CHASSIS_ENERGY_ARC_RANGE);
-    client_.ready(&dynamicInfo_.chassisEnergyArc);
+    client_.ready(&dynamicInfo_.capEnergyBar);
 
     // chassisDirection
     dynamicInfo_.chassisDirection.config.startX =
@@ -122,15 +100,6 @@ void APP::updateGimbal(const GimbalUIMsg_s &_msg)
         client_.ready(&dynamicInfo_.visionState);
     }
 
-    // pitchAngSlider
-    constexpr float PITCH_ANG_MAX = std::max(std::abs(UI_PITCH_START_ANG), std::abs(UI_PITCH_END_ANG));
-    float pitchAng = std::max(-PITCH_ANG_MAX, std::min(_msg.pitchAng, PITCH_ANG_MAX));
-    dynamicInfo_.pitchAngSlider.config.startX =
-            static_cast<uint32_t>(PITCH_ARC_START_X - (arm_cos_f32(-pitchAng) * PITCH_ARC_END_X));
-    dynamicInfo_.pitchAngSlider.config.startY =
-            static_cast<uint32_t>(PITCH_ARC_START_Y + (arm_sin_f32(-pitchAng) * PITCH_ARC_END_Y));
-    client_.ready(&dynamicInfo_.pitchAngSlider);
-
     // pitchAngValue
     dynamicInfo_.pitchAngValue.config.floatNum = _msg.pitchAng;
     client_.ready(&dynamicInfo_.pitchAngValue);
@@ -145,7 +114,7 @@ void APP::updateGimbal(const GimbalUIMsg_s &_msg)
             static_cast<float>(UP_MOVE_LEFT_POS_END_X) - static_cast<float>(DOWN_MOVE_LEFT_POS_END_X);
     constexpr float LEFT_Y_POS_END_RANGE =
             static_cast<float>(UP_MOVE_LEFT_POS_END_Y) - static_cast<float>(DOWN_MOVE_LEFT_POS_END_Y);
-    float pitchAngAbs = pitchAng - UI_PITCH_START_ANG;
+    float pitchAngAbs = _msg.pitchAng - UI_PITCH_START_ANG;
     dynamicInfo_.drivingReferenceLineLeft.config.startX =
             UP_MOVE_LEFT_POS_START_X - static_cast<int32_t>(pitchAngAbs / PITCH_ANG_RANGE * LEFT_X_POS_START_RANGE);
     dynamicInfo_.drivingReferenceLineLeft.config.startY =
@@ -154,7 +123,9 @@ void APP::updateGimbal(const GimbalUIMsg_s &_msg)
             UP_MOVE_LEFT_POS_END_X - static_cast<int32_t>(pitchAngAbs / PITCH_ANG_RANGE * LEFT_X_POS_END_RANGE);
     dynamicInfo_.drivingReferenceLineLeft.config.endY =
             UP_MOVE_LEFT_POS_END_Y - static_cast<int32_t>(pitchAngAbs / PITCH_ANG_RANGE * LEFT_Y_POS_END_RANGE);
+    dynamicInfo_.drivingReferenceLineLeft.config.color = _msg.needClimb ? Color_e::FUCHSIA : Color_e::GREEN;
     client_.ready(&dynamicInfo_.drivingReferenceLineLeft);
+
     constexpr float RIGHT_X_POS_START_RANGE =
             static_cast<float>(UP_MOVE_RIGHT_POS_START_X) - static_cast<float>(DOWN_MOVE_RIGHT_POS_START_X);
     constexpr float RIGHT_Y_POS_START_RANGE =
@@ -171,6 +142,7 @@ void APP::updateGimbal(const GimbalUIMsg_s &_msg)
             UP_MOVE_RIGHT_POS_END_X - static_cast<int32_t>(pitchAngAbs / PITCH_ANG_RANGE * RIGHT_X_POS_RANGE);
     dynamicInfo_.drivingReferenceLineRight.config.endY =
             UP_MOVE_RIGHT_POS_END_Y - static_cast<int32_t>(pitchAngAbs / PITCH_ANG_RANGE * RIGHT_Y_POS_RANGE);
+    dynamicInfo_.drivingReferenceLineRight.config.color = _msg.needClimb ? Color_e::FUCHSIA : Color_e::GREEN;
     client_.ready(&dynamicInfo_.drivingReferenceLineRight);
 }
 

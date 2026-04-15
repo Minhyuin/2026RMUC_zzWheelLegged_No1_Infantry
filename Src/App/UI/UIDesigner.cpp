@@ -14,32 +14,6 @@ using namespace UI;
 
 void dynamicConfig(DynamicUIInfos_u &_info)
 {
-    auto &chassisSpdSlider = _info.chassisSpdSlider.config;
-    chassisSpdSlider = {};
-    chassisSpdSlider.priority = UI::Priority_e::LOW;
-    chassisSpdSlider.uiType = Type_e::CIRCLE;
-    chassisSpdSlider.operateType = OperateType_e::MODIFY;
-    chassisSpdSlider.layer = 5;
-    chassisSpdSlider.color = Color_e::RED_BLUE;
-    chassisSpdSlider.width = 5;
-    chassisSpdSlider.startX = 369;
-    chassisSpdSlider.startY = 544;
-    chassisSpdSlider.radius = 19;
-
-    auto &chassisSpdValue = _info.chassisSpdValue.config;
-    chassisSpdValue = {};
-    chassisSpdValue.priority = UI::Priority_e::LOW;
-    chassisSpdValue.uiType = Type_e::FLOAT;
-    chassisSpdValue.operateType = OperateType_e::MODIFY;
-    chassisSpdValue.layer = 1;
-    chassisSpdValue.color = Color_e::CYAN_BLUE;
-    chassisSpdValue.width = 2;
-    chassisSpdValue.startX = 465;
-    chassisSpdValue.startY = 882;
-    chassisSpdValue.floatNum = 0.f;
-    chassisSpdValue.decimal = 1;
-    chassisSpdValue.size = 15;
-
     auto &chassisState = _info.chassisState.config;
     chassisState = {};
     chassisState.priority = UI::Priority_e::MID;
@@ -53,35 +27,18 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     chassisState.size = 20;
     std::strncpy(chassisState.text, "STOP", sizeof(chassisState.text) - 1);
 
-    auto &capEnergyArc = _info.capEnergyArc.config;
-    capEnergyArc = {};
-    capEnergyArc.priority = UI::Priority_e::MID;
-    capEnergyArc.uiType = Type_e::ARC;
-    capEnergyArc.operateType = OperateType_e::MODIFY;
-    capEnergyArc.layer = 2;
-    capEnergyArc.color = Color_e::WHITE;
-    capEnergyArc.width = 20;
-    capEnergyArc.startX = 1108;
-    capEnergyArc.startY = 540;
-    capEnergyArc.endX = 425;
-    capEnergyArc.endY = 425;
-    capEnergyArc.startAngle = CAP_ENERGY_ARC_START_ENG;
-    capEnergyArc.endAngle = CAP_ENERGY_ARC_END_ENG;
-
-    auto &chassisEnergyArc = _info.chassisEnergyArc.config;
-    chassisEnergyArc = {};
-    chassisEnergyArc.priority = UI::Priority_e::LOW;
-    chassisEnergyArc.uiType = Type_e::ARC;
-    chassisEnergyArc.operateType = OperateType_e::MODIFY;
-    chassisEnergyArc.layer = 3;
-    chassisEnergyArc.color = Color_e::ORANGE;
-    chassisEnergyArc.width = 20;
-    chassisEnergyArc.startX = 1286;
-    chassisEnergyArc.startY = 540;
-    chassisEnergyArc.endX = 203;
-    chassisEnergyArc.endY = 203;
-    chassisEnergyArc.startAngle = CHASSIS_ENERGY_ARC_START_ENG;
-    chassisEnergyArc.endAngle = CHASSIS_ENERGY_ARC_END_ENG;
+    auto &capEnergyBar = _info.capEnergyBar.config;
+    capEnergyBar = {};
+    capEnergyBar.priority = UI::Priority_e::MID;
+    capEnergyBar.uiType = Type_e::LINE;
+    capEnergyBar.operateType = OperateType_e::MODIFY;
+    capEnergyBar.layer = 2;
+    capEnergyBar.color = Color_e::WHITE;
+    capEnergyBar.width = 20;
+    capEnergyBar.startX = CAP_ENERGY_BAR_START_X;
+    capEnergyBar.startY = 100;
+    capEnergyBar.endX = CAP_ENERGY_BAR_END_X;
+    capEnergyBar.endY = 100;
 
     auto &chassisDirection = _info.chassisDirection.config;
     chassisDirection = {};
@@ -135,20 +92,6 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     visionState.startY = 540 - 200;
     visionState.endX = 960 + 300;
     visionState.endY = 540 + 200;
-    visionState.startAngle = 60;
-    visionState.endAngle = 120;
-
-    auto &pitchAngSlider = _info.pitchAngSlider.config;
-    pitchAngSlider = {};
-    pitchAngSlider.priority = UI::Priority_e::LOW;
-    pitchAngSlider.uiType = Type_e::CIRCLE;
-    pitchAngSlider.operateType = OperateType_e::MODIFY;
-    pitchAngSlider.layer = 5;
-    pitchAngSlider.color = Color_e::RED_BLUE;
-    pitchAngSlider.width = 5;
-    pitchAngSlider.startX = 421;
-    pitchAngSlider.startY = 545;
-    pitchAngSlider.radius = 8;
 
     auto &pitchAngValue = _info.pitchAngValue.config;
     pitchAngValue = {};
@@ -156,10 +99,10 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     pitchAngValue.uiType = Type_e::FLOAT;
     pitchAngValue.operateType = OperateType_e::MODIFY;
     pitchAngValue.layer = 1;
-    pitchAngValue.color = Color_e::GREEN;
+    pitchAngValue.color = Color_e::PINK;
     pitchAngValue.width = 2;
-    pitchAngValue.startX = 472;
-    pitchAngValue.startY = 809;
+    pitchAngValue.startX = 76;
+    pitchAngValue.startY = 720;
     pitchAngValue.floatNum = 0.f;
     pitchAngValue.decimal = 4;
     pitchAngValue.size = 15;
@@ -243,19 +186,6 @@ void staticConfig(StaticUIInfos_u &_info)
     chassisString.size = 20;
     std::strncpy(chassisString.text, "C:", sizeof(chassisString.text) - 1);
 
-    auto &chassisVelArcBackground = _info.chassisVelArcBackground.config;
-    chassisVelArcBackground = {};
-    chassisVelArcBackground.uiType = Type_e::ARC;
-    chassisVelArcBackground.layer = 3;
-    chassisVelArcBackground.color = Color_e::CYAN_BLUE;
-    chassisVelArcBackground.width = 3;
-    chassisVelArcBackground.startX = CHASSIS_SPD_ARC_START_X;
-    chassisVelArcBackground.startY = CHASSIS_SPD_ARC_START_Y;
-    chassisVelArcBackground.endX = CHASSIS_SPD_ARC_END_X;
-    chassisVelArcBackground.endY = CHASSIS_SPD_ARC_END_Y;
-    chassisVelArcBackground.startAngle = CHASSIS_SPD_ARC_START_ANG;
-    chassisVelArcBackground.endAngle = CHASSIS_SPD_ARC_END_ANG;
-
     auto &capEnergyBottomLine = _info.capEnergyBottomLine.config;
     capEnergyBottomLine = {};
     capEnergyBottomLine.uiType = Type_e::LINE;
@@ -267,42 +197,16 @@ void staticConfig(StaticUIInfos_u &_info)
     capEnergyBottomLine.endX = 1454;
     capEnergyBottomLine.endY = 352;
 
-    auto &chassisEnergyBottomLine = _info.chassisEnergyBottomLine.config;
-    chassisEnergyBottomLine = {};
-    chassisEnergyBottomLine.uiType = Type_e::LINE;
-    chassisEnergyBottomLine.layer = 0;
-    chassisEnergyBottomLine.color = Color_e::WHITE;
-    chassisEnergyBottomLine.width = 8;
-    chassisEnergyBottomLine.startX = 1476;
-    chassisEnergyBottomLine.startY = 433;
-    chassisEnergyBottomLine.endX = 1440;
-    chassisEnergyBottomLine.endY = 452;
-
-    auto &capEnergyArcBackground = _info.capEnergyArcBackground.config;
-    capEnergyArcBackground = {};
-    capEnergyArcBackground.uiType = Type_e::ARC;
-    capEnergyArcBackground.layer = 0;
-    capEnergyArcBackground.color = Color_e::WHITE;
-    capEnergyArcBackground.width = 5;
-    capEnergyArcBackground.startX = 1100;
-    capEnergyArcBackground.startY = 540;
-    capEnergyArcBackground.endX = 445;
-    capEnergyArcBackground.endY = 445;
-    capEnergyArcBackground.startAngle = 64;
-    capEnergyArcBackground.endAngle = 119;
-
-    auto &chassisEnergyArcBackground = _info.chassisEnergyArcBackground.config;
-    chassisEnergyArcBackground = {};
-    chassisEnergyArcBackground.uiType = Type_e::ARC;
-    chassisEnergyArcBackground.layer = 0;
-    chassisEnergyArcBackground.color = Color_e::WHITE;
-    chassisEnergyArcBackground.width = 5;
-    chassisEnergyArcBackground.startX = 1296;
-    chassisEnergyArcBackground.startY = 540;
-    chassisEnergyArcBackground.endX = 206;
-    chassisEnergyArcBackground.endY = 206;
-    chassisEnergyArcBackground.startAngle = 62;
-    chassisEnergyArcBackground.endAngle = 120;
+    auto &capEnergyBarBackground = _info.capEnergyBarBackground.config;
+    capEnergyBarBackground = {};
+    capEnergyBarBackground.uiType = Type_e::RECTANGEL;
+    capEnergyBarBackground.layer = 0;
+    capEnergyBarBackground.color = Color_e::FUCHSIA;
+    capEnergyBarBackground.width = 5;
+    capEnergyBarBackground.startX = CAP_ENERGY_BAR_START_X;
+    capEnergyBarBackground.startY = 100 + 10;
+    capEnergyBarBackground.endX = CAP_ENERGY_BAR_END_X;
+    capEnergyBarBackground.endY = 100 - 10;
 
     auto &legLengthAndChassisRollString = _info.legLengthAndChassisRollString.config;
     legLengthAndChassisRollString = {};
@@ -325,19 +229,6 @@ void staticConfig(StaticUIInfos_u &_info)
     gimbalString.startY = 800;
     gimbalString.size = 20;
     std::strncpy(gimbalString.text, "G:", sizeof(gimbalString.text) - 1);
-
-    auto &pitchAngArcBackground = _info.pitchAngArcBackground.config;
-    pitchAngArcBackground = {};
-    pitchAngArcBackground.uiType = Type_e::ARC;
-    pitchAngArcBackground.layer = 3;
-    pitchAngArcBackground.color = Color_e::GREEN;
-    pitchAngArcBackground.width = 3;
-    pitchAngArcBackground.startX = 900;
-    pitchAngArcBackground.startY = 540;
-    pitchAngArcBackground.endX = 480;
-    pitchAngArcBackground.endY = 480;
-    pitchAngArcBackground.startAngle = 240;
-    pitchAngArcBackground.endAngle = 300;
 
     auto &shooterString = _info.shooterString.config;
     shooterString = {};

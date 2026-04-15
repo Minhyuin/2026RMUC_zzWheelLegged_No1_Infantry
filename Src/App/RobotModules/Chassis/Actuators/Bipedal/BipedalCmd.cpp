@@ -33,6 +33,18 @@ void Bipedal::enableRoll() { rollControlFlag = true; }
 
 void Bipedal::disableRoll() { rollControlFlag = false; }
 
+void Bipedal::enableFdLimit()
+{
+    legL_.setFdLimitFlag(true);
+    legR_.setFdLimitFlag(true);
+}
+
+void Bipedal::disableFdLimit()
+{
+    legL_.setFdLimitFlag(false);
+    legR_.setFdLimitFlag(false);
+}
+
 void Bipedal::feedS(float _s) { s_ = _s; }
 
 void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }

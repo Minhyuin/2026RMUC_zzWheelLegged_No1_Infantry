@@ -13,7 +13,7 @@ enum class RCDevType_e : uint8_t {
 };
 
 template <RCDevType_e DEV_TYPE> class RcMsgHandler final : public Handler {
-    static constexpr float INPUT_VX_MAX = 2.f;
+    static constexpr float INPUT_VX_MAX = 2.5f;
     static constexpr float INPUT_VY_MAX = INPUT_VX_MAX;
     static constexpr float INPUT_WZ_MAX = 3.f;
 

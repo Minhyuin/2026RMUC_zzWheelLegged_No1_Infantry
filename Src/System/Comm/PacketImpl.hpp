@@ -65,7 +65,7 @@ public:
         bool needJump;
         bool needClimb;
         bool stretch;
-        bool useCap;
+        bool useWheelCap;
         bool bodyReset;
         float deltaYaw;
         bool uiReset;
@@ -81,7 +81,7 @@ public:
             uint8_t needJump : 1;
             uint8_t needClimb : 1;
             uint8_t stretch : 1;
-            uint8_t useCap : 1;
+            uint8_t useWheelCap : 1;
             int16_t deltaYaw : 16;
             uint8_t chassisExptState : 4;
             uint8_t gimbalRealState : 4;
@@ -102,7 +102,7 @@ public:
         d.needJump = _protoData.needJump;
         d.needClimb = _protoData.needClimb;
         d.stretch = _protoData.stretch;
-        d.useCap = _protoData.useCap;
+        d.useWheelCap = _protoData.useWheelCap;
         d.chassisExptState = _protoData.chassisExptState;
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
@@ -118,7 +118,7 @@ public:
         _protoData.needJump = _data.content.needJump;
         _protoData.needClimb = _data.content.needClimb;
         _protoData.stretch = _data.content.stretch;
-        _protoData.useCap = _data.content.useCap;
+        _protoData.useWheelCap = _data.content.useWheelCap;
         _protoData.chassisExptState = _data.content.chassisExptState;
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);

@@ -9,6 +9,14 @@
 
 #include "Axis1Odom.hpp"
 
+#if EXTENSION_SUPERCAP
+#include "SuperCap.hpp"
+#endif
+
+#if APP_USE_POWERCTRL
+#include "BalancePowerController.hpp"
+#endif
+
 #include "LPF.hpp"
 #include "IIR.hpp"
 
@@ -69,11 +77,20 @@ class Bipedal : public Chassis {
     static constexpr float RB_HIP_CALIBRATED_ANG = 0.101128f;
 
     static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
-    static constexpr float MAX_VEL_RUSH_BACK = 1.5f;
-    static constexpr float MAX_VEL_FRONT = 2.f;
-    static constexpr float MAX_VEL_BACK = 1.f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.7f;
+    static constexpr float MAX_VEL_FRONT = 2.0f;
+    static constexpr float BASE_VEL_FRONT = 1.1f;
+    static constexpr float MAX_VEL_BACK = 0.7f;
+    static constexpr float BASE_VEL_BACK = 0.25f;
 
-    static constexpr float MASS_BODY = 18.0f;
+    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.5f;
+    static constexpr float MAX_TRANSLATION_FRONT_ACC = 0.8f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.3f;
+    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.8f;
+    static constexpr float BASE_ROTATION_ACC = 1.5f;
+    static constexpr float MAX_ROTATION_ACC = 3.f;
+
+    static constexpr float MASS_BODY = 23.4f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -83,17 +100,18 @@ class Bipedal : public Chassis {
 
     static constexpr float W_DISTANCE_HALF = 0.4611f / 2.f; // half of the left-right wheelbase
 
-    static constexpr float MAX_S = 1.f; // maximum displacement allowed for credit accumulation
+    static constexpr float MAX_S = 3.f; // maximum displacement allowed for credit accumulation
 
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            -0.05f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
             -0.7f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
-    static constexpr float Q_OFFSET = 0.11f;
-    static constexpr float PHI_OFFSET = 0.05f;
+    static constexpr float REAL_Q_OFFSET = -0.0116224f; // mecanical offset of the equivalent pendulum angle, unit: rad
+    static constexpr float EXPT_Q_OFFSET = 0.06f;
+    static constexpr float EXPT_PHI_OFFSET = 0.04f;
 
 public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
@@ -138,6 +156,16 @@ public:
      * @brief turn off roll control
      */
     void disableRoll();
+
+    /**
+     * @brief limit leg fd
+     */
+    void enableFdLimit();
+
+    /**
+     * @brief unlimit leg fd, but still limited by the max torque of the motors
+     */
+    void disableFdLimit();
 
     /**
      * @brief check if the gimbal is resetting (i.e., the pitch or yaw angle is in a certain range)
@@ -284,6 +312,9 @@ public:
      */
     void noBal(float _vx, float _wz);
 
+    /**
+     * @brief run leg controlling
+     */
     void ctrl();
 
     // Observe functions
@@ -366,6 +397,14 @@ public:
     bool detectLengthLRange(float _l, float _threthold = 0.05f) const;
     bool detectLengthRRange(float _l, float _threthold = 0.05f) const;
 
+    float getTranslationFrontAcc() const;
+    float getTranslationBackAcc() const;
+
+    float getRotationAcc() const;
+
+    float getTranslationMaxFrontVel() const;
+    float getTranslationMaxBackVel() const;
+
     float yaw() const;
     float pitch() const;
     float roll() const;
@@ -392,8 +431,22 @@ public:
 private:
     Motors_s motors_;
 
-    WheelLegged legL_;
-    WheelLegged legR_;
+    WheelLegged legL_{ 55.f };
+    WheelLegged legR_{ 55.f };
+
+#if EXTENSION_SUPERCAP
+    SuperCap hipCap_{ &HCAN1, 0x224, 0x225 };
+    SuperCap wheelCap_{ &HCAN1, 0x222, 0x223 };
+#endif
+
+#if APP_USE_POWERCTRL
+    BalancePowerController powerController_;
+#endif
+
+    float powerLimit_ = 120.f;
+    float translationFrontAcc_ = BASE_TRANSLATION_FRONT_ACC;
+    float translationBackAcc_ = BASE_TRANSLATION_BACK_ACC;
+    float rotationAcc_ = BASE_ROTATION_ACC;
 
     Subscriber<INS_SYS::INSData_s> *insSub_;
     INS_SYS::INSData_s insData_ = {};
@@ -421,7 +474,7 @@ private:
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
-    PositionalPid antiSplitPid_{ 100.f, 0.f, 5.f, 0.001f, 0.f, 50.f, 0.f };
+    PositionalPid antiSplitPid_{ 120.f, 0.f, 5.f, 0.001f, 0.f, 70.f, 0.f };
     float antiSplitTp_ = 0;
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
@@ -462,6 +515,7 @@ private:
 
     // Observe functions
     void updateBody();
+    void updatePowerLimit();
 
     /**
      * @brief judge body is in the low displacement state

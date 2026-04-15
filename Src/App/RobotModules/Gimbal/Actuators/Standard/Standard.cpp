@@ -114,6 +114,11 @@ void Standard::enter()
     BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
 #endif
 
+#if EXTENSION_BUZZER
+    BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+    BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
+
     motors_.pitch->cmd(MotorCmdType_e::ON);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
@@ -138,7 +143,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
         chassisCtrlTxPacket_.setData().needClimb = cmsg_.needClimb;
         chassisCtrlTxPacket_.setData().stretch = cmsg_.stretch;
-        chassisCtrlTxPacket_.setData().useCap = cmsg_.useCap;
+        chassisCtrlTxPacket_.setData().useWheelCap = cmsg_.useWheelCap;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
     };
     if (cmsg_.state != CHASSIS::FSMState_e::STOP &&

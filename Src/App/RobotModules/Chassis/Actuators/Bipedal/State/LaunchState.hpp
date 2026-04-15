@@ -4,7 +4,7 @@
 #include "StmLog.hpp"
 
 static float launchLegLengthAngPidPD[2]{ 20.f, 0.0f };
-static float launchLegLengthVelPidPD[2]{ 55.f, 0.0f };
+static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
@@ -14,7 +14,7 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_L_THRESHOLD = 0.05f;
 
     static constexpr float LAUNCH_PHI_FORNT = 0.25f;
-    static constexpr float LAUNCH_PHI_BACK = -0.1f;
+    static constexpr float LAUNCH_PHI_BACK = -0.2f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}
@@ -26,6 +26,7 @@ public:
         isLengthFinish_[0] = isLengthFinish_[1] = false;
         isOverturn_ = chassis_->isOverturn();
         chassis_->disableRoll();
+        chassis_->disableFdLimit();
         refPhiL_ = chassis_->phiL();
         refPhiR_ = chassis_->phiR();
         chassis_->setLegLengthAngPidPD(launchLegLengthAngPidPD[0], launchLegLengthAngPidPD[1]);
@@ -113,7 +114,11 @@ public:
         chassis_->ctrl();
     }
 
-    void exit() final { LOG::info("ChassisLaunch", " exit"); }
+    void exit() final
+    {
+        chassis_->enableFdLimit();
+        LOG::info("ChassisLaunch", " exit");
+    }
 
 
     FSMState_e checkChange() final
