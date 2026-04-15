@@ -23,22 +23,22 @@ using namespace PINYMOTOR;
 
 void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
 }
 
 void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
 }
 
 void GimbalStateTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
 }
 
 void RefereeDataRxPacket::registerCallback()
 {
-    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN1, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("RefereeDataRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -46,7 +46,7 @@ void RefereeDataRxPacket::registerCallback()
 
 void GimbalLaunchStrategyRxPacket ::registerCallback()
 {
-    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN1, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("GimbalLaunchStrategyRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -54,7 +54,7 @@ void GimbalLaunchStrategyRxPacket ::registerCallback()
 
 void ChassisStateRxPacket::registerCallback()
 {
-    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN1, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("ChassisStateRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -77,7 +77,7 @@ Standard::Standard()
     LOG::info("Gimbal", "Pitch zeros has set to %f", motors_.pitch->data().zeroAng);
 
     InitConfig_s yawConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,

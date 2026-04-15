@@ -16,7 +16,7 @@ using namespace PINYMOTOR;
 
 void ArmorBoosterStatePacketType::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
 }
 
 DualFric::DualFric()
