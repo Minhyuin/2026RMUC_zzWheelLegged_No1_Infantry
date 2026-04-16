@@ -11,7 +11,7 @@ namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_CONST = 8.f;
-    static constexpr float SPIN_SPEED_BASE = 6.f;
+    static constexpr float SPIN_SPEED_BASE = 6.f; // TODO: follow power
     static constexpr float SPIN_SPEED_VAR = 2.f;
     static constexpr float SPIN_L = 0.17f;
     static constexpr float STRETCH_L = 0.27f;
@@ -56,9 +56,9 @@ public:
         arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
         ds = std::clamp(ds, -MAX_DS, MAX_DS);
         if (chassis_->msg.useWheelCap)
-            accelFactor_ = SMOOTH::slopeFollowing(1, accelFactor_, 0.007f);
+            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.003f);
         else
-            accelFactor_ = SMOOTH::slopeFollowing(1, accelFactor_, 0.001f);
+            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
         if (ds == 0)
             wz = getVariableSpinVel() * accelFactor_;
         else
@@ -134,7 +134,7 @@ private:
     float getVariableSpinVel()
     {
         float x = 2.f * (static_cast<float>(spinCnt_++) * 0.001f);
-        if (!chassis_->msg.useWheelCap)
+        if (chassis_->msg.useWheelCap)
             x *= 2.f;
         const auto rslt = (SPIN_SPEED_VAR * sinf(x) * sinf(x)) + SPIN_SPEED_BASE;
         return spinDir_ ? rslt : -rslt;

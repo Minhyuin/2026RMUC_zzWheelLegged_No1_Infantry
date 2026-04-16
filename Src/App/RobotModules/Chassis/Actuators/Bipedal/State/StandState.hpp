@@ -3,8 +3,8 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
-static float standLegLengthAngPidPD[2]{ 35.f, 0.0f };
-static float standLegLengthVelPidPD[2]{ 80.f, 0.0f };
+static float standLegLengthAngPidPD[2]{ 15.f, 0.0f };
+static float standLegLengthVelPidPD[2]{ 135.f, 0.0f };
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {

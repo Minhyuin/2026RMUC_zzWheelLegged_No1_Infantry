@@ -34,9 +34,7 @@ public:
     {
         chassis_->setFdFeedforward();
 
-        const auto &rotationAcc = chassis_->getRotationAcc();
-        const auto wz = std::clamp(wzAngPid_->calc(PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw_), 0),
-                                   -rotationAcc, rotationAcc);
+        const auto wz = wzAngPid_->calc(PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw_), 0);
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
         // WBR
         WBRController::States_s ref{};
@@ -61,6 +59,16 @@ public:
             return FSMState_e::IDLE;
         else
             return FSMState_e::SPIN_EXITING;
+    }
+
+    bool change() final
+    {
+        WBRController::States_s ref{};
+        ref.yaw = chassis_->yaw() + chassis_->wz() * 0.001f;
+        ref.dyaw = chassis_->wz();
+        chassis_->bal<WBRController::WBRControlMode_e::SPIN>(ref);
+        chassis_->ctrl();
+        return std::fabs(chassis_->wz()) < 2.5f;
     }
 
 private:
