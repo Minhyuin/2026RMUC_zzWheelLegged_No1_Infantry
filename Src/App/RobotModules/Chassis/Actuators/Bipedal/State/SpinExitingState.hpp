@@ -5,7 +5,7 @@
 
 #include "MotorCommonMacros.hpp"
 
-static PositionalPid spinExitingFollowVelPid{ 8.0f, 0.f, 0.1f, 0.001f, 0.f, 2.5f, 0.1f };
+static PositionalPid spinExitingFollowVelPid{ 8.0f, 0.f, 0.1f, 0.001f, 0.f, 3.f, 0.1f };
 
 namespace CHASSIS {
 
@@ -68,7 +68,7 @@ public:
         ref.dyaw = chassis_->wz();
         chassis_->bal<WBRController::WBRControlMode_e::SPIN>(ref);
         chassis_->ctrl();
-        return std::fabs(chassis_->wz()) < 2.5f;
+        return std::fabs(chassis_->wz()) < 4.f;
     }
 
 private:
