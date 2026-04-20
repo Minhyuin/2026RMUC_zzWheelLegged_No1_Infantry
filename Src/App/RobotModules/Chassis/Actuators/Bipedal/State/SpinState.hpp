@@ -17,7 +17,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float STRETCH_L = 0.27f;
 
     static constexpr float MAX_DS = 0.4f;
-    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 4.f);
+    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 6.f);
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
