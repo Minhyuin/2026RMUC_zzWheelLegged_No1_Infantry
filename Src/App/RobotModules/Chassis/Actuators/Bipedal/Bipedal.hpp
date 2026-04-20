@@ -81,7 +81,7 @@ class Bipedal : public Chassis {
     static constexpr float MAX_VEL_FRONT = 2.0f;
     static constexpr float BASE_VEL_FRONT = 1.1f;
     static constexpr float MAX_VEL_BACK = 0.7f;
-    static constexpr float BASE_VEL_BACK = 0.25f;
+    static constexpr float BASE_VEL_BACK = 0.35f;
 
     static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.5f;
     static constexpr float MAX_TRANSLATION_FRONT_ACC = 0.8f;
@@ -107,10 +107,10 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_BACKWARD =
             0.15f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -1.f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.6f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
     static constexpr float REAL_Q_OFFSET = 0.0492342599f; // mecanical offset of the equivalent pendulum angle, unit: rad
-    static constexpr float EXPT_Q_OFFSET = 0.1f;
+    static constexpr float EXPT_Q_OFFSET = 0.05f;
     static constexpr float EXPT_PHI_OFFSET = 0.07f;
 
 public:
