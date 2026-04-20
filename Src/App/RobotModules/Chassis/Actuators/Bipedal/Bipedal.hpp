@@ -85,7 +85,7 @@ class Bipedal : public Chassis {
 
     static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.5f;
     static constexpr float MAX_TRANSLATION_FRONT_ACC = 0.8f;
-    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.3f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.5f;
     static constexpr float MAX_TRANSLATION_BACK_ACC = 0.8f;
     static constexpr float BASE_ROTATION_ACC = 1.5f;
     static constexpr float MAX_ROTATION_ACC = 3.f;
