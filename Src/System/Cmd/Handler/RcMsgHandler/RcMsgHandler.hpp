@@ -22,7 +22,7 @@ template <RCDevType_e DEV_TYPE> class RcMsgHandler final : public Handler {
     static constexpr float INPUT_DPHI_MAX = 1.f;
 
     static constexpr float INPUT_WPITCH_MAX = 4.f;
-    static constexpr float INPUT_WYAW_MAX = 3.f;
+    static constexpr float INPUT_WYAW_MAX = 4.5f;
 
     static constexpr float GAIN_MOUSE_X = 0.1f;
     static constexpr float GAIN_MOUSE_Y = 0.1f;

@@ -12,7 +12,7 @@ static volatile float launchYawStep = 0.5f * 0.001f;
 
 static PositionalPid launchPitchAngPID(50.f, 20.f, 0.1f, 0.001f, 1.0f, 5.f, 0.f);
 static PositionalPid launchPitchVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
-static PositionalPid launchYawAngPID(50.f, 100.f, 0.3f, 0.001f, 1.f, 3.5f, 0.f);
+static PositionalPid launchYawAngPID(50.f, 100.f, 0.3f, 0.001f, 2.f, 6.f, 0.f);
 static PositionalPid launchYawVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
 
 namespace GIMBAL {
@@ -87,7 +87,7 @@ public:
             break;
         }
         }
-
+        launchFinish_[0] = true;//todo:
         if (std::fabs(PINYMOTOR::getMinorArc(targetPitch_, gimbal_->pitch()->posNorm())) < PITCH_LAUNCH_ANG_DEADBAND ||
             launchFinish_[0])
             launchFinish_[0] = true;

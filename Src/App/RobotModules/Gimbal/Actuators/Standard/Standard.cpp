@@ -66,7 +66,7 @@ Standard::Standard()
         .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
-        .offsetId = 2,
+        .offsetId = 3,
         .txFreq = PITCH_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
@@ -119,7 +119,7 @@ void Standard::enter()
     BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
 #endif
 
-    motors_.pitch->cmd(MotorCmdType_e::ON);
+    motors_.pitch->cmd(MotorCmdType_e::OFF);//TODO:
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
 
