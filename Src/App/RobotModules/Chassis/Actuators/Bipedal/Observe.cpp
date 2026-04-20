@@ -53,7 +53,8 @@ bool Bipedal::detectNeedStop(float _expVel)
     if (std::fabs(_expVel) < STOP_CMD_THRESHOLD && STOP_VEL_BACK_THRESHOLD < ds_ && ds_ < STOP_VEL_FRONT_THRESHOLD) {
         return true;
     } else {
-        dsCmdBeforeStop_ = _expVel;
+        if (_expVel != 0.f)
+            dsCmdBeforeStop_ = _expVel;
         return false;
     }
 }
@@ -177,7 +178,7 @@ void Bipedal::updatePowerLimit()
     static constexpr auto RANGE_FRONT_VEL = MAX_VEL_RUSH_FRONT - BASE_VEL_FRONT;
     static constexpr auto RANGE_BACK_VEL = MAX_VEL_RUSH_BACK - BASE_VEL_BACK;
     static constexpr auto RANGE_ROTATION_ACC = MAX_ROTATION_ACC - BASE_ROTATION_ACC;
-    if (msg.useWheelCap) {
+    if (true /*msg.useWheelCap*/) {
         dsMaxF_ = MAX_VEL_RUSH_FRONT * lengthAttenuationFactor;
         dsMaxB_ = MAX_VEL_RUSH_BACK * lengthAttenuationFactor;
         translationFrontAcc_ = MAX_TRANSLATION_FRONT_ACC;
