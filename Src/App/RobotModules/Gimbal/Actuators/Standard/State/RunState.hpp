@@ -7,6 +7,9 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
+// #include "YawSI.hpp"
+// YawSI yawLink{ 1000.f, 10.f };
+
 static volatile float pitchGimbalExpOffset = 0.f;
 static volatile float yawGimbalExpOffset = 0.f;
 
@@ -29,8 +32,8 @@ class RunState : public FSMState<FSMState_e> {
         PositionalPid *yawVelPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.35f;
-    static constexpr float IMU_PITCH_END_ANG = 0.19f;
+    static constexpr float IMU_PITCH_START_ANG = Standard::IMU_PITCH_START_ANG_MECH;
+    static constexpr float IMU_PITCH_END_ANG = Standard::IMU_PITCH_END_ANG_MECH;
 
     static constexpr float IMU_YAW_START_ANG = -PI / 1.f;
     static constexpr float IMU_YAW_END_ANG = PI / 1.f;
@@ -58,6 +61,8 @@ public:
 
     void run() final
     {
+        // yawLink.update(gimbal_->yaw()->data().torq, gimbal_->ins().body.gz);
+
         // update ctrl ang
         cmdImuPitchAng_ = PINYMOTOR::clampArc(cmdImuPitchAng_ + (gimbal_->msg.wPitch * 0.001f), IMU_PITCH_START_ANG,
                                               IMU_PITCH_END_ANG);

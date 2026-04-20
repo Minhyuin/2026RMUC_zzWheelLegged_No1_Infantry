@@ -308,7 +308,11 @@ void Bipedal::update(void *_param)
         .lengthR = lengthR(),
         .roll = insData_.roll,
         .useWheelCap = msg.useWheelCap,
+#if EXTENSION_SUPERCAP
+        .capEnergyRatio = wheelCap_.getCapData().capEnergyRatio,
+#else
         .capEnergyRatio = 0.99f,
+#endif
     };
     UI::APP::instance().updateChassis(chassisUIMsgData);
 

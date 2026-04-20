@@ -51,7 +51,7 @@ public:
         cmdMotorPitchAng_ = gimbal_->pitch()->posNorm();
         cmdMotorYawAng_ = gimbal_->yaw()->posNorm();
 
-        // pitch targetTARGET_YAW_CHENGE_THESHOLD
+        // pitch target
         targetPitch_ = PITCH_LAUNCH_ANG;
 
         // yaw target

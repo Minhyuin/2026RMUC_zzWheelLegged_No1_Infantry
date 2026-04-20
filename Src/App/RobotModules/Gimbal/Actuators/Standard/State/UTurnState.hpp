@@ -23,8 +23,8 @@ class UTurnState : public FSMState<FSMState_e> {
         PositionalPid *yawVelPid;
     };
 
-    static constexpr float IMU_PITCH_START_ANG = -0.35f;
-    static constexpr float IMU_PITCH_END_ANG = 0.19f;
+    static constexpr float IMU_PITCH_START_ANG = Standard::IMU_PITCH_START_ANG_MECH;
+    static constexpr float IMU_PITCH_END_ANG = Standard::IMU_PITCH_END_ANG_MECH;
 
     static constexpr uint16_t MAX_TURN_OVER_TIME_CNT = 2000;
     static constexpr uint16_t MAX_WAIT_OVER_TIME_CNT = 3000;
