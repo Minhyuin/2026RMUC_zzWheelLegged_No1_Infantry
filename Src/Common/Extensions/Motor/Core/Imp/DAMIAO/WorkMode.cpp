@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "DMMotor.hpp"
 
 #include "MotorCommonMacros.hpp"
@@ -60,6 +62,12 @@ void DMMotor::updateCtrlMode()
     }
 }
 
+void DMMotor::switchCtrlMode(WorkMode_e _workMode)
+{
+    regInfo_.workMode = _workMode;
+    updateCtrlMode();
+}
+
 void DMMotor::convertMitTt(TxBus &_txBuf)
 {
     MITMsg_s msgMIT = {};
@@ -68,27 +76,13 @@ void DMMotor::convertMitTt(TxBus &_txBuf)
     switch (this->cmd_.curCmdType) {
     case MotorCmdType_e::SET_TORQ:
         break;
-    case MotorCmdType_e::SET_VEL: {
-        this->cmd_.torq = this->velPID_->calc(this->cmd_.vel, this->data_.spdRadps);
-        break;
-    }
-    case MotorCmdType_e::SET_POS: {
-        this->cmd_.vel = this->posPID_->calc(getMinorArc(this->cmd_.pos, this->data_.singleCirAng), 0);
-        this->cmd_.torq = this->velPID_->calc(this->cmd_.vel, this->data_.spdRadps);
-        break;
-    }
-    case MotorCmdType_e::SET_POSVEL: {
-        this->cmd_.torq = this->velPID_->calc(this->cmd_.vel, this->data_.spdRadps) +
-                          this->posPID_->calc(getMinorArc(this->cmd_.pos, this->data_.singleCirAng), 0);
-        break;
-    }
     default:
         if (this->cmd_.curCmdType != MotorCmdType_e::OFF && this->cmd_.curCmdType != MotorCmdType_e::ON)
             LOG::warn("DMMotor", " %s: the cmd in this mode is not supported", regInfo_.name);
         break;
     }
 
-    this->cmd_.torq = regInfo_.isReverse ? -this->cmd_.torq : this->cmd_.torq;
+    this->cmd_.torq = std::clamp(regInfo_.isReverse ? -this->cmd_.torq : this->cmd_.torq, -status_.TMax, status_.TMax);
     msgMIT.torqueForward = float2uint(this->cmd_.torq, -status_.TMax, status_.TMax, 12);
 
     // MIT_TT support return expected current
@@ -106,22 +100,16 @@ void DMMotor::convertMitVdes(TxBus &_txBuf)
     switch (this->cmd_.curCmdType) {
     case MotorCmdType_e::SET_VEL:
         break;
-    case MotorCmdType_e::SET_POS:
-    case MotorCmdType_e::SET_POSVEL:
-    case MotorCmdType_e::SET_MIT: {
-        this->cmd_.vel = this->posPID_->calc(getMinorArc(this->cmd_.pos, this->data_.singleCirAng), 0);
-        break;
-    }
     default:
         if (this->cmd_.curCmdType != MotorCmdType_e::OFF && this->cmd_.curCmdType != MotorCmdType_e::ON)
             LOG::warn("DMMotor", " %s: the cmd in this mode is not supported", regInfo_.name);
         break;
     }
 
-    this->cmd_.vel = regInfo_.isReverse ? -this->cmd_.vel : this->cmd_.vel;
+    this->cmd_.vel = std::clamp(regInfo_.isReverse ? -this->cmd_.vel : this->cmd_.vel, -status_.VMax, status_.VMax);
     msgMIT.exptVel = float2uint(this->cmd_.vel, -status_.VMax, status_.VMax, 12);
 
-    this->cmd_.torq = regInfo_.isReverse ? -this->cmd_.torq : this->cmd_.torq;
+    this->cmd_.torq = std::clamp(regInfo_.isReverse ? -this->cmd_.torq : this->cmd_.torq, -status_.TMax, status_.TMax);
     msgMIT.torqueForward = float2uint(this->cmd_.torq, -status_.TMax, status_.TMax, 12);
 
     // MIT_VDES unsupport return expected current
@@ -147,11 +135,11 @@ void DMMotor::convertMitVdesPdes(TxBus &_txBuf)
             LOG::warn("DMMotor", " %s: the cmd in this mode is not supported", regInfo_.name);
         break;
     }
-    this->cmd_.pos = regInfo_.isReverse ? -this->cmd_.pos : this->cmd_.pos;
+    this->cmd_.pos = std::clamp(regInfo_.isReverse ? -this->cmd_.pos : this->cmd_.pos, -status_.PMax, status_.PMax);
     msgMIT.exptScale = float2uint(this->cmd_.pos, -status_.PMax, status_.PMax, 16);
-    this->cmd_.vel = regInfo_.isReverse ? -this->cmd_.vel : this->cmd_.vel;
+    this->cmd_.vel = std::clamp(regInfo_.isReverse ? -this->cmd_.vel : this->cmd_.vel, -status_.VMax, status_.VMax);
     msgMIT.exptVel = float2uint(this->cmd_.vel, -status_.VMax, status_.VMax, 12);
-    this->cmd_.torq = regInfo_.isReverse ? -this->cmd_.torq : this->cmd_.torq;
+    this->cmd_.torq = std::clamp(regInfo_.isReverse ? -this->cmd_.torq : this->cmd_.torq, -status_.TMax, status_.TMax);
     msgMIT.torqueForward = float2uint(this->cmd_.torq, -status_.TMax, status_.TMax, 12);
 
     // MIT_VDES_PDES unsupport return expected current
@@ -194,11 +182,6 @@ void DMMotor::convertVdes(TxBus &_txBuf)
     switch (this->cmd_.curCmdType) {
     case MotorCmdType_e::SET_VEL:
         break;
-    case MotorCmdType_e::SET_POS:
-    case MotorCmdType_e::SET_POSVEL: {
-        this->cmd_.vel = this->posPID_->calc(getMinorArc(this->cmd_.pos, this->data_.singleCirAng), 0);
-        break;
-    }
     default:
         if (this->cmd_.curCmdType != MotorCmdType_e::OFF && this->cmd_.curCmdType != MotorCmdType_e::ON)
             LOG::warn("DMMotor", " %s: the cmd in this mode is not supported", regInfo_.name);
