@@ -5,7 +5,7 @@
 
 namespace CHASSIS {
 class ClimbState : public FSMState<FSMState_e> {
-    static constexpr float CLIMB_PHI = 1.45f;
+    static constexpr float CLIMB_PHI = 1.5f;
     static constexpr float CLIMB_DPHI = 4.f * 0.001f;
     static constexpr float CLIMB_PHI_DETECT_THESHOLD = 0.15f;
 
@@ -17,6 +17,8 @@ public:
         chassis_->enter();
         chassis_->disableRoll();
         refLength_ = chassis_->length();
+        refPhiL_ = chassis_->phiL();
+        refPhiR_ = chassis_->phiR();
         isClimbReady_[0] = isClimbReady_[1] = false;
         LOG::info("ChassisClimb", " enter");
     }
@@ -26,8 +28,7 @@ public:
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward(0.f);
 
-        if (chassis_->detectPhiGlobalLRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
-                                            CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
+        if (chassis_->detectPhiLRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD, CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
             isClimbReady_[0]) {
             isClimbReady_[0] = true;
             refPhiL_ = chassis_->phiL();
@@ -36,8 +37,7 @@ public:
         }
         chassis_->setHipPhiL(refPhiL_);
 
-        if (chassis_->detectPhiGlobalRRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD,
-                                            CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
+        if (chassis_->detectPhiRRange(CLIMB_PHI + CLIMB_PHI_DETECT_THESHOLD, CLIMB_PHI - CLIMB_PHI_DETECT_THESHOLD) ||
             isClimbReady_[1]) {
             isClimbReady_[1] = true;
             refPhiR_ = chassis_->phiR();
