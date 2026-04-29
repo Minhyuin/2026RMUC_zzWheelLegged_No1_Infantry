@@ -55,7 +55,7 @@ public:
 
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
-    GimbalLaunchStrategyTxPacket() : TxPacket(50.f) {}
+    GimbalLaunchStrategyTxPacket() : TxPacket(20.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
