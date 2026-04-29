@@ -4,6 +4,9 @@
 #include "StmLog.hpp"
 #include "Smooth.hpp"
 
+static float jumpLegLengthAngPidPD[2]{ 15.f, 0.0f };
+static float jumpLegLengthVelPidPD[2]{ 135.f, 0.0f };
+
 namespace CHASSIS {
 
 class JumpState : public FSMState<FSMState_e> {
@@ -11,7 +14,7 @@ class JumpState : public FSMState<FSMState_e> {
     static constexpr float JUMP_L = WheelLegged::MAX_L;
     static constexpr float LAND_L = WheelLegged::MAX_L + ((WheelLegged::MAX_L - WheelLegged::MIN_L) / 2.f);
 
-    static constexpr float JUMP_FD = 100.f;
+    static constexpr float JUMP_FD = 120.f;
 
     enum class JumpFSMState_e : uint8_t { PREPARE, JUMPING, SOAR, LAND };
 
@@ -29,6 +32,8 @@ public:
         chassis_->enter();
         chassis_->setRoll(0);
         jumpFinish_ = false;
+        chassis_->setLegLengthAngPidPD(jumpLegLengthAngPidPD[0], jumpLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(jumpLegLengthVelPidPD[0], jumpLegLengthVelPidPD[1]);
         jumpFSMFactory_.init(jumpFSMFactory_.getNextState(JumpFSMState_e::PREPARE));
         LOG::info("ChassisJump", " enter");
     }
