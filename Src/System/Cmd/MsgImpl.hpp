@@ -64,6 +64,7 @@ struct ChassisMsg_s : public Msg {
     bool stretch;
     bool useWheelCap;
     bool uiReset;
+    bool noChassis;
 };
 
 struct GimbalMsg_s : public Msg {
