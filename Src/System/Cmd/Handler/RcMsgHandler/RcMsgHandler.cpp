@@ -9,20 +9,11 @@
 #ifdef GIMBAL_TYPE
 #include GIMBAL_FILE
 #endif
-#ifdef ARMORLOADER_TYPE
-#include ARMORLOADER_FILE
-#endif
-#ifdef ARMORBOOSTER_TYPE
-#include ARMORBOOSTER_FILE
-#endif
-
-#ifdef APP_USE_UI
-#include "UIApp.hpp"
-#endif
 
 #include "DT7.hpp"
 #include "ET08A.hpp"
 #include "VT13.hpp"
+
 // Explicit template instantiation
 #if EXTENSION_DT7
 template class RcMsgHandler<RCDevType_e::DT7>;

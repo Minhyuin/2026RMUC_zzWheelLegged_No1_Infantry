@@ -11,7 +11,8 @@ menu "extension config"
 
     config EXTENSION_LED
     bool "led"
-    default y
+    default n
+
     source "Src/Common/Extensions/LED/Kconfig"
 
     config EXTENSION_MOTOR

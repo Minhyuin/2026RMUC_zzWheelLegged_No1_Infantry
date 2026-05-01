@@ -80,7 +80,7 @@ CONFIG_EXTENSION_LED=y
 #
 # LEDDriver config
 #
-# CONFIG_LED_WS2812_SPI is not set
+CONFIG_LED_WS2812_SPI=y
 CONFIG_LED_WS2812_PWM=y
 # CONFIG_LED_RGBLED is not set
 # end of LEDDriver config
