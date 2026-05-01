@@ -16,7 +16,7 @@
 #include "Buzzer.hpp"
 #endif
 
-volatile float PITCH_FEEDFORWARD = 0.f;
+volatile float PITCH_FEEDFORWARD = 0.6f;
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
@@ -119,7 +119,7 @@ void Standard::enter()
     BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
 #endif
 
-    motors_.pitch->cmd(MotorCmdType_e::OFF);//TODO:
+    motors_.pitch->cmd(MotorCmdType_e::ON);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
 
@@ -274,7 +274,7 @@ float Standard::calcPitchTorq(float _ang, float _vel, float _acc)
     (void)_ang;
     (void)_vel;
     (void)_acc;
-    return 0.f; // TODO:
+    // return 0.f; // TODO:
 }
 
 float Standard::calcYawTorq(float _vel, float _acc)
