@@ -9,6 +9,8 @@
 #include "Smooth.hpp"
 
 static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 3.f, 0.1f };
+static float idleLegLengthAngPidPD[2]{ 15.f, 0.0f };
+static float idleLegLengthVelPidPD[2]{ 135.f, 0.0f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
@@ -34,6 +36,8 @@ public:
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
         strechPrev_ = chassis_->msg.stretch;
+        chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(idleLegLengthVelPidPD[0], idleLegLengthVelPidPD[1]);
         chassis_->needGimbalLaunch(false);
         chassis_->allowGimbalExitLaunch(true);
 

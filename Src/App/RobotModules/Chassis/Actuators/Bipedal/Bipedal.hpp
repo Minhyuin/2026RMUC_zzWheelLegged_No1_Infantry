@@ -55,7 +55,7 @@ public:
 
 class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStrategyPacketType> {
     friend class Bipedal;
-    GimbalLaunchStrategyTxPacket() : TxPacket(50.f) {}
+    GimbalLaunchStrategyTxPacket() : TxPacket(20.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -111,10 +111,13 @@ class Bipedal : public Chassis {
 
     static constexpr float REAL_Q_OFFSET =
             0.0492342599f; // mecanical offset of the equivalent pendulum angle, unit: rad
+
+
+public:
+
     static constexpr float EXPT_Q_OFFSET = 0.05f;
     static constexpr float EXPT_PHI_OFFSET = 0.07f;
 
-public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
 
     Bipedal();
@@ -469,8 +472,8 @@ private:
     PositionalPid rollAngPid_{ 30.f, 80.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 10.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
-    PositionalPid hipVelPidL_{ 12.f, 0.f, 0.f, 0.001f, 0, 120.f, 0.f };
+    PositionalPid hipAngPidL_{ 15.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };

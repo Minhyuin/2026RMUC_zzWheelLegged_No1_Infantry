@@ -9,16 +9,10 @@
 #ifdef GIMBAL_TYPE
 #include GIMBAL_FILE
 #endif
-#ifdef ARMORLOADER_TYPE
-#include ARMORLOADER_FILE
-#endif
-#ifdef ARMORBOOSTER_TYPE
-#include ARMORBOOSTER_FILE
-#endif
 
-#ifdef APP_USE_UI
-#include "UIApp.hpp"
-#endif
+#include "DT7.hpp"
+#include "ET08A.hpp"
+#include "VT13.hpp"
 
 #include "DT7.hpp"
 #include "ET08A.hpp"
@@ -27,15 +21,12 @@
 
 // Explicit template instantiation
 #if EXTENSION_DT7
-#include "DT7.hpp"
 template class RcMsgHandler<RCDevType_e::DT7>;
 #endif
 #if EXTENSION_ET08A
-#include "ET08A.hpp"
 template class RcMsgHandler<RCDevType_e::ET08A>;
 #endif
 #if EXTENSION_VT13
-#include "VT13.hpp"
 template class RcMsgHandler<RCDevType_e::VT13>;
 #endif
 
@@ -261,6 +252,15 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
         if (!ctrlFlag_) {
             gMsg_.state = GIMBAL::FSMState_e::STOP;
             gMsg_.wPitch = gMsg_.wYaw = 0.f;
+            if (rcData->gamepad.ch[1] < -600 && rcData->gamepad.ch[0] > 600 && rcData->gamepad.ch[2] < -600 &&
+                rcData->gamepad.ch[3] < -600)
+                keepTime_++;
+            else
+                keepTime_ = 0;
+            if (keepTime_ > 100) {
+                keepTime_ = 0;
+                cMsg_.noChassis = !cMsg_.noChassis;
+            }
             cMsg_.state = CHASSIS::FSMState_e::STOP;
             cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
             alMsg_.state = ARMORLOADER::FSMState_e::STOP;

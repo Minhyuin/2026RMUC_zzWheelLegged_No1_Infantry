@@ -69,7 +69,12 @@ CONFIG_EXTENSION_RC=y
 #
 # Remote Control config
 #
-CONFIG_EXTENSION_DT7=y
+CONFIG_EXTENSION_RC=y
+
+#
+# Remote Control config
+#
+# CONFIG_EXTENSION_DT7 is not set
 # CONFIG_EXTENSION_ET08A is not set
 CONFIG_EXTENSION_VT13=y
 # end of Remote Control config
@@ -80,7 +85,7 @@ CONFIG_EXTENSION_LED=y
 #
 # LEDDriver config
 #
-# CONFIG_LED_WS2812_SPI is not set
+CONFIG_LED_WS2812_SPI=y
 CONFIG_LED_WS2812_PWM=y
 # CONFIG_LED_RGBLED is not set
 # end of LEDDriver config

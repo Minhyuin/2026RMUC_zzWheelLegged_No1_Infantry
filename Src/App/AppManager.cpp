@@ -13,6 +13,10 @@
 #include "Buzzer.hpp"
 #endif
 
+#if EXTENSION_LED
+#include "LEDManager.hpp"
+#endif
+
 #if APP_USE_DAEMONS
 #include "Daemons.hpp"
 #endif
@@ -102,6 +106,15 @@ void AppManager::initApp()
 
 #if APP_USE_COMM
     schedule([]() { CommManager::instance().txTask(); });
+#endif
+
+#if EXTENSION_LED
+    // add custom's leds
+#if TARGET_STM32H723
+    Power_5V_ON();
+    LED::LEDs::instance().addLEDs(LED::LEDs::instance().create<LED::SPI_WS2812B>(&CUSTOM_SPI, 1));
+    LED::LEDs::ctrl(LED::CmdType_e::RAINBOW_FLOW, 0, 1, 255);
+#endif
 #endif
 
     // Generate threads at the end

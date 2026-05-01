@@ -261,8 +261,9 @@ void Bipedal::update(void *_param)
     // hip cap
 #if EXTENSION_SUPERCAP
     hipCap_.enable();
-    hipCap_.setChargePowerLimit(5);
+    hipCap_.setChargePowerLimit(10);
     hipCap_.setChargeEnergySlack(60);
+    hipCap_.setChargelimitRatio(0.75f);
     hipCap_.task();
 #endif
 

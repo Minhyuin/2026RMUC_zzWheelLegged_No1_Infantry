@@ -40,6 +40,7 @@ private:
     ChassisMsg_s cMsg_ = {};
     ArmorLoaderMsg_s alMsg_ = {};
     ArmorBoosterMsg_s abMsg_ = {};
+    uint16_t keepTime_ = 0;
 
     bool keyBoardCtrlFlag_ = false;
     bool ctrlFlag_ = false;

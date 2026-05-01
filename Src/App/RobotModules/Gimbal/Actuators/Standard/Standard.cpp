@@ -134,7 +134,20 @@ void Standard::update(void *_param)
     }
 
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
-        // cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
+        if (cmsg_.noChassis) {
+            cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
+        }
+        static bool noChassisPrev = false;
+        if (noChassisPrev != cmsg_.noChassis) {
+#if EXTENSION_BUZZER
+            for (uint8_t i = 0; i < 4; i++) {
+                BUZZER::buzz->playNote(BUZZER::Tone_e::F6, 100);
+                BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 100);
+            }
+#endif
+        }
+        noChassisPrev = cmsg_.noChassis;
+
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;
