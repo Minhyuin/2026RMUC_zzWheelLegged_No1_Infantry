@@ -69,7 +69,7 @@ bool WheelLegged::isFloating(float _az, float _q)
     return floatFlag = fn_ < fnThreshold_;
 }
 
-float FLOAT_FD = 50.f;
+float FLOAT_FD = 90.f;
 void WheelLegged::ctrl()
 {
     fdFromSpring_ = spring_.computeForce(0); // TODO: maybe the spring force will change with other params

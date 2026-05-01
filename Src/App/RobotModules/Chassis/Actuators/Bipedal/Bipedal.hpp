@@ -432,8 +432,8 @@ public:
 private:
     Motors_s motors_;
 
-    WheelLegged legL_{ 55.f };
-    WheelLegged legR_{ 55.f };
+    WheelLegged legL_{ 95.f };
+    WheelLegged legR_{95.f };
 
 #if EXTENSION_SUPERCAP
     SuperCap hipCap_{ &HCAN1, 0x224, 0x225 };
