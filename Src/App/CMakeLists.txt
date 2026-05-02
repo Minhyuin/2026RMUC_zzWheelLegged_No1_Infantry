@@ -56,6 +56,10 @@ if(APP_USE_DUAL)
   set(ARMORBOOSTER_TYPE "DualFric")
 endif()
 
+if(APP_USE_TRIP)
+  set(ARMORBOOSTER_TYPE "TripFric")
+endif()
+
 if(APP_USE_ARMORBOOSTER)
   file(GLOB_RECURSE ARMORBOOSTER_SOURCES CMAKE_CONFIGURE_DEPENDS
     "RobotModules/ArmorBooster/Actuators/${ARMORBOOSTER_TYPE}/*.cpp")

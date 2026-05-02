@@ -4,8 +4,8 @@ CONFIG_TARGET_MASTER=y
 #
 # Soc config
 #
-CONFIG_TARGET_STM32F407=y
-# CONFIG_TARGET_STM32H723 is not set
+# CONFIG_TARGET_STM32F407 is not set
+CONFIG_TARGET_STM32H723=y
 # end of Soc config
 
 #
@@ -29,9 +29,10 @@ CONFIG_APP_USE_ARMORBOOSTER=y
 #
 # ArmorBooster config
 #
-CONFIG_APP_USE_DUAL=y
-CONFIG_ARMORBOOSTER_TYPE="DualFric"
-CONFIG_ARMORBOOSTER_FILE="\"DualFric.hpp\""
+# CONFIG_APP_USE_DUAL is not set
+CONFIG_APP_USE_TRIP=y
+CONFIG_ARMORBOOSTER_TYPE="TripFric"
+CONFIG_ARMORBOOSTER_FILE="\"TripFric.hpp\""
 # end of ArmorBooster config
 
 # CONFIG_APP_USE_TEST is not set
@@ -69,7 +70,7 @@ CONFIG_EXTENSION_RC=y
 #
 # Remote Control config
 #
-# CONFIG_EXTENSION_DT7 is not set
+CONFIG_EXTENSION_DT7=y
 # CONFIG_EXTENSION_ET08A is not set
 CONFIG_EXTENSION_VT13=y
 # end of Remote Control config

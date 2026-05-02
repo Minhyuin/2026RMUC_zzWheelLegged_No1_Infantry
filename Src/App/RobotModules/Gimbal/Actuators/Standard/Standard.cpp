@@ -16,29 +16,29 @@
 #include "Buzzer.hpp"
 #endif
 
-volatile float PITCH_FEEDFORWARD = 0.6f;
+volatile float PITCH_FEEDFORWARD = 0.0f;
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
 
 void ChassisCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
 void ShooterCtrlTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
 void GimbalStateTxPacket::transmit(uint8_t *_buf, uint16_t _len)
 {
-    Can::instance().transmitData(&HCAN1, uid(), _buf, _len);
+    Can::instance().transmitData(&HCAN3, uid(), _buf, _len);
 }
 
 void RefereeDataRxPacket::registerCallback()
 {
-    Can::instance().registerCallback(&HCAN1, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("RefereeDataRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -46,7 +46,7 @@ void RefereeDataRxPacket::registerCallback()
 
 void GimbalLaunchStrategyRxPacket ::registerCallback()
 {
-    Can::instance().registerCallback(&HCAN1, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("GimbalLaunchStrategyRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -54,7 +54,7 @@ void GimbalLaunchStrategyRxPacket ::registerCallback()
 
 void ChassisStateRxPacket::registerCallback()
 {
-    Can::instance().registerCallback(&HCAN1, uid(), [this](const uint8_t *_rxBuf) {
+    Can::instance().registerCallback(&HCAN3, uid(), [this](const uint8_t *_rxBuf) {
         xQueueSendFromISR(this->queue_, _rxBuf, nullptr);
     });
     LOG::info("ChassisStateRxPacket", " Receive cb registered, uId:0x%hx \n", uid());
@@ -63,10 +63,10 @@ void ChassisStateRxPacket::registerCallback()
 Standard::Standard()
 {
     InitConfig_s pitchConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN2),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
-        .offsetId = 3,
+        .offsetId = 2,
         .txFreq = PITCH_MOTOR_FREQ,
         .posPID = nullptr,
         .velPID = nullptr,
@@ -77,7 +77,7 @@ Standard::Standard()
     LOG::info("Gimbal", "Pitch zeros has set to %f", motors_.pitch->data().zeroAng);
 
     InitConfig_s yawConfig = {
-        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN1),
+        .pComHandle = reinterpret_cast<uint32_t *>(&HCAN3),
         .comType = ComType_e::CAN,
         .workMode = WorkMode_e::MIT_TT,
         .offsetId = 1,
@@ -147,7 +147,7 @@ void Standard::update(void *_param)
 #endif
         }
         noChassisPrev = cmsg_.noChassis;
-
+        cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;

@@ -112,6 +112,14 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
         if (sr == SW::DOWN) {
             gMsg_.state = GIMBAL::FSMState_e::STOP;
             gMsg_.wPitch = gMsg_.wYaw = 0.f;
+            if ((rcData->rc.ch1) < -600 && rcData->rc.ch0 > 600 && rcData->rc.ch2 < -600 && rcData->rc.ch3 < -600)
+                keepTime_++;
+            else
+                keepTime_ = 0;
+            if (keepTime_ > 100) {
+                keepTime_ = 0;
+                cMsg_.noChassis = !cMsg_.noChassis;
+            }
             cMsg_.state = CHASSIS::FSMState_e::STOP;
             cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
             alMsg_.state = ARMORLOADER::FSMState_e::STOP;

@@ -8,15 +8,19 @@ menu "ArmorBooster config"
 
         config APP_USE_DUAL
             bool "dual"
+        config APP_USE_TRIP
+            bool "trip"
 
     endchoice
 
     config ARMORBOOSTER_TYPE
         string
         default "DualFric" if APP_USE_DUAL
+        default "TripFric" if APP_USE_TRIP
 
     config ARMORBOOSTER_FILE
         string
         default '"DualFric.hpp"' if APP_USE_DUAL
+        default '"TripFric.hpp"' if APP_USE_TRIP
 
 endmenu
