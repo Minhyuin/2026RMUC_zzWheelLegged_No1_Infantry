@@ -354,7 +354,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 // gimbal
                 gMsg_.wPitch = -static_cast<float>(rcData->KBM.mouseY) * GAIN_MOUSE_Y;
                 gMsg_.wYaw = -static_cast<float>(rcData->KBM.mouseX) * GAIN_MOUSE_X;
-                gMsg_.forceFire = IS_KEY_PRESS(rcData->KBM.key, VT13::E);
+                gMsg_.forceFire = IS_KEY_PRESS(rcData->KBM.key, VT13::C);
                 gMsg_.resetTracker = IS_KEY_PRESS(rcData->KBM.key, VT13::V) && IS_KEY_PRESS(rcData->KBM.key, VT13::Z);
                 gMsg_.changeTarget = IS_KEY_PRESS(rcData->KBM.key, VT13::R);
                 if (rcData->KBM.mouseRight) {
@@ -386,7 +386,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
-                cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL);
+                cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
                 cMsg_.needClimb = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && IS_KEY_PRESS(rcData->KBM.key, VT13::F);
                 cMsg_.needRush = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
             }
