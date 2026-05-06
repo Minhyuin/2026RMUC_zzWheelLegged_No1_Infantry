@@ -26,7 +26,7 @@ class DualFric : public ArmorBooster {
     };
 
 public:
-    static constexpr float FAST_FRIC_RATE = 600.f;
+    static constexpr float FAST_FRIC_RATE = 628.f;
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
     static constexpr float FRIC_STOP_THRESHOLD = 1.f;
@@ -50,11 +50,6 @@ private:
     Motors_s motors_;
 
     ArmorBoosterStatePacketType armorBoosterStateTxPacket_;
-
-    FILTER::LPFIIR3 velFltr_[2] = {
-        { 500.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
-        { 500.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
-    };
 
     float targetVel_ = SLOW_FRIC_RATE;
 };

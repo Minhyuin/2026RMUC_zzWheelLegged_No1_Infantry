@@ -178,7 +178,7 @@ void Bipedal::updatePowerLimit()
     static constexpr auto RANGE_FRONT_VEL = MAX_VEL_RUSH_FRONT - BASE_VEL_FRONT;
     static constexpr auto RANGE_BACK_VEL = MAX_VEL_RUSH_BACK - BASE_VEL_BACK;
     static constexpr auto RANGE_ROTATION_ACC = MAX_ROTATION_ACC - BASE_ROTATION_ACC;
-    if (msg.useWheelCap) {
+    if (msg.needRush) {
         dsMaxF_ = MAX_VEL_RUSH_FRONT * lengthAttenuationFactor;
         dsMaxB_ = MAX_VEL_RUSH_BACK * lengthAttenuationFactor;
         translationFrontAcc_ = MAX_TRANSLATION_FRONT_ACC;

@@ -128,6 +128,8 @@ private:
 
     float calcPitchTorq(float _ang, float _vel, float _acc);
     float calcYawTorq(float _vel, float _acc);
+
+    uint16_t disconnectRcCnt_ = 0;
 };
 
 } // namespace GIMBAL

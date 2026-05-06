@@ -61,8 +61,8 @@ struct ChassisMsg_s : public Msg {
     float dphi; // only for debug
     bool needJump;
     bool needClimb;
-    bool stretch;
-    bool useWheelCap;
+    bool needStretch;
+    bool needRush;
     bool uiReset;
     bool noChassis;
 };
@@ -114,7 +114,7 @@ struct ChassisUIMsg_s {
     float lengthL;
     float lengthR;
     float roll;
-    bool useWheelCap;
+    bool needRush;
     float capEnergyRatio;
 };
 
