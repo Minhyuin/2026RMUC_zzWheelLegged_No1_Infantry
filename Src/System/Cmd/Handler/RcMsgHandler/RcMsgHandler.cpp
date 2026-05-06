@@ -267,7 +267,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
         } else {
             if (!keyBoardCtrlFlag_) {
                 if (rcData->gamepad.pause && !rcDataPrev.gamepad.pause) {
-                    cMsg_.useWheelCap = !cMsg_.useWheelCap;
+                    cMsg_.needRush = !cMsg_.needRush;
                 }
                 if (rcData->gamepad.sw == VT13::Sw_e::N) {
                     gMsg_.state = GIMBAL::FSMState_e::RUN;
@@ -332,7 +332,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 // length and roll
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::F)) {
                     cMsg_.vy = 0;
-                    cMsg_.stretch = true;
+                    cMsg_.needStretch = true;
                     if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
                         cMsg_.droll = SMOOTH::slopeFollowing(-INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
                     }
@@ -340,7 +340,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                         cMsg_.droll = SMOOTH::slopeFollowing(INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
                     }
                 } else {
-                    cMsg_.stretch = false;
+                    cMsg_.needStretch = false;
                 }
 
                 // gimbal
@@ -380,7 +380,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 }
                 cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL);
                 cMsg_.needClimb = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && IS_KEY_PRESS(rcData->KBM.key, VT13::F);
-                cMsg_.useWheelCap = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
+                cMsg_.needRush = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
             }
         }
         memcpy(&rcDataPrev, rcData, sizeof(VT13::RcData_s));

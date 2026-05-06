@@ -216,8 +216,8 @@ void Bipedal::update(void *_param)
     msg.droll = chassisCtrlRxPacket_.data().droll;
     msg.needJump = chassisCtrlRxPacket_.data().needJump;
     msg.needClimb = chassisCtrlRxPacket_.data().needClimb;
-    msg.stretch = chassisCtrlRxPacket_.data().stretch;
-    msg.useWheelCap = chassisCtrlRxPacket_.data().useWheelCap;
+    msg.needStretch = chassisCtrlRxPacket_.data().needStretch;
+    msg.needRush = chassisCtrlRxPacket_.data().needRush;
     msg.uiReset = chassisCtrlRxPacket_.data().uiReset;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||
@@ -308,7 +308,7 @@ void Bipedal::update(void *_param)
         .lengthL = lengthL(),
         .lengthR = lengthR(),
         .roll = insData_.roll,
-        .useWheelCap = msg.useWheelCap,
+        .needRush = msg.needRush,
 #if EXTENSION_SUPERCAP
         .capEnergyRatio = wheelCap_.getCapData().capEnergyRatio,
 #else

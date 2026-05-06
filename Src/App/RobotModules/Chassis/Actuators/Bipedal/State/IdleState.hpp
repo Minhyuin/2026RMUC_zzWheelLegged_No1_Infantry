@@ -35,7 +35,7 @@ public:
         targetRefLength_ = IDLE_L;
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
-        strechPrev_ = chassis_->msg.stretch;
+        strechPrev_ = chassis_->msg.needStretch;
         chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1]);
         chassis_->setLegLengthVelPidPD(idleLegLengthVelPidPD[0], idleLegLengthVelPidPD[1]);
         chassis_->needGimbalLaunch(false);
@@ -46,15 +46,15 @@ public:
 
     void run() final
     {
-        if (!strechPrev_ && chassis_->msg.stretch) {
+        if (!strechPrev_ && chassis_->msg.needStretch) {
             targetRefLength_ = STRETCH_L;
-        } else if (strechPrev_ && !chassis_->msg.stretch) {
+        } else if (strechPrev_ && !chassis_->msg.needStretch) {
             targetRefLength_ = IDLE_L;
             refRoll_ = 0.f;
         } else
             targetRefLength_ += chassis_->msg.dl * 0.001f;
-        strechPrev_ = chassis_->msg.stretch;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
+        strechPrev_ = chassis_->msg.needStretch;
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0005f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
