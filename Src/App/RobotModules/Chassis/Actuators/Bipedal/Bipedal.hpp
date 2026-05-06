@@ -114,7 +114,6 @@ class Bipedal : public Chassis {
 
 
 public:
-
     static constexpr float EXPT_Q_OFFSET = 0.05f;
     static constexpr float EXPT_PHI_OFFSET = 0.07f;
 
@@ -436,7 +435,7 @@ private:
     Motors_s motors_;
 
     WheelLegged legL_{ 95.f };
-    WheelLegged legR_{95.f };
+    WheelLegged legR_{ 95.f };
 
 #if EXTENSION_SUPERCAP
     SuperCap hipCap_{ &HCAN1, 0x224, 0x225 };

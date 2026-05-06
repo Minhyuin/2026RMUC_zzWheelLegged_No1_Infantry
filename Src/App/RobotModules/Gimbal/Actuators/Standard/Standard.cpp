@@ -114,11 +114,6 @@ void Standard::enter()
     BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
 #endif
 
-#if EXTENSION_BUZZER
-    BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
-    BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
-#endif
-
     motors_.pitch->cmd(MotorCmdType_e::ON);
     motors_.yaw->cmd(MotorCmdType_e::ON);
 }
@@ -147,7 +142,6 @@ void Standard::update(void *_param)
 #endif
         }
         noChassisPrev = cmsg_.noChassis;
-        cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
         chassisCtrlTxPacket_.setData().vy = cmsg_.vy;

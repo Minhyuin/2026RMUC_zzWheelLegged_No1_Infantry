@@ -14,10 +14,6 @@
 #include "ET08A.hpp"
 #include "VT13.hpp"
 
-#include "DT7.hpp"
-#include "ET08A.hpp"
-#include "VT13.hpp"
-
 
 // Explicit template instantiation
 #if EXTENSION_DT7
