@@ -122,8 +122,19 @@ void Standard::update(void *_param)
 {
     this->insSub_->receive();
 
+    // TODO: optimize the way of checking RC connection
     if (xQueueReceive((((MsgBus_s *)_param)->gimbalQueue), &msg, 0) == pdTRUE) {
+        disconnectRcCnt_ = 0;
+    } else {
+        disconnectRcCnt_++;
+        static constexpr uint16_t MAX_DISCONNECT_CNT = 1200;
+        if (disconnectRcCnt_ > MAX_DISCONNECT_CNT) {
+            chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(CHASSIS::FSMState_e::STOP);
+            shooterCtrlTxPacket_.setData().armorLoaderExptState = static_cast<uint8_t>(ARMORLOADER::FSMState_e::STOP);
+            msg.state = FSMState_e::STOP;
+        }
     };
+
     if (motors_.pitch->globalState != GlobalState_e::ONLINE || motors_.yaw->globalState != GlobalState_e::ONLINE) {
         msg.state = FSMState_e::STOP;
     }
@@ -150,8 +161,8 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().droll = cmsg_.droll;
         chassisCtrlTxPacket_.setData().needJump = cmsg_.needJump;
         chassisCtrlTxPacket_.setData().needClimb = cmsg_.needClimb;
-        chassisCtrlTxPacket_.setData().stretch = cmsg_.stretch;
-        chassisCtrlTxPacket_.setData().useWheelCap = cmsg_.useWheelCap;
+        chassisCtrlTxPacket_.setData().needStretch = cmsg_.needStretch;
+        chassisCtrlTxPacket_.setData().needRush = cmsg_.needRush;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
     };
     if (cmsg_.state != CHASSIS::FSMState_e::STOP &&

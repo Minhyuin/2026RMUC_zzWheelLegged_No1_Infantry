@@ -41,7 +41,7 @@ public:
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0005f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
