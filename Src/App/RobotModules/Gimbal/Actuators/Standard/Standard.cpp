@@ -185,15 +185,15 @@ void Standard::update(void *_param)
 
     // vision send
 #if EXTENSION_REFEREE
-    uint8_t targetMode = 0;
+    targetMode_ = 0;
     if (refereeDataRxPacket_.data().isPlay && almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
         if (refereeDataRxPacket_.data().stageRemainTime < 240)
-            targetMode = 2;
+            targetMode_ = 2;
         else
-            targetMode = 1;
+            targetMode_ = 1;
     }
     vision.setData().detectColor = !refereeDataRxPacket_.data().color;
-    vision.setData().taskMode = targetMode;
+    vision.setData().taskMode = targetMode_;
     vision.setData().isPlay = refereeDataRxPacket_.data().isPlay;
     vision.setData().bulletSpeed = refereeDataRxPacket_.data().muzzleVel;
 #else
@@ -359,3 +359,5 @@ bool Standard::isAllowExitLaunch()
 {
     return gimbalLaunchStrategyRxPacket_.data().isAllowExitLaunch || cmsg_.state == CHASSIS::FSMState_e::STOP;
 }
+
+bool Standard::targetInBuff() const { return targetMode_ > 0; }
