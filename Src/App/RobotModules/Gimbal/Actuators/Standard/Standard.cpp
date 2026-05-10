@@ -16,7 +16,7 @@
 #include "Buzzer.hpp"
 #endif
 
-volatile float PITCH_FEEDFORWARD = 0.0f;
+volatile float PITCH_FEEDFORWARD = 1.0f;
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
