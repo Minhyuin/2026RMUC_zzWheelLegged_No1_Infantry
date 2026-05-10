@@ -9,7 +9,7 @@
 
 static PositionalPid uTurnPitchAngPID(60.f, 500.f, 0.65f, 0.001f, 4.f, 15.f, 0.f);
 static PositionalPid uTurnPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
-static PositionalPid uTurnYawAngPID(50.f, 50.f, 1.7f, 0.001f, 0.5f, 20.f, 0.f);
+static PositionalPid uTurnYawAngPID(50.f, 50.f, 1.7f, 0.001f, 0.5f, 10.f, 0.f);
 static PositionalPid uTurnYawVelPID(1.5f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
 namespace GIMBAL {
