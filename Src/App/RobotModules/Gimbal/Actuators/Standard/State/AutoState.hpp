@@ -10,9 +10,15 @@
 static PositionalPid autoPitchAngPID(90.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f);
 static PositionalPid autoPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 
-static PositionalPid autoYawAngPID(300.f, 1000.f, 11.f, 0.001f, 15.f, 30.f, 0.f);
-static PositionalPid autoYawVelPID(3.0f, 1.f, 0.f, 0.001f, 10.f, 100.f, 0.f);
+static PositionalPid autoYawAngPID(1000.f, 1000.f, 15.f, 0.001f, 15.f, 30.f, 0.f);
+static PositionalPid autoYawVelPID(5.f, 5.f, 0.f, 0.001f, 10.f, 100.f, 0.f);
 static PositionalPid autoYawVelFeedbackPID(5.0f, 5.f, 0.5f, 0.001f, 10.f, 50.f, 0.f);
+
+static float autoYawArmorAngPidPID[3]{ 1000.f, 1000.f, 15.f };
+static float autoYawArmorVelPidPID[3]{ 5.f, 5.f, 0.f };
+
+static float autoYawBuffAngPidPID[3]{ 300.f, 1000.f, 11.f };
+static float autoYawBuffVelPidPID[3]{ 3.f, 1.f, 0.f };
 
 namespace GIMBAL {
 
@@ -43,6 +49,18 @@ public:
     void enter() final
     {
         gimbal_->enter();
+
+        if (gimbal_->targetInBuff()) {
+            pids_.yawAngPid->setParam(autoYawBuffAngPidPID[0], autoYawBuffAngPidPID[1], autoYawBuffAngPidPID[2], 0.001f,
+                                      15.f, 30.f, 0.f);
+            pids_.yawVelPid->setParam(autoYawBuffVelPidPID[0], autoYawBuffVelPidPID[1], autoYawBuffVelPidPID[2], 0.001f,
+                                      10.f, 100.f, 0.f);
+        } else {
+            pids_.yawAngPid->setParam(autoYawArmorAngPidPID[0], autoYawArmorAngPidPID[1], autoYawArmorAngPidPID[2],
+                                      0.001f, 15.f, 30.f, 0.f);
+            pids_.yawVelPid->setParam(autoYawArmorVelPidPID[0], autoYawArmorVelPidPID[1], autoYawArmorVelPidPID[2],
+                                      0.001f, 10.f, 100.f, 0.f);
+        }
 
         LOG::info("GimbalAuto", "enter");
     }

@@ -109,6 +109,8 @@ public:
     bool isNeedLaunch();
     bool isAllowExitLaunch();
 
+    bool targetInBuff() const;
+
 private:
     Motors_s motors_;
 
@@ -130,6 +132,8 @@ private:
     float calcYawTorq(float _vel, float _acc);
 
     uint16_t disconnectRcCnt_ = 0;
+
+    uint8_t targetMode_ = 0;
 };
 
 } // namespace GIMBAL
