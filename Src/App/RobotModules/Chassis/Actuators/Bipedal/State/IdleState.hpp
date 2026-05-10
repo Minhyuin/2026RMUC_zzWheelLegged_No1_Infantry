@@ -9,8 +9,8 @@
 #include "Smooth.hpp"
 
 static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 3.f, 0.1f };
-static float idleLegLengthAngPidPD[2]{ 15.f, 0.0f };
-static float idleLegLengthVelPidPD[2]{ 135.f, 0.0f };
+static float idleLegLengthAngPidPD[2]{ 30.f, 0.0f };
+static float idleLegLengthVelPidPD[2]{ 90.f, 0.0f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {

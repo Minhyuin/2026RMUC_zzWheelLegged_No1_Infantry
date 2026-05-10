@@ -105,17 +105,17 @@ class Bipedal : public Chassis {
     static constexpr float CTRL_FREQ = 1000.f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            0.15f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            0.3f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.6f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.2f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
     static constexpr float REAL_Q_OFFSET =
             0.0492342599f; // mecanical offset of the equivalent pendulum angle, unit: rad
 
 
 public:
-    static constexpr float EXPT_Q_OFFSET = 0.05f;
-    static constexpr float EXPT_PHI_OFFSET = 0.07f;
+    static constexpr float EXPT_Q_OFFSET = 0.02f;
+    static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
 
@@ -471,7 +471,7 @@ private:
     PositionalPid rollAngPid_{ 30.f, 80.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 10.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipAngPidL_{ 5.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
     PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
