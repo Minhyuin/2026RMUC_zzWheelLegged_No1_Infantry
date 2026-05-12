@@ -107,7 +107,7 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_BACKWARD =
             -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.7f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.9f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
     static constexpr float REAL_Q_OFFSET = -0.0116224f; // mecanical offset of the equivalent pendulum angle, unit: rad
 
