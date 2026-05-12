@@ -83,7 +83,7 @@ public:
         cmdImuYawAngWithOffset_ = cmdImuYawAng_ + yawGimbalExpOffset;
 
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, cmdImuPitchAngWithOffset_);
-        if (gimbal_->isChassisWeightlessness()) {
+        if (gimbal_->isChassisWeightlessness() && gimbal_->chassisState() != CHASSIS::FSMState_e::STOP) {
             if (fabs(PINYMOTOR::getMinorArc(gimbal_->yaw()->posNorm(), 0)) > PI / 2.f) {
                 gimbal_->ctrlMotorYaw(pids_.yawAngForWeightlessnessPid, pids_.yawVelForWeightlessnessPid, PI);
             } else {
