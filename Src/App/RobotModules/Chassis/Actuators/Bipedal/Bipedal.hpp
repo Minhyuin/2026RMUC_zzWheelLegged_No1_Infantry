@@ -90,7 +90,7 @@ class Bipedal : public Chassis {
     static constexpr float BASE_ROTATION_ACC = 1.5f;
     static constexpr float MAX_ROTATION_ACC = 3.f;
 
-    static constexpr float MASS_BODY = 23.735f;
+    static constexpr float MASS_BODY = 23.584f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
 
@@ -114,7 +114,7 @@ class Bipedal : public Chassis {
 
 
 public:
-    static constexpr float EXPT_Q_OFFSET = 0.02f;
+    static constexpr float EXPT_Q_OFFSET = 0.f;
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
