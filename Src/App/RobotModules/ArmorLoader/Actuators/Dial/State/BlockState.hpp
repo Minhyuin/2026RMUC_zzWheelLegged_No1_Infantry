@@ -58,7 +58,7 @@ public:
     {
         if (loader_->msg.state == FSMState_e::STOP)
             return FSMState_e ::STOP;
-        if (restoreCnt_ < RESTORE_CNT_MAX)
+        if (restoreCnt_ < RESTORE_CNT_MAX && loader_->msg.fire)
             return FSMState_e::BLOCK;
         else
             return loader_->lastState;

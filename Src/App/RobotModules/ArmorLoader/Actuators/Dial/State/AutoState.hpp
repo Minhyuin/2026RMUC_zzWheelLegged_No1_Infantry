@@ -6,7 +6,7 @@
 #include "PidBasic.hpp"
 #include "MotorCommonMacros.hpp"
 
-static PositionalPid autoDialVelPID(0.15f, 0.1f, 0.002f, 0.002f, 0.2f, 2.49f);
+static PositionalPid autoDialVelPID(0.13f, 0.1f, 0.002f, 0.002f, 0.2f, 2.49f);
 
 namespace ARMORLOADER {
 
@@ -35,7 +35,7 @@ public:
     void run() final
     {
         if (loader_->msg.fire)
-            loader_->ctrl(pids_.dialVelPid, getDialVel(5.f));
+            loader_->ctrl(pids_.dialVelPid, getDialVel(17.f));
         else
             loader_->ctrl(pids_.dialVelPid, 0.f);
     }
