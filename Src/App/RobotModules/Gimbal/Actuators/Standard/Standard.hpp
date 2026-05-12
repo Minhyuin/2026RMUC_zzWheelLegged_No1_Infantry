@@ -60,7 +60,7 @@ class Standard : public Gimbal {
 
 public:
     static constexpr float PITCH_LAUNCH_ANG = 4.71574497f;
-    static constexpr float YAW_LAUNCH_ANG = 1.15784276f;
+    static constexpr float YAW_LAUNCH_ANG = 4.2842865f;
 
     static constexpr float PITCH_MOTOR_FREQ = 1000.f;
     static constexpr float YAW_MOTOR_FREQ = 1000.f;
@@ -99,6 +99,8 @@ public:
     {
         return static_cast<CHASSIS::FSMState_e>(chassisStateRxPacket_.data().chassisRealState);
     }
+
+    bool isChassisWeightlessness() const { return chassisStateRxPacket_.data().weightlessness; }
 
     void stop();
     void enter();

@@ -330,6 +330,7 @@ void Bipedal::update(void *_param)
 
     // send state to gimbal
     chassisStateTxPacket_.setData().chassisRealState = static_cast<uint8_t>(msg.state);
+    chassisStateTxPacket_.setData().weightlessness = isFloating();
 
     // stop detect
     detectStop();
