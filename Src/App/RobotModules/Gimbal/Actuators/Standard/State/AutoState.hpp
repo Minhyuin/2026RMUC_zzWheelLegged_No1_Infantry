@@ -7,18 +7,26 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
-static PositionalPid autoPitchAngPID(90.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f);
-static PositionalPid autoPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
+static PositionalPid autoPitchAngPID(0, 0, 0, 0, 0, 0, 0);
+static PositionalPid autoPitchVelPID(0, 0, 0, 0, 0, 0, 0);
 
-static PositionalPid autoYawAngPID(1000.f, 1000.f, 15.f, 0.001f, 15.f, 30.f, 0.f);
-static PositionalPid autoYawVelPID(5.f, 5.f, 0.f, 0.001f, 10.f, 100.f, 0.f);
-static PositionalPid autoYawVelFeedbackPID(5.0f, 5.f, 0.5f, 0.001f, 10.f, 50.f, 0.f);
+static float autoPitchArmorAngPidPID[7]{ 90.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f };
+static float autoPitchArmorVelPidPID[7]{ 0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f };
 
-static float autoYawArmorAngPidPID[3]{ 1000.f, 1000.f, 15.f };
-static float autoYawArmorVelPidPID[3]{ 5.f, 5.f, 0.f };
+static float autoPitchBuffAngPidPID[7]{ 90.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f };
+static float autoPitchBuffVelPidPID[7]{ 0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f };
 
-static float autoYawBuffAngPidPID[3]{ 300.f, 1000.f, 11.f };
-static float autoYawBuffVelPidPID[3]{ 3.f, 1.f, 0.f };
+static PositionalPid autoYawAngPID{ 0, 0, 0, 0, 0, 0, 0 };
+static PositionalPid autoYawVelPID(0, 0, 0, 0, 0, 0, 0);
+static PositionalPid autoYawVelFeedbackPID(0, 0, 0, 0, 0, 0, 0);
+
+static float autoYawArmorAngPidPID[7]{ 1000.f, 1000.f, 15.f, 0.001f, 15.f, 30.f, 0.f };
+static float autoYawArmorVelPidPID[7]{ 5.f, 5.f, 0.f, 0.001f, 10.f, 100.f, 0.f };
+static float autoYawVelFeedbackPidPID[7]{ 20.0f, 5.f, 0.6f, 0.001f, 10.f, 30.f, 0.f };
+
+static float autoYawBuffAngPidPID[7]{ 300.f, 1000.f, 11.f, 0.001f, 15.f, 30.f, 0.f };
+static float autoYawBuffVelPidPID[7]{ 3.f, 1.f, 0.f, 0.001f, 10.f, 100.f, 0.f };
+static float autoYawBuffVelFeedbackPidPID[7]{ 5.0f, 5.f, 0.5f, 0.001f, 10.f, 50.f, 0.f };
 
 namespace GIMBAL {
 
@@ -44,23 +52,14 @@ public:
         pids_.yawAngPid = &autoYawAngPID;
         pids_.yawVelPid = &autoYawVelPID;
         pids_.yawVelFbPid = &autoYawVelFeedbackPID;
+        loadPidParam();
     }
 
     void enter() final
     {
         gimbal_->enter();
 
-        if (gimbal_->targetInBuff()) {
-            pids_.yawAngPid->setParam(autoYawBuffAngPidPID[0], autoYawBuffAngPidPID[1], autoYawBuffAngPidPID[2], 0.001f,
-                                      15.f, 30.f, 0.f);
-            pids_.yawVelPid->setParam(autoYawBuffVelPidPID[0], autoYawBuffVelPidPID[1], autoYawBuffVelPidPID[2], 0.001f,
-                                      10.f, 100.f, 0.f);
-        } else {
-            pids_.yawAngPid->setParam(autoYawArmorAngPidPID[0], autoYawArmorAngPidPID[1], autoYawArmorAngPidPID[2],
-                                      0.001f, 15.f, 30.f, 0.f);
-            pids_.yawVelPid->setParam(autoYawArmorVelPidPID[0], autoYawArmorVelPidPID[1], autoYawArmorVelPidPID[2],
-                                      0.001f, 10.f, 100.f, 0.f);
-        }
+        loadPidParam();
 
         LOG::info("GimbalAuto", "enter");
     }
@@ -104,6 +103,28 @@ public:
     }
 
 private:
+    static void setParamFromArray(PositionalPid *_pid, const float *_params)
+    {
+        _pid->setParam(_params[0], _params[1], _params[2], _params[3], _params[4], _params[5], _params[6]);
+    }
+
+    void loadPidParam()
+    {
+        if (gimbal_->targetInBuff()) {
+            setParamFromArray(pids_.pitchAngPid, autoPitchBuffAngPidPID);
+            setParamFromArray(pids_.pitchVelPid, autoPitchBuffVelPidPID);
+            setParamFromArray(pids_.yawAngPid, autoYawBuffAngPidPID);
+            setParamFromArray(pids_.yawVelPid, autoYawBuffVelPidPID);
+            setParamFromArray(pids_.yawVelFbPid, autoYawBuffVelFeedbackPidPID);
+        } else {
+            setParamFromArray(pids_.pitchAngPid, autoPitchArmorAngPidPID);
+            setParamFromArray(pids_.pitchVelPid, autoPitchArmorVelPidPID);
+            setParamFromArray(pids_.yawAngPid, autoYawArmorAngPidPID);
+            setParamFromArray(pids_.yawVelPid, autoYawArmorVelPidPID);
+            setParamFromArray(pids_.yawVelFbPid, autoYawVelFeedbackPidPID);
+        }
+    }
+
     Standard *gimbal_;
 
     Pids_s pids_;
