@@ -58,9 +58,9 @@ public:
         arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
         ds = std::clamp(ds, -MAX_DS, MAX_DS);
         if (chassis_->msg.needRush)
-            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.003f);
-        else
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
+        else
+            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.002f);
         if (ds == 0)
             wz = getVariableSpinVel() * accelFactor_;
         else
