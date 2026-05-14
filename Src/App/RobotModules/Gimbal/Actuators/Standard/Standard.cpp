@@ -17,6 +17,7 @@
 #endif
 
 volatile float PITCH_FEEDFORWARD = 0.f;
+volatile float YAW_SPIN_GAIN = -0.01f;
 
 using namespace GIMBAL;
 using namespace PINYMOTOR;
@@ -176,7 +177,8 @@ void Standard::update(void *_param)
         shooterCtrlTxPacket_.setData().fire = almsg_.fire;
     }
     if (!msg.forceFire)
-        shooterCtrlTxPacket_.setData().fire &= (vision.data().control) ? vision.data().fire : true;
+        shooterCtrlTxPacket_.setData().fire &=
+                (vision.data().control) ? vision.data().fire | (msg.state != FSMState_e::AUTO) : true;
 
     gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
     gimbalStateTxPacket_.setData().aiming = vision.data().control;
@@ -186,7 +188,7 @@ void Standard::update(void *_param)
     // vision send
 #if EXTENSION_REFEREE
     targetMode_ = 0;
-    if (refereeDataRxPacket_.data().isPlay && almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
+    if (almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
         if (refereeDataRxPacket_.data().stageRemainTime < 240)
             targetMode_ = 2;
         else
@@ -282,7 +284,7 @@ void Standard::ctrlMotorYaw(PID *_angPID, PID *_velPID, float _pos)
 {
     float del = getMinorArc(_pos, yaw()->posNorm());
     float vel = _angPID->calc(del, 0);
-    float torq = _velPID->calc(vel, insData_.body.gz);
+    float torq = _velPID->calc(vel, insData_.body.gz) + (YAW_SPIN_GAIN * chassisStateRxPacket_.data().wz);
     yaw()->cmdTorq(outFilrYaw_.process(torq));
 }
 

@@ -61,7 +61,7 @@ class GimbalLaunchStrategyTxPacket : public COMM::TxPacket<COMM::GimbalLaunchStr
 
 class ChassisStateTxPacket : public COMM::TxPacket<COMM::ChassisStatePacketType> {
     friend class Bipedal;
-    ChassisStateTxPacket() : TxPacket(10.f) {}
+    ChassisStateTxPacket() : TxPacket(20.f) {}
     void transmit(uint8_t *_buf, uint16_t _len) final;
 };
 
@@ -118,6 +118,11 @@ public:
     static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
 
     Bipedal();
+
+    GIMBAL::FSMState_e gimbalState() const
+    {
+        return static_cast<GIMBAL::FSMState_e>(gimbalStateRxPacket_.data().gimbalRealState);
+    }
 
     /**
      * @brief close all outputs
