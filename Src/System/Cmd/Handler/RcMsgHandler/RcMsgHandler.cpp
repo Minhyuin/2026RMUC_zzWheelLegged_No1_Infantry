@@ -366,6 +366,8 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Q) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Q))
                     gMsg_.state = GIMBAL::FSMState_e::U_TURN;
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::G) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::G))
+                    cMsg_.noChassis = !cMsg_.noChassis;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
