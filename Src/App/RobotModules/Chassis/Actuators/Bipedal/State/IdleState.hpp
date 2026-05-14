@@ -8,7 +8,9 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
-static PositionalPid idleFollowVelPid{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.05f };
+static float idleFollowVelPidPID[7]{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.05f };
+static float idleFollowVelInVisionPidPID[7]{ 5.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.f, 0.5f };
+static PositionalPid idleFollowVelPid{ 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
 static float idleLegLengthAngPidPD[2]{ 15.f, 0.0f };
 static float idleLegLengthVelPidPD[2]{ 135.f, 0.0f };
 
@@ -22,6 +24,7 @@ public:
     IdleState(Bipedal *_chassis)
             : FSMState<FSMState_e>(FSMState_e::IDLE), chassis_(_chassis), wzAngPid_(&idleFollowVelPid)
     {
+        setParamFromArray(wzAngPid_, idleFollowVelPidPID);
     }
 
     void enter() final
@@ -59,6 +62,11 @@ public:
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
         chassis_->setRoll(refRoll_);
+
+        if (chassis_->gimbalState() == GIMBAL::FSMState_e::AUTO)
+            setParamFromArray(wzAngPid_, idleFollowVelInVisionPidPID);
+        else
+            setParamFromArray(wzAngPid_, idleFollowVelPidPID);
 
         float targetDeltaYaw = (fabs(chassis_->deltaYaw) > PI / 2.f) ? PI : 0.f;
         const auto &rotationAcc = chassis_->getRotationAcc();
@@ -111,6 +119,12 @@ public:
 private:
     Bipedal *chassis_;
     PositionalPid *wzAngPid_;
+
+    static void setParamFromArray(PositionalPid *_pid, const float *_params)
+    {
+        _pid->setParam(_params[0], _params[1], _params[2], _params[3], _params[4], _params[5], _params[6]);
+    }
+
     float refYaw_ = 0;
     float refLength_ = 0;
     float targetRefLength_ = IDLE_L;

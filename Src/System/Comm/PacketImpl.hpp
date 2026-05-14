@@ -313,12 +313,14 @@ public:
     struct ProtoData_s {
         uint8_t chassisRealState;
         bool weightlessness;
+        float wz;
     };
     union Data_u {
         struct Data_s {
             uint8_t chassisRealState : 4;
             bool weightlessness : 1;
-            uint32_t reversed : 27;
+            int16_t wz : 16;
+            uint32_t reversed : 9;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -327,11 +329,13 @@ public:
         Data_u::Data_s &d = _data.content;
         d.chassisRealState = _protoData.chassisRealState;
         d.weightlessness = _protoData.weightlessness;
+        d.wz = convertToInt16(_protoData.wz);
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
         _protoData.chassisRealState = _data.content.chassisRealState;
         _protoData.weightlessness = _data.content.weightlessness;
+        _protoData.wz = convertToFloat(_data.content.wz);
     }
 };
 } // namespace COMM
