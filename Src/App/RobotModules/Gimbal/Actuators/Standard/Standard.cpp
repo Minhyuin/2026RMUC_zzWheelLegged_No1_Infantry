@@ -189,7 +189,7 @@ void Standard::update(void *_param)
 #if EXTENSION_REFEREE
     targetMode_ = 0;
     if (almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
-        if (refereeDataRxPacket_.data().stageRemainTime < 240)
+        if (refereeDataRxPacket_.data().isPlay && refereeDataRxPacket_.data().stageRemainTime < 240)
             targetMode_ = 2;
         else
             targetMode_ = 1;

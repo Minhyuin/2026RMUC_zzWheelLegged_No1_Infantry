@@ -10,8 +10,8 @@
 static PositionalPid autoPitchAngPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoPitchVelPID(0, 0, 0, 0, 0, 0, 0);
 
-static float autoPitchArmorAngPidPID[7]{ 90.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f };
-static float autoPitchArmorVelPidPID[7]{ 0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f };
+static float autoPitchArmorAngPidPID[7]{ 60.f, 500.f, 0.f, 0.001f, 1.f, 6.f, 0.f };
+static float autoPitchArmorVelPidPID[7]{ 1.f, 1.f, 0.008f, 0.001f, 0.5f, 7.f, 0.f };
 
 static float autoPitchBuffAngPidPID[7]{ 90.f, 300.f, 0.5f, 0.001f, 1.f, 1.5f, 0.f };
 static float autoPitchBuffVelPidPID[7]{ 0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f };
@@ -20,9 +20,9 @@ static PositionalPid autoYawAngPID{ 0, 0, 0, 0, 0, 0, 0 };
 static PositionalPid autoYawVelPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoYawVelFeedbackPID(0, 0, 0, 0, 0, 0, 0);
 
-static float autoYawArmorAngPidPID[7]{ 800.f, 1000.f, 5.f, 0.001f, 15.f, 30.f, 0.f };
-static float autoYawArmorVelPidPID[7]{ 5.f, 5.f, 0.f, 0.001f, 5.f, 100.f, 0.f };
-static float autoYawVelFeedbackPidPID[7]{ 50.0f, 30.f, 0.5f, 0.001f, 10.f, 30.f, 0.f };
+static float autoYawArmorAngPidPID[7]{ 450.f, 1000.f, 1.f, 0.001f, 20.f, 30.f, 0.f };
+static float autoYawArmorVelPidPID[7]{ 6.f, 10.f, 0.02f, 0.001f, 20.f, 999.f, 0.f };
+static float autoYawVelFeedbackPidPID[7]{ 50.0f, 30.f, 0.3f, 0.001f, 20.f, 60.f, 0.f };
 
 static float autoYawBuffAngPidPID[7]{ 300.f, 1000.f, 11.f, 0.001f, 15.f, 30.f, 0.f };
 static float autoYawBuffVelPidPID[7]{ 3.f, 1.f, 0.f, 0.001f, 10.f, 100.f, 0.f };
