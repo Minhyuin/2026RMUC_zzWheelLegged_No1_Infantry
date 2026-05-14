@@ -165,6 +165,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().needStretch = cmsg_.needStretch;
         chassisCtrlTxPacket_.setData().needRush = cmsg_.needRush;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
+        chassisCtrlTxPacket_.setData().noChassis = cmsg_.noChassis;
     };
     if (cmsg_.state != CHASSIS::FSMState_e::STOP &&
         stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)
@@ -180,6 +181,8 @@ void Standard::update(void *_param)
         shooterCtrlTxPacket_.setData().fire &=
                 (vision.data().control) ? vision.data().fire | (msg.state != FSMState_e::AUTO) : true;
 
+    pitchTargetOffset_ = std::clamp(pitchTargetOffset_ + (msg.wPitchOffset * 0.001f), -PI, PI);
+    gimbalStateTxPacket_.setData().targetPitchOffset = pitchTargetOffset_;
     gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
     gimbalStateTxPacket_.setData().aiming = vision.data().control;
     gimbalStateTxPacket_.setData().visionOnline = vision.pcState == Vision::PCState_e::ONLINE;
@@ -247,7 +250,7 @@ void Standard::ctrlPitch(PID *_angPID, PID *_velPID, float _insPos)
 
 void Standard::ctrlMotorPitch(PID *_angPID, PID *_velPID, float _pos)
 {
-    float del = getMinorArc(_pos, pitch()->posNorm());
+    float del = getMinorArc(_pos + pitchTargetOffset_, pitch()->posNorm());
     float vel = _angPID->calc(del, 0);
     float torq = _velPID->calc(vel, insData_.body.gy);
     pitch()->cmdTorq(outFilrPitch_.process(torq) - (PITCH_FEEDFORWARD * fabsf(arm_cos_f32(ins().pitch))));

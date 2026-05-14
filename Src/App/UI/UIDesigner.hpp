@@ -3,8 +3,8 @@
 #include "./UIClient.hpp"
 #include <cstdint>
 /* need to config */
-static constexpr uint8_t DYNAIMIC_NUM = 12;
-static constexpr uint8_t STATIC_NUM = 11;
+static constexpr uint8_t DYNAIMIC_NUM = 14;
+static constexpr uint8_t STATIC_NUM = 12;
 
 // 超电
 static constexpr uint8_t CAP_ENERGY_BAR_WIDTH = 240;
@@ -48,6 +48,7 @@ union DynamicUIInfos_u {
     struct {
         // chassis
         UI::Info_s chassisState;
+        UI::Info_s noChassisLine;
         UI::Info_s capEnergyBar;
         UI::Info_s chassisDirection;
         UI::Info_s legLengthValue;
@@ -57,6 +58,7 @@ union DynamicUIInfos_u {
         UI::Info_s visionState;
         UI::Info_s gimbalState;
         UI::Info_s pitchAngValue;
+        UI::Info_s pitchTargetOffsetAngValue;
         UI::Info_s drivingReferenceLineLeft;  // 左行车线
         UI::Info_s drivingReferenceLineRight; // 右行车线
 
@@ -76,7 +78,8 @@ union StaticUIInfos_u {
         UI::Info_s legLengthAndChassisRollString; // 腿长和底盘滚转角
 
         // gimbal
-        UI::Info_s gimbalString; // 云台当前状态
+        UI::Info_s gimbalString;        // 云台当前状态
+        UI::Info_s pitchOffsetBrackets; // 俯仰偏移值括号
 
         // shooter
         UI::Info_s shooterString;

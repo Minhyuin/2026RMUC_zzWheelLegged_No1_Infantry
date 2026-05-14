@@ -130,6 +130,8 @@ private:
     FILTER::LPF outFilrPitch_{ PITCH_MOTOR_FREQ, 1000.f };
     FILTER::LPF outFilrYaw_{ YAW_MOTOR_FREQ, 1000.f };
 
+    float pitchTargetOffset_ = 0.f;
+
     float calcPitchTorq(float _ang, float _vel, float _acc);
     float calcYawTorq(float _vel, float _acc);
 

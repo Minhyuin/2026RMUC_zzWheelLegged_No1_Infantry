@@ -26,6 +26,7 @@ template <RCDevType_e DEV_TYPE> class RcMsgHandler final : public Handler {
 
     static constexpr float GAIN_MOUSE_X = 0.08f;
     static constexpr float GAIN_MOUSE_Y = 0.08f;
+    static constexpr float GAIN_MOUSE_Z = 0.005f;
 
 public:
     RcMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event);

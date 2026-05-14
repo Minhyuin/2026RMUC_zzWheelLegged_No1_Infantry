@@ -355,7 +355,13 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 gMsg_.wPitch = -static_cast<float>(rcData->KBM.mouseY) * GAIN_MOUSE_Y;
                 gMsg_.wYaw = -static_cast<float>(rcData->KBM.mouseX) * GAIN_MOUSE_X;
                 gMsg_.forceFire = IS_KEY_PRESS(rcData->KBM.key, VT13::C);
-                gMsg_.resetTracker = IS_KEY_PRESS(rcData->KBM.key, VT13::V) && IS_KEY_PRESS(rcData->KBM.key, VT13::Z);
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && IS_KEY_PRESS(rcData->KBM.key, VT13::Z)) {
+                    gMsg_.resetTracker = true;
+                    gMsg_.wPitchOffset = -static_cast<float>(rcData->KBM.mouseZ) * GAIN_MOUSE_Z;
+                } else {
+                    gMsg_.resetTracker = false;
+                    gMsg_.wPitchOffset = 0;
+                }
                 gMsg_.changeTarget = IS_KEY_PRESS(rcData->KBM.key, VT13::R);
                 if (rcData->KBM.mouseRight) {
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;
@@ -374,6 +380,8 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Q) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Q))
                     gMsg_.state = GIMBAL::FSMState_e::U_TURN;
+                if (IS_KEY_PRESS(rcData->KBM.key, VT13::G) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::G))
+                    cMsg_.noChassis = !cMsg_.noChassis;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;

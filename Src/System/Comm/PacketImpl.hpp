@@ -39,7 +39,6 @@ public:
         d.vx = static_cast<int16_t>(_protoData.vx * 1000.f);
         d.vy = static_cast<int16_t>(_protoData.vy * 1000.f);
         d.gimbalYaw = convertToInt16(_protoData.gimbalYaw);
-        d.reversed = 0;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -69,6 +68,7 @@ public:
         bool bodyReset;
         float deltaYaw;
         bool uiReset;
+        bool noChassis;
     };
 #pragma pack(push, 1)
     union Data_u {
@@ -78,15 +78,16 @@ public:
             int8_t vy : 6;    // [-32, 31]
             int8_t dl : 5;    // [-16, 15]
             int8_t droll : 4; // [-8, 7]
-            uint8_t needJump : 1;
-            uint8_t needClimb : 1;
-            uint8_t needStretch : 1;
-            uint8_t needRush : 1;
+            bool needJump : 1;
+            bool needClimb : 1;
+            bool needStretch : 1;
+            bool needRush : 1;
             int16_t deltaYaw : 16;
             uint8_t chassisExptState : 4;
             uint8_t gimbalRealState : 4;
-            uint8_t uiReset : 1;
-            uint16_t reversed : 14;
+            bool uiReset : 1;
+            bool noChassis : 1;
+            uint16_t reversed : 13;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -107,6 +108,7 @@ public:
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
         d.uiReset = _protoData.uiReset;
+        d.noChassis = _protoData.noChassis;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -123,6 +125,7 @@ public:
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);
         _protoData.uiReset = _data.content.uiReset;
+        _protoData.noChassis = _data.content.noChassis;
     }
 };
 
@@ -147,7 +150,6 @@ public:
         Data_u::Data_s &d = _data.content;
         d.armorLoaderExptState = _protoData.armorLoaderExptState;
         d.fire = _protoData.fire;
-        d.reversed = 0;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -165,15 +167,17 @@ public:
         bool visionOnline;
         bool aiming;
         float pitch;
+        float targetPitchOffset;
     };
     union Data_u {
         struct Data_s {
             uint8_t gimbalRealState : 4;
-            uint8_t visionOnline : 1;
-            uint8_t aiming : 1;
+            bool visionOnline : 1;
+            bool aiming : 1;
             int16_t pitch : 16;
+            int16_t targetPitchOffset : 16;
             uint32_t reversed1 : 10;
-            uint32_t reversed2 : 32;
+            uint32_t reversed2 : 16;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -184,8 +188,7 @@ public:
         d.visionOnline = _protoData.visionOnline;
         d.aiming = _protoData.aiming;
         d.pitch = convertToInt16(_protoData.pitch);
-        d.reversed1 = 0;
-        d.reversed2 = 0;
+        d.targetPitchOffset = convertToInt16(_protoData.targetPitchOffset);
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -193,6 +196,7 @@ public:
         _protoData.visionOnline = _data.content.visionOnline;
         _protoData.aiming = _data.content.aiming;
         _protoData.pitch = convertToFloat(_data.content.pitch);
+        _protoData.targetPitchOffset = convertToFloat(_data.content.targetPitchOffset);
     }
 };
 
@@ -214,7 +218,6 @@ public:
     {
         Data_u::Data_s &d = _data.content;
         d.armorBoosterRealState = _protoData.armorBoosterRealState;
-        d.reversed = 0;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -236,11 +239,11 @@ public:
     };
     union Data_u {
         struct Data_s {
-            uint8_t color : 1; // 0 - red, 1 - blue
-            uint8_t isPlay : 1;
-            uint8_t isAlive : 1;
+            bool color : 1; // 0 - red, 1 - blue
+            bool isPlay : 1;
+            bool isAlive : 1;
             uint16_t stageRemainTime : 10; // [0 - 1023]
-            uint8_t rateOfFire : 6;        // [0 - 63]
+            bool rateOfFire : 6;           // [0 - 63]
             uint16_t muzzleVel : 15;       // [0 - 32767]
             uint32_t reversed1 : 11;
             uint32_t reversed2 : 19;
@@ -280,10 +283,10 @@ public:
     };
     union Data_u {
         struct Data_s {
-            uint8_t isLegLFront : 1;
-            uint8_t isLegRFront : 1;
-            uint8_t isNeedGimbalLaunch : 1;
-            uint8_t isAllowExitLaunch : 1;
+            bool isLegLFront : 1;
+            bool isLegRFront : 1;
+            bool isNeedGimbalLaunch : 1;
+            bool isAllowExitLaunch : 1;
             uint32_t reversed1 : 28;
             uint32_t reversed2 : 32;
         } content;

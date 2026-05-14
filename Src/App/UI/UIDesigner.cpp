@@ -27,6 +27,19 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     chassisState.size = 20;
     std::strncpy(chassisState.text, "STOP", sizeof(chassisState.text) - 1);
 
+    auto &noChassisLine = _info.noChassisLine.config;
+    noChassisLine = {};
+    noChassisLine.priority = UI::Priority_e::LOW;
+    noChassisLine.uiType = Type_e::LINE;
+    noChassisLine.operateType = OperateType_e::MODIFY;
+    noChassisLine.layer = 4;
+    noChassisLine.color = Color_e::WHITE;
+    noChassisLine.width = 3;
+    noChassisLine.startX = 50;
+    noChassisLine.startY = 825;
+    noChassisLine.endX = 220;
+    noChassisLine.endY = 825;
+
     auto &capEnergyBar = _info.capEnergyBar.config;
     capEnergyBar = {};
     capEnergyBar.priority = UI::Priority_e::MID;
@@ -106,6 +119,20 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     pitchAngValue.floatNum = 0.f;
     pitchAngValue.decimal = 4;
     pitchAngValue.size = 15;
+
+    auto &pitchTargetOffsetAngValue = _info.pitchTargetOffsetAngValue.config;
+    pitchTargetOffsetAngValue = {};
+    pitchTargetOffsetAngValue.priority = UI::Priority_e::LOW;
+    pitchTargetOffsetAngValue.uiType = Type_e::FLOAT;
+    pitchTargetOffsetAngValue.operateType = OperateType_e::MODIFY;
+    pitchTargetOffsetAngValue.layer = 1;
+    pitchTargetOffsetAngValue.color = Color_e::YELLOW;
+    pitchTargetOffsetAngValue.width = 2;
+    pitchTargetOffsetAngValue.startX = 190;
+    pitchTargetOffsetAngValue.startY = 720;
+    pitchTargetOffsetAngValue.floatNum = 0.f;
+    pitchTargetOffsetAngValue.decimal = 5;
+    pitchTargetOffsetAngValue.size = 15;
 
     auto &gimbalState = _info.gimbalState.config;
     gimbalState = {};
@@ -229,6 +256,17 @@ void staticConfig(StaticUIInfos_u &_info)
     gimbalString.startY = 800;
     gimbalString.size = 20;
     std::strncpy(gimbalString.text, "G:", sizeof(gimbalString.text) - 1);
+
+    auto &pitchOffsetBrackets = _info.pitchOffsetBrackets.config;
+    pitchOffsetBrackets = {};
+    pitchOffsetBrackets.uiType = Type_e::CHAR;
+    pitchOffsetBrackets.layer = 0;
+    pitchOffsetBrackets.color = Color_e::WHITE;
+    pitchOffsetBrackets.width = 2;
+    pitchOffsetBrackets.startX = 170;
+    pitchOffsetBrackets.startY = 720;
+    pitchOffsetBrackets.size = 15;
+    std::strncpy(pitchOffsetBrackets.text, "[        ]", sizeof(pitchOffsetBrackets.text) - 1);
 
     auto &shooterString = _info.shooterString.config;
     shooterString = {};
