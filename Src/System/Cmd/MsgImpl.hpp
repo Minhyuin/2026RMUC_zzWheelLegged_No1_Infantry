@@ -70,6 +70,7 @@ struct ChassisMsg_s : public Msg {
 struct GimbalMsg_s : public Msg {
     GIMBAL::FSMState_e state;
     float wRoll, wPitch, wYaw;
+    float wPitchOffset;
     bool forceFire;
     bool resetTracker;
     bool changeTarget;
@@ -115,6 +116,7 @@ struct ChassisUIMsg_s {
     float lengthR;
     float roll;
     bool needRush;
+    bool noChassis;
     float capEnergyRatio;
 };
 
@@ -123,6 +125,7 @@ struct GimbalUIMsg_s {
     bool aiming;
     bool visionOnline;
     float pitchAng;
+    float pitchTargetOffsetAng;
     bool needClimb;
 };
 

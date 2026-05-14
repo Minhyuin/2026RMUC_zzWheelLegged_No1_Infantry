@@ -209,7 +209,9 @@ void Bipedal::update(void *_param)
     // if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &msg, 0) == pdTRUE) {
     // };
     UNUSED(_param);
-    msg.state = static_cast<FSMState_e>(chassisCtrlRxPacket_.data().chassisExptState);
+    msg.noChassis = chassisCtrlRxPacket_.data().noChassis;
+    msg.state = msg.noChassis ? FSMState_e::STOP :
+                                static_cast<FSMState_e>(chassisCtrlRxPacket_.data().chassisExptState);
     msg.vx = chassisCtrlRxPacket_.data().vx;
     msg.vy = chassisCtrlRxPacket_.data().vy;
     msg.dl = chassisCtrlRxPacket_.data().dl;
@@ -309,6 +311,7 @@ void Bipedal::update(void *_param)
         .lengthR = lengthR(),
         .roll = insData_.roll,
         .needRush = msg.needRush,
+        .noChassis = msg.noChassis,
 #if EXTENSION_SUPERCAP
         .capEnergyRatio = wheelCap_.getCapData().capEnergyRatio,
 #else
@@ -322,6 +325,7 @@ void Bipedal::update(void *_param)
         .aiming = gimbalStateRxPacket_.data().aiming,
         .visionOnline = gimbalStateRxPacket_.data().visionOnline,
         .pitchAng = getMinorArc(gimbalStateRxPacket_.data().pitch, pitch()),
+        .pitchTargetOffsetAng = gimbalStateRxPacket_.data().targetPitchOffset,
         .needClimb = msg.needClimb,
     };
     UI::APP::instance().updateGimbal(gimbalUIMsgData);

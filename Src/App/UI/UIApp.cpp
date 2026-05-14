@@ -70,6 +70,10 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
     // chassisRollValue
     dynamicInfo_.chassisRollValue.config.floatNum = _msg.roll;
     client_.ready(&dynamicInfo_.chassisRollValue);
+
+    // noChassisLine
+    dynamicInfo_.noChassisLine.config.operateType = _msg.noChassis ? OperateType_e::ADD : OperateType_e::DELETE;
+    client_.ready(&dynamicInfo_.noChassisLine);
 }
 
 void APP::updateGimbal(const GimbalUIMsg_s &_msg)
@@ -103,6 +107,10 @@ void APP::updateGimbal(const GimbalUIMsg_s &_msg)
     // pitchAngValue
     dynamicInfo_.pitchAngValue.config.floatNum = _msg.pitchAng;
     client_.ready(&dynamicInfo_.pitchAngValue);
+
+    // pitchTargetOffsetAngValue
+    dynamicInfo_.pitchTargetOffsetAngValue.config.floatNum = _msg.pitchTargetOffsetAng;
+    client_.ready(&dynamicInfo_.pitchTargetOffsetAngValue);
 
     // drivingReferenceLine
     constexpr float PITCH_ANG_RANGE = UI_PITCH_END_ANG - UI_PITCH_START_ANG;
