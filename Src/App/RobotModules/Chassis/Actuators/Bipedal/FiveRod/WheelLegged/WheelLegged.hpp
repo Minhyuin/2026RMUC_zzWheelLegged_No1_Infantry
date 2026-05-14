@@ -12,7 +12,7 @@ class WheelLegged {
     // 最大可到40, 4个电机输出电流过大达到电池负载阈值，会严重影响姿态，需要并入超电来提高物理上限
     static constexpr float MAX_HIP_CTRL_TORQ = 30.f;
     // 最大可到3.9, 太大会导致电管过载
-    static constexpr float MAX_WHEEL_CTRL_TORQ = 3.f;
+    static constexpr float MAX_WHEEL_CTRL_TORQ = 3.9f;
 
     static constexpr float LENGTH_ANG_PID_OUTMAX = 6.f;
     static constexpr float LENGTH_ANG_PID_KI = 10.f;
