@@ -184,7 +184,7 @@ void APP::updateArmorBooster(const ArmorBoosterUIMsg_s &_msg)
 
 void APP::task()
 {
-    constexpr uint32_t RESET_DELAY = 2000 / SEND_INTERVAL;
+    constexpr uint32_t RESET_DELAY = 4000 / SEND_INTERVAL;
     if (xTaskGetTickCount() - updateCnt >= SEND_INTERVAL) {
         updateCnt = xTaskGetTickCount();
         if (!client_.isCharInit || !client_.isGraphicInit) {
