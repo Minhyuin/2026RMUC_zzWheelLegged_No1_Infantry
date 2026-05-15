@@ -13,11 +13,11 @@ static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.1
 
 namespace CHASSIS {
 class ClimbPrepareState : public FSMState<FSMState_e> {
-    static constexpr float OFFSET_PHI = 0.3f;
+    static constexpr float OFFSET_PHI = 0.17f;
     static constexpr float MAX_ACC_BACK = 0.5f;
     static constexpr float MAX_ACC_FRONT = 0.7f;
     static constexpr float MAX_SPEED = 1.2f;
-    static constexpr float CLIMB_PREPARE_LENGTH = WheelLegged::MAX_L;
+    static constexpr float CLIMB_PREPARE_LENGTH = 0.31f;
 
 public:
     ClimbPrepareState(Bipedal *_chassis)
@@ -29,6 +29,7 @@ public:
     {
         chassis_->enter();
         isPrepareFinish_ = false;
+        stretchFinish_ = false;
         refYaw_ = chassis_->yaw();
         chassis_->setRoll(0);
         refLength_ = chassis_->length();
@@ -41,11 +42,14 @@ public:
     void run() final
     {
         targetRefLength_ += chassis_->msg.dl * 0.001f;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0005f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00035f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
-        if (chassis_->isFloating() /* (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.4f*/)
+        if (chassis_->detectLengthRange(targetRefLength_, 0.025f) || stretchFinish_)
+            stretchFinish_ = true;
+
+        if (chassis_->isFloating() && (chassis_->phiL() + chassis_->phiR()) / 2.f > 0.3f)
             isPrepareFinish_ = true;
 
         float targetYaw = 0.f;
@@ -59,7 +63,7 @@ public:
         chassis_->msg.vx = std::clamp(chassis_->msg.vx, -MAX_SPEED, MAX_SPEED);
         ref.ds = std::clamp(ds, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
         ref.yaw = refYaw_;
-        ref.phir = ref.phil = OFFSET_PHI;
+        ref.phir = ref.phil = stretchFinish_ ? OFFSET_PHI : 0.f;
         chassis_->bal<WBRController::WBRControlMode_e::CLIMB>(ref);
 
         chassis_->ctrl();
@@ -90,6 +94,7 @@ private:
     float refYaw_ = 0;
     float refLength_ = 0;
     float targetRefLength_ = CLIMB_PREPARE_LENGTH;
+    bool stretchFinish_ = false;
     bool isPrepareFinish_ = false;
 };
 
