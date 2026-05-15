@@ -4,7 +4,7 @@
 #include <cstdint>
 /* need to config */
 static constexpr uint8_t DYNAIMIC_NUM = 14;
-static constexpr uint8_t STATIC_NUM = 12;
+static constexpr uint8_t STATIC_NUM = 14;
 
 // 超电
 static constexpr uint8_t CAP_ENERGY_BAR_WIDTH = 240;
@@ -76,6 +76,8 @@ union StaticUIInfos_u {
         UI::Info_s capEnergyBottomLine;           // 电容能量下限指示线
         UI::Info_s capEnergyBarBackground;        // 电容能量管
         UI::Info_s legLengthAndChassisRollString; // 腿长和底盘滚转角
+        UI::Info_s allowClimbLine1;               // 允许攀爬线 - 下
+        UI::Info_s allowClimbLine2;               // 允许攀爬线 - 上
 
         // gimbal
         UI::Info_s gimbalString;        // 云台当前状态

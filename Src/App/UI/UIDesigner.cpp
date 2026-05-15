@@ -246,6 +246,28 @@ void staticConfig(StaticUIInfos_u &_info)
     legLengthAndChassisRollString.size = 15;
     std::strncpy(legLengthAndChassisRollString.text, "LEG/ROLL", sizeof(legLengthAndChassisRollString.text) - 1);
 
+    auto &allowClimbLine1 = _info.allowClimbLine1.config;
+    allowClimbLine1 = {};
+    allowClimbLine1.uiType = Type_e::LINE;
+    allowClimbLine1.layer = 0;
+    allowClimbLine1.color = Color_e::WHITE;
+    allowClimbLine1.width = 1;
+    allowClimbLine1.startX = 960 - 50;
+    allowClimbLine1.startY = 540 - 370;
+    allowClimbLine1.endX = 960 + 50;
+    allowClimbLine1.endY = 540 - 370;
+
+    auto &allowClimbLine2 = _info.allowClimbLine2.config;
+    allowClimbLine2 = {};
+    allowClimbLine2.uiType = Type_e::LINE;
+    allowClimbLine2.layer = 0;
+    allowClimbLine2.color = Color_e::WHITE;
+    allowClimbLine2.width = 1;
+    allowClimbLine2.startX = 960 - 50;
+    allowClimbLine2.startY = 540 - 270;
+    allowClimbLine2.endX = 960 + 50;
+    allowClimbLine2.endY = 540 - 270;
+
     auto &gimbalString = _info.gimbalString.config;
     gimbalString = {};
     gimbalString.uiType = Type_e::CHAR;

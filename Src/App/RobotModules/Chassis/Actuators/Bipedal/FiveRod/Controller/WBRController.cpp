@@ -244,11 +244,11 @@ Matrix<4, 10> WBRController::kComputeClimb(float _lL, float _lR)
     // NOLINTBEGIN(readability-math-missing-parentheses, readability-identifier-naming)
     /*
             obj.Q = diag([ ...
-                6000, 7000, ...       % 轮位置
+                3000, 1000, ...       % 轮位置
                 30000, 10000, ...       % 底盘偏航角
-                800, 1, ...       % 左腿倾角
-                800, 1, ...       % 右腿倾角
-                80000, 100]);           % 底盘俯仰角
+                800, 10, ...       % 左腿倾角
+                800, 10, ...       % 右腿倾角
+                80000, 1000]);           % 底盘俯仰角
 
             obj.R = diag([ ...
                 350, ...    % 左轮能量惩罚
