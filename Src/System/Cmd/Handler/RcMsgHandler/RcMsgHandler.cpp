@@ -252,6 +252,8 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                                                                                      ctrlFlag_) :
                              true);
         lastSwitch_ = static_cast<uint8_t>(rcData->gamepad.sw);
+        if (IS_KEY_PRESS(rcData->KBM.key, VT13::G) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::G))
+            cMsg_.noChassis = !cMsg_.noChassis;
         if (!ctrlFlag_) {
             gMsg_.state = GIMBAL::FSMState_e::STOP;
             gMsg_.wPitch = gMsg_.wYaw = 0.f;
@@ -358,6 +360,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && IS_KEY_PRESS(rcData->KBM.key, VT13::Z)) {
                     gMsg_.resetTracker = true;
                     gMsg_.wPitchOffset = -static_cast<float>(rcData->KBM.mouseZ) * GAIN_MOUSE_Z;
+                    gMsg_.needClearPitchOffset = rcData->KBM.mouseMiddle;
                 } else {
                     gMsg_.resetTracker = false;
                     gMsg_.wPitchOffset = 0;
@@ -380,8 +383,6 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Q) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Q))
                     gMsg_.state = GIMBAL::FSMState_e::U_TURN;
-                if (IS_KEY_PRESS(rcData->KBM.key, VT13::G) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::G))
-                    cMsg_.noChassis = !cMsg_.noChassis;
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::V)) {
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
@@ -391,6 +392,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::B) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::B)) {
+                    gMsg_.buffFlagOffSite = !gMsg_.buffFlagOffSite;
                     alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }

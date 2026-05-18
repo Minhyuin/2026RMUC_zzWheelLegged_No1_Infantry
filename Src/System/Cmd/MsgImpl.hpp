@@ -71,6 +71,8 @@ struct GimbalMsg_s : public Msg {
     GIMBAL::FSMState_e state;
     float wRoll, wPitch, wYaw;
     float wPitchOffset;
+    bool needClearPitchOffset;
+    bool buffFlagOffSite;
     bool forceFire;
     bool resetTracker;
     bool changeTarget;
@@ -124,6 +126,7 @@ struct GimbalUIMsg_s {
     GIMBAL::FSMState_e state;
     bool aiming;
     bool visionOnline;
+    uint8_t targetMode;
     float pitchAng;
     float pitchTargetOffsetAng;
     bool needClimb;

@@ -14,7 +14,6 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_BASE = 6.f; // TODO: follow power
     static constexpr float SPIN_SPEED_VAR = 4.f;
     static constexpr float SPIN_L = 0.17f;
-    static constexpr float STRETCH_L = 0.27f;
 
     static constexpr float LOW_POWER_SPEED = 7.f;
 
@@ -39,7 +38,7 @@ public:
     void run() final
     {
         if (!strechPrev_ && chassis_->msg.needStretch) {
-            targetRefLength_ = STRETCH_L;
+            targetRefLength_ = Bipedal::STRETCH_L;
         } else if (strechPrev_ && !chassis_->msg.needStretch) {
             targetRefLength_ = SPIN_L;
         } else
@@ -58,9 +57,9 @@ public:
         arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
         ds = std::clamp(ds, -MAX_DS, MAX_DS);
         if (chassis_->msg.needRush)
-            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
+            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.0005f);
         else
-            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.002f);
+            accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
         if (ds == 0)
             wz = getVariableSpinVel() * accelFactor_;
         else
@@ -116,8 +115,7 @@ public:
         ref.yaw = chassis_->yaw();
         chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
         chassis_->ctrl();
-        return std::fabs(chassis_->vel()) < 0.5f && std::fabs(chassis_->phiGlobalL()) < 0.2f &&
-               std::fabs(chassis_->phiGlobalR()) < 0.2f;
+        return std::fabs(chassis_->phiGlobalL()) < 0.3f && std::fabs(chassis_->phiGlobalR()) < 0.3f;
     }
 
 private:

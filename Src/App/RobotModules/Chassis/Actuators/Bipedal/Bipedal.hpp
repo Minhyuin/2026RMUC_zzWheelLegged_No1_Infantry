@@ -78,7 +78,7 @@ class Bipedal : public Chassis {
 
     static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
     static constexpr float MAX_VEL_RUSH_BACK = 1.7f;
-    static constexpr float MAX_VEL_FRONT = 2.0f;
+    static constexpr float MAX_VEL_FRONT = 2.5f;
     static constexpr float BASE_VEL_FRONT = 1.1f;
     static constexpr float MAX_VEL_BACK = 0.7f;
     static constexpr float BASE_VEL_BACK = 0.35f;
@@ -104,6 +104,8 @@ class Bipedal : public Chassis {
 
     static constexpr float CTRL_FREQ = 1000.f;
 
+    static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.0025f;
+
     static constexpr float S_FEEDFORWARD_BACKWARD =
             0.3f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
@@ -117,7 +119,8 @@ public:
     static constexpr float EXPT_Q_OFFSET = 0.f;
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
-    static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
+    static constexpr float DEFAULT_L = 0.19f; // the length for all feedforward param
+    static constexpr float STRETCH_L = 0.25f; // the length when stretching
 
     Bipedal();
 
@@ -182,6 +185,13 @@ public:
      * @return false 
      */
     bool isGimbalReset() const;
+
+    /**
+     * @brief increase the state "s", used to accelerate model convergence
+     * 
+     * @param _deltaS 
+     */
+    void increaseS(float _deltaS);
 
     /**
      * @brief force overwrite current state "s", used to accelerate model convergence

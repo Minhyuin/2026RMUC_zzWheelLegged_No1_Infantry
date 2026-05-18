@@ -324,6 +324,7 @@ void Bipedal::update(void *_param)
         .state = static_cast<GIMBAL::FSMState_e>(gimbalStateRxPacket_.data().gimbalRealState),
         .aiming = gimbalStateRxPacket_.data().aiming,
         .visionOnline = gimbalStateRxPacket_.data().visionOnline,
+        .targetMode = gimbalStateRxPacket_.data().targetMode,
         .pitchAng = getMinorArc(gimbalStateRxPacket_.data().pitch, pitch()),
         .pitchTargetOffsetAng = gimbalStateRxPacket_.data().targetPitchOffset,
         .needClimb = msg.needClimb,
