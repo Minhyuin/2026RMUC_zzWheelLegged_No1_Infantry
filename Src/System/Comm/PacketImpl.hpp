@@ -164,6 +164,7 @@ public:
     static constexpr uint16_t ID = 0x23;
     struct ProtoData_s {
         uint8_t gimbalRealState;
+        uint8_t targetMode;
         bool visionOnline;
         bool aiming;
         float pitch;
@@ -172,11 +173,12 @@ public:
     union Data_u {
         struct Data_s {
             uint8_t gimbalRealState : 4;
+            uint8_t targetMode : 2;
             bool visionOnline : 1;
             bool aiming : 1;
             int16_t pitch : 16;
             int16_t targetPitchOffset : 16;
-            uint32_t reversed1 : 10;
+            uint32_t reversed1 : 8;
             uint32_t reversed2 : 16;
         } content;
         uint8_t bytes[LEN];
@@ -185,6 +187,7 @@ public:
     {
         Data_u::Data_s &d = _data.content;
         d.gimbalRealState = _protoData.gimbalRealState;
+        d.targetMode = _protoData.targetMode;
         d.visionOnline = _protoData.visionOnline;
         d.aiming = _protoData.aiming;
         d.pitch = convertToInt16(_protoData.pitch);
@@ -193,6 +196,7 @@ public:
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
         _protoData.gimbalRealState = _data.content.gimbalRealState;
+        _protoData.targetMode = _data.content.targetMode;
         _protoData.visionOnline = _data.content.visionOnline;
         _protoData.aiming = _data.content.aiming;
         _protoData.pitch = convertToFloat(_data.content.pitch);

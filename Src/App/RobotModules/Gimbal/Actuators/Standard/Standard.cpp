@@ -173,6 +173,7 @@ void Standard::update(void *_param)
                 CHASSIS::FSMState_e::TANK); // when gimbal is in U_TURN, chassis can only be in TANK or STOP
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
+    // shooterCtrlMsg
     if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg_, 0) == pdTRUE) {
         shooterCtrlTxPacket_.setData().armorLoaderExptState = static_cast<uint8_t>(almsg_.state);
         shooterCtrlTxPacket_.setData().fire = almsg_.fire;
@@ -181,21 +182,15 @@ void Standard::update(void *_param)
         shooterCtrlTxPacket_.setData().fire &=
                 (vision.data().control) ? vision.data().fire | (msg.state != FSMState_e::AUTO) : true;
 
-    pitchTargetOffset_ = std::clamp(pitchTargetOffset_ + (msg.wPitchOffset * 0.001f), -PI, PI);
-    gimbalStateTxPacket_.setData().targetPitchOffset = pitchTargetOffset_;
-    gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
-    gimbalStateTxPacket_.setData().aiming = vision.data().control;
-    gimbalStateTxPacket_.setData().visionOnline = vision.pcState == Vision::PCState_e::ONLINE;
-    gimbalStateTxPacket_.setData().pitch = ins().pitch;
-
     // vision send
 #if EXTENSION_REFEREE
     targetMode_ = 0;
     if (almsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
-        if (refereeDataRxPacket_.data().isPlay && refereeDataRxPacket_.data().stageRemainTime < 240)
-            targetMode_ = 2;
-        else
-            targetMode_ = 1;
+        if (refereeDataRxPacket_.data().isPlay) {
+            targetMode_ = refereeDataRxPacket_.data().stageRemainTime < 240 ? 2 : 1;
+        } else {
+            targetMode_ = msg.buffFlagOffSite ? 2 : 1;
+        }
     }
     vision.setData().detectColor = !refereeDataRxPacket_.data().color;
     vision.setData().taskMode = targetMode_;
@@ -213,6 +208,15 @@ void Standard::update(void *_param)
     vision.setData().roll = insData_.roll;
     vision.setData().pitch = insData_.pitch;
     vision.setData().yaw = insData_.yaw;
+
+    // gimbalStateMsg
+    pitchTargetOffset_ = std::clamp(pitchTargetOffset_ + (msg.wPitchOffset * 0.001f), -PI, PI);
+    gimbalStateTxPacket_.setData().targetPitchOffset = pitchTargetOffset_;
+    gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
+    gimbalStateTxPacket_.setData().aiming = vision.data().control;
+    gimbalStateTxPacket_.setData().visionOnline = vision.pcState == Vision::PCState_e::ONLINE;
+    gimbalStateTxPacket_.setData().pitch = ins().pitch;
+    gimbalStateTxPacket_.setData().targetMode = targetMode_;
 
     // update state
     this->stateFactory_.update();
@@ -266,9 +270,7 @@ void Standard::ctrlYawSmooth(PID *_angPID, PID *_velPID, float _insPos, float _s
 void Standard::ctrlYawAuto(PID *_angPID, PID *_velPID, PID *_velFeedbackPID, float _insPos)
 {
     float insYawDelArc = getMinorArc(_insPos, ins().yaw);
-    float pos = rangeMap(yaw()->posNorm() + insYawDelArc);
-    float del = getMinorArc(pos, yaw()->posNorm());
-    float vel = _angPID->calc(del, 0);
+    float vel = _angPID->calc(insYawDelArc, 0);
     float acc = _velPID->calc(vel, insData_.earth.gz) + _velFeedbackPID->calc(vision.data().yawVel, insData_.earth.gz) +
                 vision.data().yawAcc;
     float torq = calcYawTorq(insData_.earth.gz, acc);

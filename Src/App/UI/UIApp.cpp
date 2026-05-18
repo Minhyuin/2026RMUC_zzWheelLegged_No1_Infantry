@@ -104,6 +104,24 @@ void APP::updateGimbal(const GimbalUIMsg_s &_msg)
         client_.ready(&dynamicInfo_.visionState);
     }
 
+    // targetMode
+    static uint8_t lastTargetMode = 0;
+    if (lastTargetMode != _msg.targetMode) {
+        memset(dynamicInfo_.targetState.config.text, 0, sizeof(dynamicInfo_.targetState.config.text));
+        if (_msg.targetMode == 0) {
+            std::strncpy(dynamicInfo_.targetState.config.text, "AttackArmor",
+                         sizeof(dynamicInfo_.targetState.config.text) - 1);
+        } else if (_msg.targetMode == 1) {
+            std::strncpy(dynamicInfo_.targetState.config.text, "AttackNormalBuff",
+                         sizeof(dynamicInfo_.targetState.config.text) - 1);
+        } else {
+            std::strncpy(dynamicInfo_.targetState.config.text, "AttackSuperBuff",
+                         sizeof(dynamicInfo_.targetState.config.text) - 1);
+        }
+        lastTargetMode = _msg.targetMode;
+        client_.ready(&dynamicInfo_.targetState);
+    }
+
     // pitchAngValue
     dynamicInfo_.pitchAngValue.config.floatNum = _msg.pitchAng;
     client_.ready(&dynamicInfo_.pitchAngValue);

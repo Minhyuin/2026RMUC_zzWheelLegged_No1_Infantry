@@ -134,6 +134,19 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     pitchTargetOffsetAngValue.decimal = 5;
     pitchTargetOffsetAngValue.size = 15;
 
+    auto &targetState = _info.targetState.config;
+    targetState = {};
+    targetState.priority = UI::Priority_e::LOW;
+    targetState.uiType = Type_e::CHAR;
+    targetState.operateType = OperateType_e::MODIFY;
+    targetState.layer = 3;
+    targetState.color = Color_e::PINK;
+    targetState.width = 2;
+    targetState.startX = 76;
+    targetState.startY = 680;
+    targetState.size = 10;
+    std::strncpy(targetState.text, "AttackArmor", sizeof(targetState.text) - 1);
+
     auto &gimbalState = _info.gimbalState.config;
     gimbalState = {};
     gimbalState.priority = UI::Priority_e::MID;

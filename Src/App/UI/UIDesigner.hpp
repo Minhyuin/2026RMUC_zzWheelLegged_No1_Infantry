@@ -3,7 +3,7 @@
 #include "./UIClient.hpp"
 #include <cstdint>
 /* need to config */
-static constexpr uint8_t DYNAIMIC_NUM = 14;
+static constexpr uint8_t DYNAIMIC_NUM = 15;
 static constexpr uint8_t STATIC_NUM = 14;
 
 // 超电
@@ -59,6 +59,7 @@ union DynamicUIInfos_u {
         UI::Info_s gimbalState;
         UI::Info_s pitchAngValue;
         UI::Info_s pitchTargetOffsetAngValue;
+        UI::Info_s targetState;
         UI::Info_s drivingReferenceLineLeft;  // 左行车线
         UI::Info_s drivingReferenceLineRight; // 右行车线
 
