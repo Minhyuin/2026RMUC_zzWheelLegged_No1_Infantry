@@ -18,7 +18,6 @@ namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
     static constexpr float IDLE_L = WheelLegged::MIN_L;
-    static constexpr float STRETCH_L = 0.28f;
 
 public:
     IdleState(Bipedal *_chassis)
@@ -50,7 +49,7 @@ public:
     void run() final
     {
         if (!strechPrev_ && chassis_->msg.needStretch) {
-            targetRefLength_ = STRETCH_L;
+            targetRefLength_ = Bipedal::STRETCH_L;
         } else if (strechPrev_ && !chassis_->msg.needStretch) {
             targetRefLength_ = IDLE_L;
             refRoll_ = 0.f;

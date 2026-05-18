@@ -78,13 +78,13 @@ class Bipedal : public Chassis {
 
     static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
     static constexpr float MAX_VEL_RUSH_BACK = 1.7f;
-    static constexpr float MAX_VEL_FRONT = 2.0f;
+    static constexpr float MAX_VEL_FRONT = 2.5f;
     static constexpr float BASE_VEL_FRONT = 1.1f;
     static constexpr float MAX_VEL_BACK = 0.7f;
     static constexpr float BASE_VEL_BACK = 0.25f;
 
     static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.5f;
-    static constexpr float MAX_TRANSLATION_FRONT_ACC = 0.9f;
+    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
     static constexpr float BASE_TRANSLATION_BACK_ACC = 0.3f;
     static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
     static constexpr float BASE_ROTATION_ACC = 1.5f;
@@ -115,7 +115,8 @@ public:
     static constexpr float EXPT_Q_OFFSET = 0.07f;
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
-    static constexpr float DEFAULT_L = 0.2f; // the length for all feedforward param
+    static constexpr float DEFAULT_L = 0.19f; // the length for all feedforward param
+    static constexpr float STRETCH_L = 0.25f; // the length when stretching
 
     Bipedal();
 
