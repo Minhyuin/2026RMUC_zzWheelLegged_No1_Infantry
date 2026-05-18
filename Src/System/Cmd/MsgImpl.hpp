@@ -85,6 +85,7 @@ struct ArmorBoosterMsg_s : public Msg {
 
 struct ArmorLoaderMsg_s : public Msg {
     ARMORLOADER::FSMState_e state;
+    float shootFreqRatio; // [0 - 1]
     bool fire;
 };
 

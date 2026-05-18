@@ -135,13 +135,15 @@ public:
     static constexpr uint16_t ID = 0x22;
     struct ProtoData_s {
         uint8_t armorLoaderExptState;
+        float shootFreqRatio;
         bool fire;
     };
     union Data_u {
         struct Data_s {
             uint8_t armorLoaderExptState : 8;
             bool fire : 1;
-            uint32_t reversed : 23;
+            int16_t shootFreqRatio : 16;
+            uint32_t reversed : 7;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -150,11 +152,13 @@ public:
         Data_u::Data_s &d = _data.content;
         d.armorLoaderExptState = _protoData.armorLoaderExptState;
         d.fire = _protoData.fire;
+        d.shootFreqRatio = convertToInt16(_protoData.shootFreqRatio);
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
         _protoData.armorLoaderExptState = _data.content.armorLoaderExptState;
         _protoData.fire = _data.content.fire;
+        _protoData.shootFreqRatio = convertToFloat(_data.content.shootFreqRatio);
     }
 };
 

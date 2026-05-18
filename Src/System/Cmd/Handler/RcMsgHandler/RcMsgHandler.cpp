@@ -306,6 +306,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 }
                 cMsg_.needJump = rcData->gamepad.fn1;
                 alMsg_.fire = rcData->gamepad.wheel != 0;
+                alMsg_.shootFreqRatio = std::fabs(static_cast<float>(rcData->gamepad.wheel) / CH_RANGE);
             } else {
                 static constexpr float KEYBOARD_ENABLE_ACC = 0.1f;
                 static constexpr float KEYBOARD_RESTORE_ACC = 0.2f;
@@ -366,6 +367,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 
                 // fire
                 alMsg_.fire = rcData->KBM.mouseLeft;
+                alMsg_.shootFreqRatio = 1.f;
 
                 // other buttons
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))

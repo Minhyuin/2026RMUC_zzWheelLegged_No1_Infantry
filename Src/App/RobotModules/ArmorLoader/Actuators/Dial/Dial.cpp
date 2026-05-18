@@ -132,3 +132,5 @@ void Dial::ctrl(PID *_posPID, PID *_velPID, float _ang)
 }
 
 bool Dial::isBlock() const { return blockCnt >= BLOCK_CNT_MAX; }
+
+float Dial::targetRate() const { return MAX_BULLETS_RATE * shooterCtrlRxPacket_.data().shootFreqRatio; }
