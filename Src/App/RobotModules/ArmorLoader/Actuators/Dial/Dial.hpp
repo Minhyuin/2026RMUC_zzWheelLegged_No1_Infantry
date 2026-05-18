@@ -41,7 +41,7 @@ public:
     static constexpr float BLOCK_SPEED_MIN = 0.3f; // rad/s
     static constexpr uint16_t BLOCK_CNT_MAX = 500.f;
 
-    static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 35.f;
+    static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 40.f;
 
     FSMState_e lastState = FSMState_e::STOP;
 
@@ -92,6 +92,7 @@ private:
 
     float barrelHeat_ = 0.f;
     uint16_t lastBarrelHeatFromReferee_ = 0.f;
+    float lastMuzzleVel = 0.f;
 
     uint16_t roundsFiredNum_ = 0; // the number of rounds fired
 

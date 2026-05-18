@@ -78,22 +78,21 @@ void Dial::update(void *_param)
         msg.state = FSMState_e::STOP;
     }
 
-    // uint16_t nextRoundsFiredNum = static_cast<int>(motors_.dial->pos() / (2.f * PI)) * BULLET_NUM_ROUND;
-    // uint16_t deltaRoundsFiredNum = nextRoundsFiredNum - roundsFiredNum_;
-    // if (deltaRoundsFiredNum > 0)
-    //     barrelHeat_ += static_cast<float>(deltaRoundsFiredNum * 10); // 每颗17mm弹丸10热量
-    // roundsFiredNum_ = nextRoundsFiredNum;
-
 #if EXTENSION_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
     if (lastBarrelHeatFromReferee_ != refereeData.powerHeatData.shooter_17mmBarrelHeat) {
         barrelHeat_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;
         lastBarrelHeatFromReferee_ = refereeData.powerHeatData.shooter_17mmBarrelHeat;
     }
+    if (lastMuzzleVel != refereeData.shootData.bulletSpeed) {
+        barrelHeat_ += 10.f;
+        lastMuzzleVel = refereeData.shootData.bulletSpeed;
+    }
     if (barrelHeat_ > 0)
         barrelHeat_ -= static_cast<float>(refereeData.gameRobotStatus.shooterCoolingValue) * 0.001f;
-    msg.fire &= barrelHeat_ <=
-                static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit) - BARREL_HEAT_THRESHOLD_OFFSET;
+
+    msg.fire &= (static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit) - barrelHeat_) >
+                BARREL_HEAT_THRESHOLD_OFFSET;
 #if APP_USE_UI
     ArmorLoaderUIMsg_s armorLoaderUIMsgData{
         .state = stateFactory_.getCurrentState()->getName(),
