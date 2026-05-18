@@ -210,7 +210,10 @@ void Standard::update(void *_param)
     vision.setData().yaw = insData_.yaw;
 
     // gimbalStateMsg
-    pitchTargetOffset_ = std::clamp(pitchTargetOffset_ + (msg.wPitchOffset * 0.001f), -PI, PI);
+    if (msg.needClearPitchOffset)
+        pitchTargetOffset_ = 0;
+    else
+        pitchTargetOffset_ = std::clamp(pitchTargetOffset_ + (msg.wPitchOffset * 0.001f), -PI, PI);
     gimbalStateTxPacket_.setData().targetPitchOffset = pitchTargetOffset_;
     gimbalStateTxPacket_.setData().gimbalRealState = static_cast<uint8_t>(stateFactory_.getCurrentState()->getName());
     gimbalStateTxPacket_.setData().aiming = vision.data().control;

@@ -352,6 +352,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && IS_KEY_PRESS(rcData->KBM.key, VT13::Z)) {
                     gMsg_.resetTracker = true;
                     gMsg_.wPitchOffset = -static_cast<float>(rcData->KBM.mouseZ) * GAIN_MOUSE_Z;
+                    gMsg_.needClearPitchOffset = rcData->KBM.mouseMiddle;
                 } else {
                     gMsg_.resetTracker = false;
                     gMsg_.wPitchOffset = 0;
