@@ -77,7 +77,9 @@ void Bipedal::detectStop()
             }
             // Trapezoidal integration: s(k)=s(k-1)+((v(k-1)+v(k))/2)*dt
             const float dsAvg = 0.5f * (prevDs + ds_);
-            s_ = clamp(s_ + (dsAvg * dt_), -MAX_S, MAX_S);
+            const float feedforwardFromLeg = (legL_.state().vd * arm_cos_f32(legL_.state().phi0)) +
+                                             (legR_.state().vd * arm_cos_f32(legR_.state().phi0));
+            s_ = clamp(s_ + (dsAvg * dt_) + (feedforwardFromLeg * S_FEEDFORWARD_LEG_VD_GAIN), -MAX_S, MAX_S);
             prevDs = ds_;
             if (!slowSpeedFlag) {
                 slowSpeedFlag = true;
