@@ -336,12 +336,13 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::F)) {
                     cMsg_.vy = 0;
                     cMsg_.needStretch = true;
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
-                        cMsg_.droll = SMOOTH::slopeFollowing(-INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
-                    }
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
-                        cMsg_.droll = SMOOTH::slopeFollowing(INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
-                    }
+                    // if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
+                    //     cMsg_.droll = SMOOTH::slopeFollowing(-INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
+                    // }
+                    // if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
+                    //     cMsg_.droll = SMOOTH::slopeFollowing(INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
+                    // }
+                    cMsg_.droll = 0.f;
                 } else {
                     cMsg_.needStretch = false;
                 }
