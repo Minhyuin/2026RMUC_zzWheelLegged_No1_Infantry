@@ -43,6 +43,8 @@ public:
 
     static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 40.f;
 
+    static constexpr float MAX_BULLETS_RATE = 15.f; // bullets per second
+
     FSMState_e lastState = FSMState_e::STOP;
 
     Dial();
@@ -78,6 +80,8 @@ public:
     void update(void *_param);
 
     bool isBlock() const;
+
+    float targetRate() const;
 
 private:
     Motors_s motors_;

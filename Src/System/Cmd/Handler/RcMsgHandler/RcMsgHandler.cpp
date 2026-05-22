@@ -299,7 +299,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 }
                 if (rcData->gamepad.trigger)
                     cMsg_.state = CHASSIS::FSMState_e::SPIN;
-                cMsg_.needClimb = rcData->gamepad.pause;
+
+                cMsg_.needStretch = rcData->gamepad.pause;
+                cMsg_.needClimb = rcData->gamepad.pause && rcData->gamepad.fn2;
 
                 cMsg_.vx = static_cast<float>(rcData->gamepad.ch[1]) / CH_RANGE * INPUT_VX_MAX;
                 cMsg_.vy = -static_cast<float>(rcData->gamepad.ch[0]) / CH_RANGE * INPUT_VX_MAX;
@@ -314,6 +316,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 }
                 cMsg_.needJump = rcData->gamepad.fn1;
                 alMsg_.fire = rcData->gamepad.wheel != 0;
+                alMsg_.shootFreqRatio = std::fabs(static_cast<float>(rcData->gamepad.wheel) / CH_RANGE);
             } else {
                 static constexpr float KEYBOARD_ENABLE_ACC = 0.1f;
                 static constexpr float KEYBOARD_RESTORE_ACC = 0.2f;
@@ -343,12 +346,12 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::F)) {
                     cMsg_.vy = 0;
                     cMsg_.needStretch = true;
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
-                        cMsg_.droll = SMOOTH::slopeFollowing(-INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
-                    }
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
-                        cMsg_.droll = SMOOTH::slopeFollowing(INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
-                    }
+                    // if (IS_KEY_PRESS(rcData->KBM.key, VT13::A)) {
+                    //     cMsg_.droll = SMOOTH::slopeFollowing(-INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
+                    // }
+                    // if (IS_KEY_PRESS(rcData->KBM.key, VT13::D)) {
+                    //     cMsg_.droll = SMOOTH::slopeFollowing(INPUT_DROLL_MAX, cMsg_.droll, KEYBOARD_ENABLE_ACC);
+                    // }
                 } else {
                     cMsg_.needStretch = false;
                 }
@@ -374,6 +377,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
 
                 // fire
                 alMsg_.fire = rcData->KBM.mouseLeft;
+                alMsg_.shootFreqRatio = 1.f;
 
                 // other buttons
                 if (IS_KEY_PRESS(rcData->KBM.key, VT13::Z) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::Z))

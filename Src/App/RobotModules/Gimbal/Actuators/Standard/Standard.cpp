@@ -177,6 +177,7 @@ void Standard::update(void *_param)
     if (xQueueReceive((((MsgBus_s *)_param)->armorLoaderQueue), &almsg_, 0) == pdTRUE) {
         shooterCtrlTxPacket_.setData().armorLoaderExptState = static_cast<uint8_t>(almsg_.state);
         shooterCtrlTxPacket_.setData().fire = almsg_.fire;
+        shooterCtrlTxPacket_.setData().shootFreqRatio = almsg_.shootFreqRatio;
     }
     if (!msg.forceFire)
         shooterCtrlTxPacket_.setData().fire &=
