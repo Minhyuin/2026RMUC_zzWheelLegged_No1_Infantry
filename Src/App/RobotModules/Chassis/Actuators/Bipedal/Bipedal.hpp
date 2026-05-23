@@ -76,17 +76,17 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.769184f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.941683f;
 
-    static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
-    static constexpr float MAX_VEL_RUSH_BACK = 1.7f;
-    static constexpr float MAX_VEL_FRONT = 2.5f;
-    static constexpr float BASE_VEL_FRONT = 1.1f;
-    static constexpr float MAX_VEL_BACK = 0.7f;
-    static constexpr float BASE_VEL_BACK = 0.25f;
+    static constexpr float MAX_VEL_RUSH_FRONT = 2.7f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.8f;
+    static constexpr float MAX_VEL_FRONT = 2.7f;
+    static constexpr float BASE_VEL_FRONT = 1.5f;
+    static constexpr float MAX_VEL_BACK = 1.8f;
+    static constexpr float BASE_VEL_BACK = 0.5f;
 
-    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.5f;
+    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
     static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
-    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.3f;
-    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.5f;
+    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.7f;
     static constexpr float BASE_ROTATION_ACC = 1.5f;
     static constexpr float MAX_ROTATION_ACC = 3.f;
 
@@ -104,7 +104,7 @@ class Bipedal : public Chassis {
 
     static constexpr float CTRL_FREQ = 1000.f;
 
-    static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.0025f;
+    static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.0035f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
             -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
