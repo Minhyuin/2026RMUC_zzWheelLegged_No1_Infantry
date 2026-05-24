@@ -7,6 +7,10 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static PositionalPid autoPitchAngPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoPitchVelPID(0, 0, 0, 0, 0, 0, 0);
 
@@ -62,6 +66,11 @@ public:
         loadPidParam();
 
         LOG::info("GimbalAuto", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
     }
 
     void run() final

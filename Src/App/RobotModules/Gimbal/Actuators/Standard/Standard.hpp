@@ -53,9 +53,12 @@ class ChassisStateRxPacket : public COMM::RxPacket<COMM::ChassisStatePacketType,
 };
 
 class Standard : public Gimbal {
-    struct Motors_s {
-        PINYMOTOR::IMotor *pitch;
-        PINYMOTOR::IMotor *yaw;
+    union Motors_u {
+        struct {
+            PINYMOTOR::IMotor *pitch;
+            PINYMOTOR::IMotor *yaw;
+        };
+        PINYMOTOR::IMotor *dat[2];
     };
 
 public:
@@ -114,7 +117,7 @@ public:
     bool targetInBuff() const;
 
 private:
-    Motors_s motors_;
+    Motors_u motors_;
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
     ShooterCtrlTxPacket shooterCtrlTxPacket_;

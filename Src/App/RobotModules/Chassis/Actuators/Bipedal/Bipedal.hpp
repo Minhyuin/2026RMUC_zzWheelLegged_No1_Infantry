@@ -25,13 +25,16 @@
 #include "PacketImpl.hpp"
 
 namespace CHASSIS {
-struct Motors_s {
-    PINYMOTOR::IMotor *WheelR;
-    PINYMOTOR::IMotor *HipRF;
-    PINYMOTOR::IMotor *HipRB;
-    PINYMOTOR::IMotor *WheelL;
-    PINYMOTOR::IMotor *HipLF;
-    PINYMOTOR::IMotor *HipLB;
+union Motors_u {
+    struct {
+        PINYMOTOR::IMotor *WheelR;
+        PINYMOTOR::IMotor *HipRF;
+        PINYMOTOR::IMotor *HipRB;
+        PINYMOTOR::IMotor *WheelL;
+        PINYMOTOR::IMotor *HipLF;
+        PINYMOTOR::IMotor *HipLB;
+    };
+    PINYMOTOR::IMotor *dat[6];
 };
 
 class ChassisCtrlRxPacket : public COMM::RxPacket<COMM::ChassisCtrlPacketType, 1> {
@@ -445,7 +448,7 @@ public:
     float sinYaw = 0.f;
 
 private:
-    Motors_s motors_;
+    Motors_u motors_;
 
     WheelLegged legL_{ 95.f };
     WheelLegged legR_{ 95.f };
@@ -484,8 +487,8 @@ private:
     PositionalPid rollAngPid_{ 30.f, 80.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 15.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
-    PositionalPid hipVelPidL_{ 10.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 16.f, 0.f, 0.f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipVelPidL_{ 11.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };

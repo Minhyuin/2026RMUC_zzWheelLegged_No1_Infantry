@@ -8,6 +8,10 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static float idleFollowVelPidPID[7]{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.05f };
 static float idleFollowVelInVisionPidPID[7]{ 5.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.f, 0.5f };
 static PositionalPid idleFollowVelPid{ 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
@@ -44,6 +48,11 @@ public:
         chassis_->allowGimbalExitLaunch(true);
 
         LOG::info("ChassisIdle", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

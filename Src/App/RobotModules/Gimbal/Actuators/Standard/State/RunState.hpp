@@ -7,6 +7,10 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 // #include "YawSI.hpp"
 // YawSI yawLink{ 1000.f, 10.f };
 
@@ -65,6 +69,11 @@ public:
         gimbal_->enter();
 
         LOG::info("GimbalRun", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
     }
 
     void run() final

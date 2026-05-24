@@ -5,6 +5,11 @@
 
 #include "MotorCommonMacros.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
+
 static PositionalPid spinExitingFollowVelPid{ 8.0f, 0.f, 0.1f, 0.001f, 0.f, 3.f, 0.1f };
 
 namespace CHASSIS {
@@ -28,6 +33,11 @@ public:
         targetDeltaYaw_ = ((w > 0.f) == isNegativeHalfPlane) ? PI : 0.f;
 
         LOG::info("ChassisSpinExiting", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

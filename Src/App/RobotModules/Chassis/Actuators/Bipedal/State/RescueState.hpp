@@ -3,6 +3,11 @@
 #include "Bipedal.hpp"
 #include "FSMState.hpp"
 #include "StmLog.hpp"
+
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 namespace CHASSIS {
 
 class RescueState : public FSMState<FSMState_e> {
@@ -29,6 +34,12 @@ public:
         refPhiL_ = chassis_->phiL();
         refPhiR_ = chassis_->phiR();
         LOG::info("ChassisRescue", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::G4, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::E5, 100);
+#endif
     }
 
     void run() final

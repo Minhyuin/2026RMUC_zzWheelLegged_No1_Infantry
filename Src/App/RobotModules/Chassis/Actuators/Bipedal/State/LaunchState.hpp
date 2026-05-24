@@ -3,12 +3,16 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static float launchLegLengthAngPidPD[2]{ 15.f, 0.0f };
 static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr float LAUNCH_DPHI = 4.f * 0.001f; // per ms
+    static constexpr float LAUNCH_DPHI = 5.5f * 0.001f; // per ms
     static constexpr float LAUNCH_L = Bipedal::DEFAULT_L;
     static constexpr float LAUNCH_PHI_THRESHOLD = 0.1f;
     static constexpr float LAUNCH_L_THRESHOLD = 0.05f;
@@ -55,6 +59,11 @@ public:
         }
 
         LOG::info("ChassisLaunch", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

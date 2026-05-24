@@ -9,6 +9,10 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static PositionalPid climbPrepareFollowVelPid{ 2.f, 0.f, 0.05f, 0.001f, 0.f, 0.1f, 0.1f };
 
 namespace CHASSIS {
@@ -37,6 +41,11 @@ public:
         chassis_->needGimbalLaunch(true);
         chassis_->allowGimbalExitLaunch(false);
         LOG::info("ChassisClimbPrepare", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

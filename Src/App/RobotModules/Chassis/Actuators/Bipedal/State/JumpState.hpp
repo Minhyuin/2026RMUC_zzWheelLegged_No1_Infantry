@@ -4,6 +4,10 @@
 #include "StmLog.hpp"
 #include "Smooth.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static float jumpLegLengthAngPidPD[2]{ 15.f, 0.0f };
 static float jumpLegLengthVelPidPD[2]{ 135.f, 0.0f };
 
@@ -36,6 +40,11 @@ public:
         chassis_->setLegLengthVelPidPD(jumpLegLengthVelPidPD[0], jumpLegLengthVelPidPD[1]);
         jumpFSMFactory_.init(jumpFSMFactory_.getNextState(JumpFSMState_e::PREPARE));
         LOG::info("ChassisJump", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

@@ -11,6 +11,10 @@
 #include "./State/OffState.hpp"
 #include "./State/OnState.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 using namespace ARMORBOOSTER;
 using namespace PINYMOTOR;
 
@@ -62,8 +66,32 @@ void DualFric::stop()
 
 void DualFric::enter()
 {
-    motors_.fricL->cmd(MotorCmdType_e::ON);
-    motors_.fricR->cmd(MotorCmdType_e::ON);
+    // detect motor disconnect
+    bool motorOffline = false;
+    for (auto &i : motors_.dat) {
+        if (i->globalState != GlobalState_e::ONLINE) {
+            motorOffline = true;
+            break;
+        }
+    }
+
+    if (motorOffline) {
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+#endif
+        stop();
+    } else {
+        for (auto &i : motors_.dat) {
+            i->cmd(PINYMOTOR::MotorCmdType_e::ON);
+        }
+    }
 }
 
 void DualFric::update(void *_param)

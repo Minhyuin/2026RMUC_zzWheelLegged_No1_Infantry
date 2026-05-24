@@ -3,6 +3,10 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static float standLegLengthAngPidPD[2]{ 15.f, 0.0f };
 static float standLegLengthVelPidPD[2]{ 135.f, 0.0f };
 namespace CHASSIS {
@@ -54,6 +58,11 @@ public:
         }
 
         LOG::info("ChassisStand", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::E5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 50);
+#endif
     }
 
     void run() final

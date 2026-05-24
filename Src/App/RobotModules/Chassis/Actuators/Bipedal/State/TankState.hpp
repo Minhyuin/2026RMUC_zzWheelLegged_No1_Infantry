@@ -8,6 +8,10 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static PositionalPid tankFollowVelPid{ 5.0f, 1.f, 0.05f, 0.001f, 0.1f, 1.5f, 0.1f };
 
 namespace CHASSIS {
@@ -32,6 +36,11 @@ public:
 
         wzAngPid_ = &tankFollowVelPid;
         LOG::info("ChassisTank", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

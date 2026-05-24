@@ -7,6 +7,10 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static PositionalPid uTurnPitchAngPID(60.f, 500.f, 0.65f, 0.001f, 4.f, 15.f, 0.f);
 static PositionalPid uTurnPitchVelPID(0.8f, 0.f, 0.f, 0.001f, 0.f, 7.f, 0.f);
 static PositionalPid uTurnYawAngPID(50.f, 50.f, 1.7f, 0.001f, 0.5f, 10.f, 0.f);
@@ -48,6 +52,11 @@ public:
         gimbal_->enter();
 
         LOG::info("GimbalUTurn", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
     }
 
     void run() final
