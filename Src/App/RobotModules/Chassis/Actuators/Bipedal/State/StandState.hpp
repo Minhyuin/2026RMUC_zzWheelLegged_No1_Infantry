@@ -8,14 +8,14 @@
 #endif
 
 static float standLegLengthAngPidPD[2]{ 30.f, 0.0f };
-static float standLegLengthVelPidPD[2]{ 90.f, 0.0f };
+static float standLegLengthVelPidPD[2]{ 45.f, 0.0f };
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
     static constexpr float JUDGE_PHI = -0.f; // 用于判断站立策略
 
     static constexpr float STAND_PHI = 0.0f;
-    static constexpr float STAND_L = WheelLegged::MIN_L;
+    static constexpr float STAND_L = Bipedal::DEFAULT_L;
 
     static constexpr float MAX_ACC_BACK = 1.f;
     static constexpr float MAX_ACC_FRONT = 1.f;
