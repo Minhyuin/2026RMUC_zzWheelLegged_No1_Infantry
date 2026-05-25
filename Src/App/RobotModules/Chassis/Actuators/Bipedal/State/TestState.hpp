@@ -3,6 +3,10 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 namespace CHASSIS {
 class TestState : public FSMState<FSMState_e> {
 public:
@@ -12,6 +16,11 @@ public:
     {
         chassis_->enter();
         LOG::info("ChassisTest", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::E5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C6, 50);
+#endif
     }
 
     void run() final

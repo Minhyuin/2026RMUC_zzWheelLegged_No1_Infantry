@@ -3,6 +3,10 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 namespace CHASSIS {
 
 class StopState : public FSMState<FSMState_e> {
@@ -15,6 +19,11 @@ public:
         chassis_->setFdFeedforward(0, 0);
         freezeFlag_ = false;
         LOG::info("ChassisStop", " enter");
+        
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

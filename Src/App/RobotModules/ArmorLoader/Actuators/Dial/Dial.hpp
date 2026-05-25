@@ -24,8 +24,11 @@ class ArmorBoosterStateRxPacket : public COMM::RxPacket<COMM::ArmorBoosterStateP
 };
 
 class Dial : public ArmorLoader {
-    struct Motors_s {
-        PINYMOTOR::IMotor *dial;
+    union Motors_u {
+        struct {
+            PINYMOTOR::IMotor *dial;
+        };
+        PINYMOTOR::IMotor *dat[1];
     };
 
 public:
@@ -84,7 +87,7 @@ public:
     float targetRate() const;
 
 private:
-    Motors_s motors_;
+    Motors_u motors_;
 
     FILTER::LPF velFltr_{ DIAL_MOTOR_FREQ, 50.f };
 

@@ -175,7 +175,7 @@ void Bipedal::updateBody()
 void Bipedal::updatePowerLimit()
 {
     auto powerLimitFactor = (powerLimit_ - 50.f) / (120.f - 50.f);
-    static constexpr auto MAX_VEL_ATTENUATION_FACTOR = 0.3f;
+    static constexpr auto MAX_VEL_ATTENUATION_FACTOR = 0.2f;
     static constexpr auto LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
     auto normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
     auto lengthAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);

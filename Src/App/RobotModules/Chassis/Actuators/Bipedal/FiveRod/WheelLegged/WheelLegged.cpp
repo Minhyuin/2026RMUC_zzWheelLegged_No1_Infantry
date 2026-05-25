@@ -106,14 +106,14 @@ float WheelLegged::minL(float _phi) const
     return MIN_L;
 }
 
-void WheelLegged::setLegLengthAngPidPD(float _kp, float _kd)
+void WheelLegged::setLegLengthAngPidPD(float _kp, float _kd, float _outMax)
 {
-    lengthAngPid_.setParam(_kp, LENGTH_ANG_PID_KI, _kd, 0.001f, LENGTH_ANG_PID_IMAX, LENGTH_ANG_PID_OUTMAX);
+    lengthAngPid_.setParam(_kp, LENGTH_ANG_PID_KI, _kd, 0.001f, LENGTH_ANG_PID_IMAX, _outMax, 0.f);
 }
 
-void WheelLegged::setLegLengthVelPidPD(float _kp, float _kd)
+void WheelLegged::setLegLengthVelPidPD(float _kp, float _kd, float _outMax)
 {
-    lengthVelPid_.setParam(_kp, 0.f, _kd, 0.001f, 0.f, LENGTH_VEL_PID_OUTMAX);
+    lengthVelPid_.setParam(_kp, LENGTH_VEL_PID_KI, _kd, 0.001f, LENGTH_VEL_PID_IMAX, _outMax, 0.f);
 }
 
 void WheelLegged::setL(float _l) { setL_ = fmin(fmax(_l, minL(legState_.phi0)), MAX_L); }

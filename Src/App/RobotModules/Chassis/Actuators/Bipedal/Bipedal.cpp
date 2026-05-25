@@ -196,12 +196,31 @@ void Bipedal::stop()
 
 void Bipedal::enter()
 {
-#if EXTENSION_BUZZER
-    BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 100);
-#endif
+    // detect motor disconnect
+    bool motorOffline = false;
+    for (auto &i : motors_.dat) {
+        if (i->globalState != GlobalState_e::ONLINE) {
+            motorOffline = true;
+            break;
+        }
+    }
 
-    legL_.enter();
-    legR_.enter();
+    if (motorOffline) {
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+#endif
+        stop();
+    } else {
+        legL_.enter();
+        legR_.enter();
+    }
 }
 
 void Bipedal::update(void *_param)

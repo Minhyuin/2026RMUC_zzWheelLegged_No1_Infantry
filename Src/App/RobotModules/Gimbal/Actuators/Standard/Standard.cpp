@@ -110,13 +110,32 @@ void Standard::stop()
 
 void Standard::enter()
 {
-#if EXTENSION_BUZZER
-    BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
-    BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
-#endif
+    // detect motor disconnect
+    bool motorOffline = false;
+    for (auto &i : motors_.dat) {
+        if (i->globalState != GlobalState_e::ONLINE) {
+            motorOffline = true;
+            break;
+        }
+    }
 
-    motors_.pitch->cmd(MotorCmdType_e::ON);
-    motors_.yaw->cmd(MotorCmdType_e::ON);
+    if (motorOffline) {
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+#endif
+        stop();
+    } else {
+        for (auto &i : motors_.dat) {
+            i->cmd(PINYMOTOR::MotorCmdType_e::ON);
+        }
+    }
 }
 
 void Standard::update(void *_param)

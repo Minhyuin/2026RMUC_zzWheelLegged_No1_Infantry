@@ -7,6 +7,10 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static PositionalPid autoPitchAngPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoPitchVelPID(0, 0, 0, 0, 0, 0, 0);
 
@@ -62,6 +66,11 @@ public:
         loadPidParam();
 
         LOG::info("GimbalAuto", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
     }
 
     void run() final
@@ -69,7 +78,11 @@ public:
         cmdImuPitchAng_ = // gimbal_->vision.data().pitch;
                 std::clamp(gimbal_->vision.data().pitch, gimbal_->ins().pitch - 0.1f, gimbal_->ins().pitch + 0.1f);
 
-        cmdImuYawAng_ = gimbal_->vision.data().yaw;
+        if (gimbal_->targetInBuff())
+            cmdImuYawAng_ =
+                    std::clamp(gimbal_->vision.data().yaw, gimbal_->ins().yaw - 0.1f, gimbal_->ins().yaw + 0.1f);
+        else
+            cmdImuYawAng_ = gimbal_->vision.data().yaw;
 
         cmdImuPitchAng_ = PINYMOTOR::clampArc(cmdImuPitchAng_, IMU_PITCH_START_ANG, IMU_PITCH_END_ANG);
 

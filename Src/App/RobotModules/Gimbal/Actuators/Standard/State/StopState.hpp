@@ -3,6 +3,11 @@
 #include "Standard.hpp"
 #include "FSMState.hpp"
 #include "StmLog.hpp"
+
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 namespace GIMBAL {
 
 class StopState : public FSMState<FSMState_e> {
@@ -14,6 +19,11 @@ public:
         gimbal_->loadResetState(false);
 
         LOG::info("GimbalStop", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
     }
 
     void run() final { gimbal_->stop(); }

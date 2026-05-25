@@ -15,9 +15,11 @@ class WheelLegged {
     static constexpr float MAX_WHEEL_CTRL_TORQ = 3.9f;
 
     static constexpr float LENGTH_ANG_PID_OUTMAX = 6.f;
-    static constexpr float LENGTH_ANG_PID_KI = 10.f;
-    static constexpr float LENGTH_ANG_PID_IMAX = 1.f;
+    static constexpr float LENGTH_ANG_PID_KI = 30.f;
+    static constexpr float LENGTH_ANG_PID_IMAX = 0.5f;
     static constexpr float LENGTH_VEL_PID_OUTMAX = 200.f;
+    static constexpr float LENGTH_VEL_PID_KI = 1.f;
+    static constexpr float LENGTH_VEL_PID_IMAX = 4.f;
 
 public:
     static constexpr float MAX_L = 0.325f; // 0.337014049
@@ -68,7 +70,7 @@ public:
      * @param _kp 
      * @param _kd 
      */
-    void setLegLengthAngPidPD(float _kp, float _kd);
+    void setLegLengthAngPidPD(float _kp, float _kd, float _outMax = LENGTH_ANG_PID_OUTMAX);
 
     /**
      * @brief set the Leg Length VelPid params
@@ -76,7 +78,7 @@ public:
      * @param _kp 
      * @param _kd 
      */
-    void setLegLengthVelPidPD(float _kp, float _kd);
+    void setLegLengthVelPidPD(float _kp, float _kd, float _outMax = LENGTH_VEL_PID_OUTMAX);
 
     /**
      * @brief set the leg length, automatically clamp to the range [MIN_L, MAX_L]

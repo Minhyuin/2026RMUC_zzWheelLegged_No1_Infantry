@@ -20,9 +20,12 @@ class ArmorBoosterStatePacketType : public COMM::TxPacket<COMM::ArmorBoosterStat
 };
 
 class DualFric : public ArmorBooster {
-    struct Motors_s {
-        PINYMOTOR::IMotor *fricL;
-        PINYMOTOR::IMotor *fricR;
+    union Motors_u {
+        struct {
+            PINYMOTOR::IMotor *fricL;
+            PINYMOTOR::IMotor *fricR;
+        };
+        PINYMOTOR::IMotor *dat[2];
     };
 
 public:
@@ -47,7 +50,7 @@ public:
     void update(void *_param);
 
 private:
-    Motors_s motors_;
+    Motors_u motors_;
 
     ArmorBoosterStatePacketType armorBoosterStateTxPacket_;
 

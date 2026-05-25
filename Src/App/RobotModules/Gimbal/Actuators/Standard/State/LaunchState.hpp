@@ -7,6 +7,10 @@
 #include "MotorCommonMacros.hpp"
 #include "PidBasic.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static volatile float launchPitchStep = 0.6f * 0.001f;
 static volatile float launchYawStep = 0.5f * 0.001f;
 
@@ -67,6 +71,11 @@ public:
 
 
         LOG::info("GimbalLaunch", "enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS7, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C7, 50);
+#endif
     }
 
     void run() final

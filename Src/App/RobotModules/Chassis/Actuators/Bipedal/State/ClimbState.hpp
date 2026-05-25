@@ -3,6 +3,10 @@
 #include "FSMState.hpp"
 #include "StmLog.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 namespace CHASSIS {
 class ClimbState : public FSMState<FSMState_e> {
     static constexpr float CLIMB_PHI = 1.5f;
@@ -21,6 +25,10 @@ public:
         refPhiR_ = chassis_->phiR();
         isClimbReady_[0] = isClimbReady_[1] = false;
         LOG::info("ChassisClimb", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Victory);
+#endif
     }
 
     void run() final

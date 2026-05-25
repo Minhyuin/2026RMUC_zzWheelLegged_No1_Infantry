@@ -63,8 +63,32 @@ void Dial::stop() { motors_.dial->cmd(MotorCmdType_e::OFF); }
 
 void Dial::enter()
 {
-    motors_.dial->setZeroAng(); // reset multipCirAng and cirNum
-    motors_.dial->cmd(MotorCmdType_e::ON);
+    // detect motor disconnect
+    bool motorOffline = false;
+    for (auto &i : motors_.dat) {
+        if (i->globalState != GlobalState_e::ONLINE) {
+            motorOffline = true;
+            break;
+        }
+    }
+
+    if (motorOffline) {
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::REST, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C8, 100);
+#endif
+        stop();
+    } else {
+        for (auto &i : motors_.dat) {
+            i->cmd(MotorCmdType_e::ON);
+        }
+    }
 }
 
 void Dial::update(void *_param)

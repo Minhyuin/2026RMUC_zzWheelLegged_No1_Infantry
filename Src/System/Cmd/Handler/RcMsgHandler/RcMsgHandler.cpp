@@ -288,9 +288,17 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
                     if (rcData->gamepad.fn2 && !rcDataPrev.gamepad.fn2) {
-                        if (alMsg_.state == ARMORLOADER::FSMState_e::AUTO)
+                        // armor -> normal buff -> super buff -> armor -> ...
+                        if (alMsg_.state == ARMORLOADER::FSMState_e::AUTO) {
+                            gMsg_.buffFlagOffSite = false;
                             alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
-                        else
+                        } else if (alMsg_.state == ARMORLOADER::FSMState_e::SINGLE) {
+                            if (gMsg_.buffFlagOffSite) {
+                                gMsg_.buffFlagOffSite = false;
+                                alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
+                            } else
+                                gMsg_.buffFlagOffSite = true;
+                        } else
                             alMsg_.state = ARMORLOADER::FSMState_e::AUTO;
                     }
                     if (alMsg_.state == ARMORLOADER::FSMState_e::STOP)

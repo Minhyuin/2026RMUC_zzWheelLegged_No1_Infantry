@@ -7,15 +7,22 @@
 
 #include "Smooth.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
+static float spinLegLengthAngPidPD[2]{ 40.f, 0.3f };
+static float spinLegLengthVelPidPD[2]{ 110.f, 0.0f };
+
 namespace CHASSIS {
 
 class SpinState : public FSMState<FSMState_e> {
-    static constexpr float SPIN_SPEED_CONST = 10.f;
+    static constexpr float SPIN_SPEED_CONST = 11.f;
     static constexpr float SPIN_SPEED_BASE = 6.f; // TODO: follow power
-    static constexpr float SPIN_SPEED_VAR = 4.f;
+    static constexpr float SPIN_SPEED_VAR = 5.f;
     static constexpr float SPIN_L = 0.17f;
 
-    static constexpr float LOW_POWER_SPEED = 7.f;
+    static constexpr float LOW_POWER_SPEED = 8.f;
 
     static constexpr float MAX_DS = 0.4f;
     static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 6.f);
@@ -32,7 +39,15 @@ public:
         strechPrev_ = chassis_->msg.needStretch;
         refRoll_ = 0.f;
         spinCnt_ = 0;
+        chassis_->setLegLengthAngPidPD(spinLegLengthAngPidPD[0], spinLegLengthAngPidPD[1]);
+        chassis_->setLegLengthVelPidPD(spinLegLengthVelPidPD[0], spinLegLengthVelPidPD[1]);
+
         LOG::info("ChassisSpin", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final

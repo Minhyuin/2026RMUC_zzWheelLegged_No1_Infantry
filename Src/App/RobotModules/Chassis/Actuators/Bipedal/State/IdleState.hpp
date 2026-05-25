@@ -8,16 +8,22 @@
 #include "PidBasic.hpp"
 #include "Smooth.hpp"
 
+#if EXTENSION_BUZZER
+#include "Buzzer.hpp"
+#endif
+
 static float idleFollowVelPidPID[7]{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.05f };
 static float idleFollowVelInVisionPidPID[7]{ 5.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.f, 0.5f };
 static PositionalPid idleFollowVelPid{ 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
-static float idleLegLengthAngPidPD[2]{ 15.f, 0.0f };
-static float idleLegLengthVelPidPD[2]{ 135.f, 0.0f };
+volatile static float idleLegLengthAngPidPD[3]{ 20.f, 0.5f, 1.f };
+volatile static float idleLegLengthVelPidPD[2]{ 120.f, 0.0f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {
     static constexpr float OFFSET_Q = 0.f;
     static constexpr float IDLE_L = WheelLegged::MIN_L;
+
+    static constexpr float PITCH_GAIN = 0.4f;
 
 public:
     IdleState(Bipedal *_chassis)
@@ -38,12 +44,17 @@ public:
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
         strechPrev_ = chassis_->msg.needStretch;
-        chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1]);
+        chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1], idleLegLengthAngPidPD[2]);
         chassis_->setLegLengthVelPidPD(idleLegLengthVelPidPD[0], idleLegLengthVelPidPD[1]);
         chassis_->needGimbalLaunch(false);
         chassis_->allowGimbalExitLaunch(true);
 
         LOG::info("ChassisIdle", " enter");
+
+#if EXTENSION_BUZZER
+        BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
+        BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
+#endif
     }
 
     void run() final
@@ -56,7 +67,8 @@ public:
         } else
             targetRefLength_ += chassis_->msg.dl * 0.001f;
         strechPrev_ = chassis_->msg.needStretch;
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00035f);
+        bool strechDir = (targetRefLength_ - refLength_) > 0;
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, strechDir ? 999.f : 0.00025f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -74,6 +86,10 @@ public:
         // float wz = 0;
         float ds = ((chassis_->msg.vx * chassis_->cosYaw) - (chassis_->msg.vy * chassis_->sinYaw)) *
                    (std::max(1.f - (std::fabs(chassis_->wz()) / rotationAcc), 0.4f));
+        float deltaDs = powf((ds - chassis_->vel()) /
+                                     (chassis_->getTranslationMaxFrontVel() + chassis_->getTranslationMaxBackVel()),
+                             9);
+        refPitch_ = std::clamp(deltaDs * PITCH_GAIN, -0.20f, 0.15f);
 
         // WBR
         WBRController::States_s ref{};
@@ -81,7 +97,7 @@ public:
         ref.ds = std::clamp(ds, chassis_->vel() - chassis_->getTranslationBackAcc(),
                             chassis_->vel() + chassis_->getTranslationFrontAcc());
         ref.yaw = refYaw_;
-        ref.q = OFFSET_Q;
+        ref.q = OFFSET_Q + refPitch_;
         chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
 
         chassis_->ctrl();
@@ -128,6 +144,7 @@ private:
     float refLength_ = 0;
     float targetRefLength_ = IDLE_L;
     float refRoll_ = 0;
+    float refPitch_ = 0;
 
     bool isJumpReady_ = false;
     bool needJumpPrev_ = false;

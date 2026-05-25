@@ -53,20 +53,23 @@ class ChassisStateRxPacket : public COMM::RxPacket<COMM::ChassisStatePacketType,
 };
 
 class Standard : public Gimbal {
-    struct Motors_s {
-        PINYMOTOR::IMotor *pitch;
-        PINYMOTOR::IMotor *yaw;
+    union Motors_u {
+        struct {
+            PINYMOTOR::IMotor *pitch;
+            PINYMOTOR::IMotor *yaw;
+        };
+        PINYMOTOR::IMotor *dat[2];
     };
 
 public:
-    static constexpr float PITCH_LAUNCH_ANG = 2.64436078f;
-    static constexpr float YAW_LAUNCH_ANG = 0.800786853f;
+    static constexpr float PITCH_LAUNCH_ANG = 4.50135803f;
+    static constexpr float YAW_LAUNCH_ANG = 0.789281368f;
 
     static constexpr float PITCH_MOTOR_FREQ = 1000.f;
     static constexpr float YAW_MOTOR_FREQ = 1000.f;
 
-    static constexpr float IMU_PITCH_START_ANG_MECH = -0.48f;
-    static constexpr float IMU_PITCH_END_ANG_MECH = 0.22f;
+    static constexpr float IMU_PITCH_START_ANG_MECH = -0.51f;
+    static constexpr float IMU_PITCH_END_ANG_MECH = 0.15f;
 
     static constexpr float YAW_INERTIA = 0.0298443f;
     static constexpr float YAW_FRICTION = 0.112931f;
@@ -114,7 +117,7 @@ public:
     bool targetInBuff() const;
 
 private:
-    Motors_s motors_;
+    Motors_u motors_;
 
     ChassisCtrlTxPacket chassisCtrlTxPacket_;
     ShooterCtrlTxPacket shooterCtrlTxPacket_;
