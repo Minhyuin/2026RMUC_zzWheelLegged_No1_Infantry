@@ -12,10 +12,10 @@ static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
-    static constexpr float LAUNCH_DPHI = 5.5f * 0.001f; // per ms
+    static constexpr float LAUNCH_DPHI = 4.5f * 0.001f; // per ms
     static constexpr float LAUNCH_L = Bipedal::DEFAULT_L;
     static constexpr float LAUNCH_PHI_THRESHOLD = 0.1f;
-    static constexpr float LAUNCH_L_THRESHOLD = 0.05f;
+    static constexpr float LAUNCH_L_THRESHOLD = 0.1f;
 
     static constexpr float LAUNCH_PHI_FORNT = 0.25f;
     static constexpr float LAUNCH_PHI_BACK = -0.2f;

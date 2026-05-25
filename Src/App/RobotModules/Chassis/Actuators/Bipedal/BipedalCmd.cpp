@@ -53,10 +53,22 @@ void Bipedal::lockS(uint16_t _durationMs) { lockSCount_ = _durationMs; }
 
 void Bipedal::setRoll(float _roll) { setRoll_ = std::clamp(_roll, -MAX_ABS_ROLL, MAX_ABS_ROLL); }
 
+void Bipedal::setLegLengthAngPidPD(float _kp, float _kd, float _outMax)
+{
+    legL_.setLegLengthAngPidPD(_kp, _kd, _outMax);
+    legR_.setLegLengthAngPidPD(_kp, _kd, _outMax);
+}
+
 void Bipedal::setLegLengthAngPidPD(float _kp, float _kd)
 {
     legL_.setLegLengthAngPidPD(_kp, _kd);
     legR_.setLegLengthAngPidPD(_kp, _kd);
+}
+
+void Bipedal::setLegLengthVelPidPD(float _kp, float _kd, float _outMax)
+{
+    legL_.setLegLengthVelPidPD(_kp, _kd, _outMax);
+    legR_.setLegLengthVelPidPD(_kp, _kd, _outMax);
 }
 
 void Bipedal::setLegLengthVelPidPD(float _kp, float _kd)

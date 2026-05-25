@@ -80,16 +80,16 @@ class Bipedal : public Chassis {
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.941683f;
 
     static constexpr float MAX_VEL_RUSH_FRONT = 2.7f;
-    static constexpr float MAX_VEL_RUSH_BACK = 1.8f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.3f;
     static constexpr float MAX_VEL_FRONT = 2.7f;
     static constexpr float BASE_VEL_FRONT = 1.5f;
-    static constexpr float MAX_VEL_BACK = 1.8f;
+    static constexpr float MAX_VEL_BACK = 1.3f;
     static constexpr float BASE_VEL_BACK = 0.5f;
 
     static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
     static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
-    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.5f;
-    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.7f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.4f;
+    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
     static constexpr float BASE_ROTATION_ACC = 1.5f;
     static constexpr float MAX_ROTATION_ACC = 3.f;
 
@@ -107,7 +107,7 @@ class Bipedal : public Chassis {
 
     static constexpr float CTRL_FREQ = 1000.f;
 
-    static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.0035f;
+    static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.004f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
             -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
@@ -121,7 +121,7 @@ public:
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
     static constexpr float DEFAULT_L = 0.19f; // the length for all feedforward param
-    static constexpr float STRETCH_L = 0.25f; // the length when stretching
+    static constexpr float STRETCH_L = 0.26f; // the length when stretching
 
     Bipedal();
 
@@ -219,7 +219,9 @@ public:
      * 
      * @param _kp 
      * @param _kd 
+     * @param _outMax
      */
+    void setLegLengthAngPidPD(float _kp, float _kd, float _outMax);
     void setLegLengthAngPidPD(float _kp, float _kd);
 
     /**
@@ -227,7 +229,9 @@ public:
      * 
      * @param _kp 
      * @param _kd 
+     * @param _outMax
      */
+    void setLegLengthVelPidPD(float _kp, float _kd, float _outMax);
     void setLegLengthVelPidPD(float _kp, float _kd);
 
     /**
@@ -493,7 +497,7 @@ private:
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
-    PositionalPid antiSplitPid_{ 120.f, 0.f, 5.f, 0.001f, 0.f, 70.f, 0.f };
+    PositionalPid antiSplitPid_{ 70.f, 0.f, 1.f, 0.001f, 0.f, 50.f, 0.f };
     float antiSplitTp_ = 0;
 
     PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
