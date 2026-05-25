@@ -136,7 +136,7 @@ void dynamicConfig(DynamicUIInfos_u &_info)
 
     auto &targetState = _info.targetState.config;
     targetState = {};
-    targetState.priority = UI::Priority_e::LOW;
+    targetState.priority = UI::Priority_e::HIGH;
     targetState.uiType = Type_e::CHAR;
     targetState.operateType = OperateType_e::MODIFY;
     targetState.layer = 3;
