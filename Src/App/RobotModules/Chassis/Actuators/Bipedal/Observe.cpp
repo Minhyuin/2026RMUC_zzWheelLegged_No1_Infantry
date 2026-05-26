@@ -175,7 +175,7 @@ void Bipedal::updateBody()
 void Bipedal::updatePowerLimit()
 {
     auto powerLimitFactor = (powerLimit_ - 50.f) / (120.f - 50.f);
-    static constexpr auto MAX_VEL_ATTENUATION_FACTOR = 0.2f;
+    static constexpr auto MAX_VEL_ATTENUATION_FACTOR = 0.25f;
     static constexpr auto LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
     auto normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);
     auto lengthAttenuationFactor = 1.f - (normalizedLength * MAX_VEL_ATTENUATION_FACTOR);
@@ -189,12 +189,12 @@ void Bipedal::updatePowerLimit()
         dsMaxB_ = MAX_VEL_RUSH_BACK * lengthAttenuationFactor;
         translationFrontAcc_ = MAX_TRANSLATION_FRONT_ACC;
         translationBackAcc_ = MAX_TRANSLATION_BACK_ACC;
-        rotationAcc_ = MAX_ROTATION_ACC;
+        rotationAcc_ = MAX_ROTATION_ACC * lengthAttenuationFactor;
     } else {
-        dsMaxF_ = BASE_VEL_FRONT + powerLimitFactor * RANGE_FRONT_VEL * lengthAttenuationFactor;
-        dsMaxB_ = BASE_VEL_BACK + powerLimitFactor * RANGE_BACK_VEL * lengthAttenuationFactor;
+        dsMaxF_ = (BASE_VEL_FRONT + powerLimitFactor * RANGE_FRONT_VEL) * lengthAttenuationFactor;
+        dsMaxB_ = (BASE_VEL_BACK + powerLimitFactor * RANGE_BACK_VEL) * lengthAttenuationFactor;
         translationFrontAcc_ = BASE_TRANSLATION_FRONT_ACC + powerLimitFactor * RANGE_TRANSLATION_FRONT_ACC;
         translationBackAcc_ = BASE_TRANSLATION_BACK_ACC + powerLimitFactor * RANGE_TRANSLATION_BACK_ACC;
-        rotationAcc_ = BASE_ROTATION_ACC + powerLimitFactor * RANGE_ROTATION_ACC;
+        rotationAcc_ = (BASE_ROTATION_ACC + powerLimitFactor * RANGE_ROTATION_ACC) * lengthAttenuationFactor;
     }
 }

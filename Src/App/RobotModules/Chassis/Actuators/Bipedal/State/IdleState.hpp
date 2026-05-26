@@ -89,7 +89,7 @@ public:
         float deltaDs = powf((ds - chassis_->vel()) /
                                      (chassis_->getTranslationMaxFrontVel() + chassis_->getTranslationMaxBackVel()),
                              9);
-        refPitch_ = std::clamp(deltaDs * PITCH_GAIN, -0.20f, 0.15f);
+        refPitch_ = std::clamp(deltaDs * PITCH_GAIN, -0.15f, 0.10f);
 
         // WBR
         WBRController::States_s ref{};
