@@ -117,7 +117,7 @@ class Bipedal : public Chassis {
     static constexpr float REAL_Q_OFFSET = -0.0116224f; // mecanical offset of the equivalent pendulum angle, unit: rad
 
 public:
-    static constexpr float EXPT_Q_OFFSET = 0.07f;
+    static constexpr float EXPT_Q_OFFSET = 0.05f;
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
     static constexpr float DEFAULT_L = 0.19f; // the length for all feedforward param
