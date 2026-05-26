@@ -106,21 +106,25 @@ void DualFric::update(void *_param)
         msg.state = FSMState_e::OFF;
     }
 
+    for (uint8_t i = 0; i < 2; ++i)
+        curVel_[i] = velFltr_[i].process(motors_.dat[i]->vel());
+    float avgVel = (curVel_[0] + curVel_[1]) / 2.f;
+    bool running = avgVel > FRIC_RUNNING_THRESHILD;
+    armorBoosterStateTxPacket_.setData().running = running;
+
     // update state
     this->stateFactory_.update();
 }
 
 void DualFric::ctrl(float _vel)
 {
-    float curVelL = velFltr_[0].process(motors_.fricL->vel());
-    float curVelR = velFltr_[1].process(motors_.fricR->vel());
-    float diffVel = curVelL - curVelR;
+    float diffVel = curVel_[0] - curVel_[1];
     float antiDiffPidOut = antiDiffPid_.calc(diffVel, 0);
-    float velErr = _vel - velFltr_[0].process(curVelL);
+    float velErr = _vel - velFltr_[0].process(curVel_[0]);
     float pidOut = fricPid_[0].calc(velErr, 0);
     motors_.fricL->cmdTorq(
             std::clamp(pidOut - antiDiffPidOut, -DJIMOTOR::M3508::TORQ_RATED, DJIMOTOR::M3508::TORQ_RATED));
-    velErr = _vel - velFltr_[1].process(curVelR);
+    velErr = _vel - velFltr_[1].process(curVel_[1]);
     pidOut = fricPid_[1].calc(velErr, 0);
     motors_.fricR->cmdTorq(
             std::clamp(pidOut + antiDiffPidOut, -DJIMOTOR::M3508::TORQ_RATED, DJIMOTOR::M3508::TORQ_RATED));

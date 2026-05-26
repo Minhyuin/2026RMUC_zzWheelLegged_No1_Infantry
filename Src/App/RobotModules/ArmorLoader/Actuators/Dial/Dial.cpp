@@ -117,6 +117,8 @@ void Dial::update(void *_param)
 
     msg.fire &= (static_cast<float>(refereeData.gameRobotStatus.shooterHeatLimit) - barrelHeat_) >
                 BARREL_HEAT_THRESHOLD_OFFSET;
+    msg.fire &= armorBoosterStateRxPacket_.data().running;
+
 #if APP_USE_UI
     ArmorLoaderUIMsg_s armorLoaderUIMsgData{
         .state = stateFactory_.getCurrentState()->getName(),

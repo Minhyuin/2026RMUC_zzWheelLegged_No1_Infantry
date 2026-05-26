@@ -214,11 +214,13 @@ public:
     static constexpr uint16_t ID = 0x24;
     struct ProtoData_s {
         uint8_t armorBoosterRealState;
+        bool running;
     };
     union Data_u {
         struct Data_s {
             uint8_t armorBoosterRealState : 4;
-            uint32_t reversed : 28;
+            bool running : 1;
+            uint32_t reversed : 27;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -226,10 +228,12 @@ public:
     {
         Data_u::Data_s &d = _data.content;
         d.armorBoosterRealState = _protoData.armorBoosterRealState;
+        d.running = _protoData.running;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
         _protoData.armorBoosterRealState = _data.content.armorBoosterRealState;
+        _protoData.running = _data.content.running;
     }
 };
 

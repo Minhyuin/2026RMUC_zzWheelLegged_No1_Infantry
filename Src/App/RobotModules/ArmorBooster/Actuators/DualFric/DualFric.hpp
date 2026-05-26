@@ -32,6 +32,8 @@ public:
     static constexpr float FAST_FRIC_RATE = 628.f;
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
+    static constexpr float FRIC_RUNNING_THRESHILD = FAST_FRIC_RATE - 200.f;
+
     static constexpr float FRIC_STOP_THRESHOLD = 1.f;
 
     static constexpr float FRIC_MOTOR_FREQ = 1000.f;
@@ -58,6 +60,8 @@ private:
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
     };
+
+    float curVel_[2]{ 0.f, 0.f };
 
     PositionalPid fricPid_[2]{ { 0.0013f, 0.0001f, 2.5e-05f, 0.001f, 0.005f, 0.157f, 0.f }, { fricPid_[0] } };
     PositionalPid antiDiffPid_{ 1e-5f, 0.f, 2e-07f, 0.001f, 0.f, 0.157f, 0.1f };
