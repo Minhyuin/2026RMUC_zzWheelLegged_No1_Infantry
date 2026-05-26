@@ -14,22 +14,22 @@
 static PositionalPid autoPitchAngPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoPitchVelPID(0, 0, 0, 0, 0, 0, 0);
 
-static float autoPitchArmorAngPidPID[7]{ 200.f, 500.f, 0.f, 0.001f, 2.f, 20.f, 0.f };
-static float autoPitchArmorVelPidPID[7]{ 2.f, 1.f, 0.05f, 0.001f, 1.f, 7.f, 0.f };
+static float autoPitchArmorAngPidPID[7]{ 70.f, 400.f, 0.1f, 0.001f, 0.5f, 20.f, 0.f };
+static float autoPitchArmorVelPidPID[7]{ 3.f, 1.f, 0.02f, 0.001f, 1.f, 7.f, 0.f };
 
-static float autoPitchBuffAngPidPID[7]{ 100.f, 500.f, 0.5f, 0.001f, 2.f, 15.f, 0.f };
-static float autoPitchBuffVelPidPID[7]{ 2.f, 1.f, 0.05f, 0.001f, 1.f, 7.f, 0.f };
+static float autoPitchBuffAngPidPID[7]{ 70.f, 500.f, 0.3f, 0.001f, 1.f, 4.5f, 0.f };
+static float autoPitchBuffVelPidPID[7]{ 2.f, 1.f, 0.02f, 0.001f, 1.f, 7.f, 0.f };
 
 static PositionalPid autoYawAngPID{ 0, 0, 0, 0, 0, 0, 0 };
 static PositionalPid autoYawVelPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoYawVelFeedbackPID(0, 0, 0, 0, 0, 0, 0);
 
-static float autoYawArmorAngPidPID[7]{ 800.f, 1000.f, 0.f, 0.001f, 15.f, 50.f, 0.f };
-static float autoYawArmorVelPidPID[7]{ 6.f, 5.f, 0.04f, 0.001f, 10.f, 100.f, 0.f };
-static float autoYawVelFeedbackPidPID[7]{ 50.0f, 5.f, 0.6f, 0.001f, 10.f, 30.f, 0.f };
+static float autoYawArmorAngPidPID[7]{ 850.f, 1000.f, 7.f, 0.001f, 15.f, 50.f, 0.f };
+static float autoYawArmorVelPidPID[7]{ 5.3f, 8.f, 0.01f, 0.001f, 10.f, 100.f, 0.f };
+static float autoYawVelFeedbackPidPID[7]{ 50.0f, 5.f, 0.5f, 0.001f, 10.f, 30.f, 0.f };
 
-static float autoYawBuffAngPidPID[7]{ 500.f, 800.f, 11.f, 0.001f, 5.f, 30.f, 0.f };
-static float autoYawBuffVelPidPID[7]{ 3.5f, 1.f, 0.f, 0.001f, 10.f, 100.f, 0.f };
+static float autoYawBuffAngPidPID[7]{ 500.f, 800.f, 10.f, 0.001f, 10.f, 30.f, 0.f };
+static float autoYawBuffVelPidPID[7]{ 3.f, 1.f, 0.01f, 0.001f, 10.f, 100.f, 0.f };
 static float autoYawBuffVelFeedbackPidPID[7]{ 5.0f, 5.f, 0.5f, 0.001f, 10.f, 50.f, 0.f };
 
 namespace GIMBAL {

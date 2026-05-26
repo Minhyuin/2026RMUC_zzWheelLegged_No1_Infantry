@@ -30,7 +30,7 @@ class TripFric : public ArmorBooster {
     };
 
 public:
-    static constexpr float FAST_FRIC_RATE = 1020.f;
+    static constexpr float FAST_FRIC_RATE = 1000.f;
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
     static constexpr float FRIC_STOP_THRESHOLD = 5.f;
