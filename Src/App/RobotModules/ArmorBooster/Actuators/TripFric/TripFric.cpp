@@ -89,6 +89,12 @@ void TripFric::update(void *_param)
         msg.state = FSMState_e::OFF;
     }
 
+    for (uint8_t i = 0; i < 3; i++)
+        curVel_[i] = velFltr_[i].process(motors_.dat[i]->vel());
+    float avgVel = (curVel_[0] + curVel_[1] + curVel_[2]) / 3.f;
+    bool running = avgVel > FRIC_RUNNING_THRESHILD;
+    armorBoosterStateTxPacket_.setData().running = running;
+
     // update state
     this->stateFactory_.update();
 }

@@ -7,8 +7,8 @@
 #include "Buzzer.hpp"
 #endif
 
-static float launchLegLengthAngPidPD[2]{ 30.f, 0.0f };
-static float launchLegLengthVelPidPD[2]{ 45.f, 0.0f };
+static float launchLegLengthAngPidPD[2]{ 20.f, 0.0f };
+static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
@@ -17,8 +17,8 @@ class LaunchState : public FSMState<FSMState_e> {
     static constexpr float LAUNCH_PHI_THRESHOLD = 0.1f;
     static constexpr float LAUNCH_L_THRESHOLD = 0.1f;
 
-    static constexpr float LAUNCH_PHI_FORNT = 0.25f;
-    static constexpr float LAUNCH_PHI_BACK = -0.2f;
+    static constexpr float LAUNCH_PHI_FORNT = 0.05f;
+    static constexpr float LAUNCH_PHI_BACK = -0.f;
 
 public:
     LaunchState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::LAUNCH), chassis_(_chassis) {}

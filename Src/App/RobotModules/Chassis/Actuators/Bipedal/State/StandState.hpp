@@ -7,8 +7,8 @@
 #include "Buzzer.hpp"
 #endif
 
-static float standLegLengthAngPidPD[2]{ 30.f, 0.0f };
-static float standLegLengthVelPidPD[2]{ 45.f, 0.0f };
+static float standLegLengthAngPidPD[3]{ 20.f, 0.5f,1.f };
+static float standLegLengthVelPidPD[2]{ 135.f, 0.0f };
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {
@@ -24,10 +24,10 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr uint16_t MAX_BALANCE_MAINTAIN_TIME = 100;
 
     static constexpr float TARGET_PITCH_FORWARD = 0.1f;
-    static constexpr float TARGET_PITCH_BACKWARD = 0.1f;
+    static constexpr float TARGET_PITCH_BACKWARD = 0.f;
 
-    static constexpr float S_FEEDFORWARD_FORWARD = -0.3f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -0.6f;
+    static constexpr float S_FEEDFORWARD_FORWARD = -0.6f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -1.f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 1000; // ms
 
 public:
@@ -42,7 +42,7 @@ public:
         startYaw_ = chassis_->yaw();
         chassis_->enableRoll();
         chassis_->setRoll(0.f);
-        chassis_->setLegLengthAngPidPD(standLegLengthAngPidPD[0], standLegLengthAngPidPD[1]);
+        chassis_->setLegLengthAngPidPD(standLegLengthAngPidPD[0], standLegLengthAngPidPD[1], standLegLengthAngPidPD[2]);
         chassis_->setLegLengthVelPidPD(standLegLengthVelPidPD[0], standLegLengthVelPidPD[1]);
 
         if ((chassis_->phiL() + chassis_->phiR()) / 2.f <= JUDGE_PHI) {

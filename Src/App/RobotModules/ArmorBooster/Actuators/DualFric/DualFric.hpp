@@ -32,6 +32,8 @@ public:
     static constexpr float FAST_FRIC_RATE = 628.f;
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
+    static constexpr float FRIC_RUNNING_THRESHILD = FAST_FRIC_RATE - 200.f;
+
     static constexpr float FRIC_STOP_THRESHOLD = 1.f;
 
     static constexpr float FRIC_MOTOR_FREQ = 20.f;

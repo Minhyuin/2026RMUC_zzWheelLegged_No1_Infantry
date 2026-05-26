@@ -11,7 +11,7 @@
 #include "Buzzer.hpp"
 #endif
 
-static float spinLegLengthAngPidPD[2]{ 40.f, 0.3f };
+static float spinLegLengthAngPidPD[3]{ 40.f, 0.3f, 3.f };
 static float spinLegLengthVelPidPD[2]{ 110.f, 0.0f };
 
 namespace CHASSIS {
@@ -25,7 +25,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float LOW_POWER_SPEED = 8.f;
 
     static constexpr float MAX_DS = 0.4f;
-    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 6.f);
+    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 4.f);
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -39,7 +39,7 @@ public:
         strechPrev_ = chassis_->msg.needStretch;
         refRoll_ = 0.f;
         spinCnt_ = 0;
-        chassis_->setLegLengthAngPidPD(spinLegLengthAngPidPD[0], spinLegLengthAngPidPD[1]);
+        chassis_->setLegLengthAngPidPD(spinLegLengthAngPidPD[0], spinLegLengthAngPidPD[1], spinLegLengthAngPidPD[2]);
         chassis_->setLegLengthVelPidPD(spinLegLengthVelPidPD[0], spinLegLengthVelPidPD[1]);
 
         LOG::info("ChassisSpin", " enter");
@@ -60,7 +60,7 @@ public:
             targetRefLength_ += chassis_->msg.dl * 0.001f;
         strechPrev_ = chassis_->msg.needStretch;
 
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.0004f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00025f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -75,7 +75,7 @@ public:
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.0005f);
         else
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
-        if (ds == 0)
+        if (ds == 0 && chassis_->detectLengthRange(refLength_))
             wz = getVariableSpinVel() * accelFactor_;
         else
             wz = getConstantSpinVel() * accelFactor_;

@@ -26,7 +26,7 @@ class TripFric : public ArmorBooster {
             PINYMOTOR::IMotor *fricM;
             PINYMOTOR::IMotor *fricR;
         };
-        PINYMOTOR::IMotor *_[3];
+        PINYMOTOR::IMotor *dat[3];
     };
 
 public:
@@ -34,6 +34,7 @@ public:
     static constexpr float SLOW_FRIC_RATE = 314.f;
 
     static constexpr float FRIC_STOP_THRESHOLD = 5.f;
+    static constexpr float FRIC_RUNNING_THRESHILD = FAST_FRIC_RATE - 200.f;
 
     static constexpr float FRIC_MOTOR_FREQ = 1000.f;
 
@@ -58,6 +59,8 @@ private:
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
         { 1000.f, 20.f, FILTER::FilterType_e::BUTTERWORTH, FILTER::Ripple_e::NONE },
     };
+
+    float curVel_[3] = { 0.f, 0.f, 0.f };
 
     PositionalPid fricPid_[3] = {
         { 0.00026f, 0.001f, 6e-6f, 0.001f, 0.0038f, 5.000000e-02f },
