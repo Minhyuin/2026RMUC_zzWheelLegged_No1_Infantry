@@ -49,8 +49,8 @@ void WheelLegged::stateUpdate(float _dt)
     vmc_.update(legState_, _dt);
 }
 
-float OFFSET_THRESHOLD = 50.f;
-float OFFSET_THRESHOLD_FOR_LENGTH = -30.f;
+float OFFSET_THRESHOLD = 40.f;
+float OFFSET_THRESHOLD_FOR_LENGTH = -20.f;
 bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
