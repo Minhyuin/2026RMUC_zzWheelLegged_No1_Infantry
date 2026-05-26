@@ -49,8 +49,8 @@ void WheelLegged::stateUpdate(float _dt)
     vmc_.update(legState_, _dt);
 }
 
-float OFFSET_THRESHOLD = 0.f;
-float OFFSET_THRESHOLD_FOR_LENGTH = 40.f;
+float OFFSET_THRESHOLD = 50.f;
+float OFFSET_THRESHOLD_FOR_LENGTH = -30.f;
 bool WheelLegged::isFloating(float _az, float _q)
 {
     float cosPhi0 = arm_cos_f32(legState_.phi0 + _q);
@@ -69,7 +69,7 @@ bool WheelLegged::isFloating(float _az, float _q)
     return floatFlag = fn_ < fnThreshold_;
 }
 
-float FLOAT_FD = 90.f;
+float FLOAT_FD = 83.f;
 void WheelLegged::ctrl()
 {
     fdFromSpring_ = spring_.computeForce(0); // TODO: maybe the spring force will change with other params

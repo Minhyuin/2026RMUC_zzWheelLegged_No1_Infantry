@@ -264,7 +264,7 @@ void Bipedal::update(void *_param)
     updateBody();
 
     // update roll
-    if (rollControlFlag)
+    if (rollControlFlag && !isFloating())
         lengthOffset_ = rollVelPid_.calc(rollAngPid_.calc(getMinorArc(setRoll_, insData_.roll), 0), wx_);
     else
         lengthOffset_ = 0.f;
