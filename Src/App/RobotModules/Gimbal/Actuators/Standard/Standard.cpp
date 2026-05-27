@@ -183,6 +183,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().needClimb = cmsg_.needClimb;
         chassisCtrlTxPacket_.setData().needStretch = cmsg_.needStretch;
         chassisCtrlTxPacket_.setData().needRush = cmsg_.needRush;
+        chassisCtrlTxPacket_.setData().needStool = cmsg_.needStool;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
         chassisCtrlTxPacket_.setData().noChassis = cmsg_.noChassis;
     };
@@ -214,7 +215,7 @@ void Standard::update(void *_param)
     }
     vision.setData().detectColor = !refereeDataRxPacket_.data().color;
     vision.setData().taskMode = targetMode_;
-    vision.setData().isPlay = refereeDataRxPacket_.data().isPlay;
+    vision.setData().isPlay = refereeDataRxPacket_.data().isPlay ? true : msg.needRecord;
     vision.setData().bulletSpeed = refereeDataRxPacket_.data().muzzleVel;
 #else
     vision.setData().taskMode = almsg_.state == ARMORLOADER::FSMState_e::SINGLE ? 1 : 0;

@@ -305,6 +305,18 @@ public:
     void setHipTp(float _tpL, float _tpR);
 
     /**
+     * @brief reset phi pid
+     * 
+     */
+    void resetPhiPid();
+
+    /**
+     * @brief reset phi balance pid
+     * 
+     */
+    void resetPhiBalancePid();
+
+    /**
      * @brief base on WL Model, balance the chassis with the given reference state and yaw
      * 
      * @param _ref 6D reference state in WL model
@@ -324,10 +336,11 @@ public:
     /**
      * @brief base on ST Model, balance the chassis with the given reference state and yaw
      * 
+     * @tparam M Control Mode
      * @param _ref 4D reference state in ST model
      * @param _yaw should be clamped in [-PI, PI]
      */
-    void bal(const STController::States_s &_ref, float _yaw);
+    template <STController::STControlMode_e M> void bal(const STController::States_s &_ref, float _yaw);
 
     /**
      * @brief disable balancing and set the expected velocity and angular velocity
@@ -499,10 +512,15 @@ private:
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
 
+    PositionalPid hipBalanceAngPidL_{ 20.f, 0.f, 0.f, 0.001f, 0.f, 10.f, 0.f };
+    PositionalPid hipBalanceVelPidL_{ 15.f, 0.f, 0.f, 0.001f, 0.f, 100.f, 0.f };
+    PositionalPid hipBalanceAngPidR_{ hipBalanceAngPidL_ };
+    PositionalPid hipBalanceVelPidR_{ hipBalanceVelPidL_ };
+
     PositionalPid antiSplitPid_{ 70.f, 0.f, 1.f, 0.001f, 0.f, 50.f, 0.f };
     float antiSplitTp_ = 0;
 
-    PositionalPid yawPid_[2]{ { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 0.001f, 0.f, 0.f, 0.f } };
+    PositionalPid yawPid_[2]{ { 10.f, 0.f, 0.2f, 0.001f, 0.f, 3.f, 0.f }, { 0.5f, 0.f, 0.f, 0.001f, 0.f, 2.f, 0.f } };
     PositionalPid dsPid_[2]{ { 1.f, 0.f, 0.f, 0.001f, 0.f, 3.f, 0.f }, { dsPid_[0] } };
 
     float setRoll_ = 0.f;

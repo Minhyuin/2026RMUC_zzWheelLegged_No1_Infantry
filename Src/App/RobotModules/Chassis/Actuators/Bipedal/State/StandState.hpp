@@ -76,7 +76,7 @@ public:
             STController::States_s ref{};
             ref.q = targetBalancePitch_;
             ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
-            chassis_->bal(ref, startYaw_);
+            chassis_->bal<STController::STControlMode_e::BALANCE>(ref, startYaw_);
         }
         // WBR
         else {

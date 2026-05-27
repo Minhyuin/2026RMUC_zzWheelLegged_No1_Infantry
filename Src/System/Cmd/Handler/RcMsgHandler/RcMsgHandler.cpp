@@ -259,15 +259,16 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
             gMsg_.wPitch = gMsg_.wYaw = 0.f;
             if (rcData->gamepad.ch[1] < -600 && rcData->gamepad.ch[0] > 600 && rcData->gamepad.ch[2] < -600 &&
                 rcData->gamepad.ch[3] < -600)
-                keepTime_++;
+                keepTimeForRocker_++;
             else
-                keepTime_ = 0;
-            if (keepTime_ > 100) {
-                keepTime_ = 0;
+                keepTimeForRocker_ = 0;
+            if (keepTimeForRocker_ > 100) {
+                keepTimeForRocker_ = 0;
                 cMsg_.noChassis = !cMsg_.noChassis;
             }
             cMsg_.state = CHASSIS::FSMState_e::STOP;
             cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
+            cMsg_.needStool = cMsg_.needRush = cMsg_.needStretch = cMsg_.needClimb = false;
             alMsg_.state = ARMORLOADER::FSMState_e::STOP;
             alMsg_.fire = false;
             abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
@@ -284,6 +285,14 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
                     alMsg_.state = ARMORLOADER::FSMState_e::STOP;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::OFF;
+                    if (rcData->gamepad.fn2)
+                        keepTimeForVT13Fn2_++;
+                    else
+                        keepTimeForVT13Fn2_ = 0;
+                    if (keepTimeForVT13Fn2_ > 300) {
+                        keepTimeForVT13Fn2_ = 0;
+                        cMsg_.needStool = true;
+                    }
                 } else if (rcData->gamepad.sw == VT13::Sw_e::S) {
                     gMsg_.state = GIMBAL::FSMState_e::AUTO;
                     cMsg_.state = CHASSIS::FSMState_e::IDLE;
@@ -372,6 +381,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     gMsg_.resetTracker = true;
                     gMsg_.wPitchOffset = -static_cast<float>(rcData->KBM.mouseZ) * GAIN_MOUSE_Z;
                     gMsg_.needClearPitchOffset = rcData->KBM.mouseMiddle;
+                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::R) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::R)) {
+                        gMsg_.needRecord = !gMsg_.needRecord;
+                    };
                 } else {
                     gMsg_.resetTracker = false;
                     gMsg_.wPitchOffset = 0;
@@ -411,6 +423,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
                 cMsg_.needClimb = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && IS_KEY_PRESS(rcData->KBM.key, VT13::F);
                 cMsg_.needRush = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
+                if ((IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::CTRL))) {
+                    // cMsg_.needStool = !cMsg_.needStool;
+                }
             }
         }
         memcpy(&rcDataPrev, rcData, sizeof(VT13::RcData_s));

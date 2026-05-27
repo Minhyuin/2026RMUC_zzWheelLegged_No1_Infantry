@@ -6,6 +6,7 @@ namespace CHASSIS {
 
 class STController {
 public:
+    enum class STControlMode_e : uint8_t { BALANCE = 0u };
     struct States_s {
         float data[4];
         float &s = data[0];
@@ -21,7 +22,17 @@ public:
 
     STController();
 
-    static Matrix<1, 1> solve(const Matrix<4, 1> &_errX, float _l, bool _isFloating);
+    template <STControlMode_e M> static auto gain(float _l)
+    {
+        auto k = Matrix<1, 4>::zeros();
+        if constexpr (M == STControlMode_e::BALANCE) {
+            k = kComputeBalance(_l);
+        }
+        return k;
+    }
+
+private:
+    static Matrix<1, 4> kComputeBalance(float _l);
 };
 
 } // namespace CHASSIS

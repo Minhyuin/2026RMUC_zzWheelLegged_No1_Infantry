@@ -36,6 +36,8 @@ public:
         chassis_->setLegLengthAngPidPD(launchLegLengthAngPidPD[0], launchLegLengthAngPidPD[1]);
         chassis_->setLegLengthVelPidPD(launchLegLengthVelPidPD[0], launchLegLengthVelPidPD[1]);
 
+        chassis_->resetPhiPid();
+
         // 腿在前面则直接旋转+缩腿，在后面则先缩腿再旋转
         if (refPhiL_ > 0) {
             legPos_[0] = LegPos_e::BACK;
