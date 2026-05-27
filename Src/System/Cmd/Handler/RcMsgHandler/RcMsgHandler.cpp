@@ -373,9 +373,6 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     gMsg_.resetTracker = true;
                     gMsg_.wPitchOffset = -static_cast<float>(rcData->KBM.mouseZ) * GAIN_MOUSE_Z;
                     gMsg_.needClearPitchOffset = rcData->KBM.mouseMiddle;
-                    if (IS_KEY_PRESS(rcData->KBM.key, VT13::R) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::R)) {
-                        gMsg_.needRecord = !gMsg_.needRecord;
-                    };
                 } else {
                     gMsg_.resetTracker = false;
                     gMsg_.wPitchOffset = 0;
@@ -419,6 +416,10 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     // cMsg_.needStool = !cMsg_.needStool;
                 }
             }
+        }
+        if (IS_KEY_PRESS(rcData->KBM.key, VT13::V) && IS_KEY_PRESS(rcData->KBM.key, VT13::Z) &&
+            (IS_KEY_PRESS(rcData->KBM.key, VT13::R) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::R))) {
+            gMsg_.needRecord = !gMsg_.needRecord;
         }
         memcpy(&rcDataPrev, rcData, sizeof(VT13::RcData_s));
     }
