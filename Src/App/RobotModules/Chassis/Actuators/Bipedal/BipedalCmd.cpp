@@ -204,6 +204,22 @@ void Bipedal::setHipTp(float _tpL, float _tpR)
     legR_.setTp(_tpR);
 }
 
+void Bipedal::resetPhiPid()
+{
+    hipAngPidL_.reset();
+    hipVelPidL_.reset();
+    hipAngPidR_.reset();
+    hipVelPidR_.reset();
+}
+
+void Bipedal::resetPhiBalancePid()
+{
+    hipBalanceAngPidL_.reset();
+    hipBalanceVelPidL_.reset();
+    hipBalanceAngPidR_.reset();
+    hipBalanceVelPidR_.reset();
+}
+
 void Bipedal::needGimbalLaunch(bool _need)
 {
     gimbalLaunchStrategyTxPacket_.setData().isLegLFront = detectPhiLRange(-3.14f, -0.1f);

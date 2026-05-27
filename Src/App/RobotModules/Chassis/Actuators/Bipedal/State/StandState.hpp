@@ -7,7 +7,7 @@
 #include "Buzzer.hpp"
 #endif
 
-static float standLegLengthAngPidPD[3]{ 20.f, 0.5f, 1.f };
+static float standLegLengthAngPidPD[3]{ 20.f, 0.5f, 0.3f };
 static float standLegLengthVelPidPD[2]{ 120.f, 0.0f };
 namespace CHASSIS {
 
@@ -76,7 +76,7 @@ public:
             STController::States_s ref{};
             ref.q = targetBalancePitch_;
             ref.ds = std::clamp(chassis_->msg.vx, chassis_->vel() - MAX_ACC_BACK, chassis_->vel() + MAX_ACC_FRONT);
-            chassis_->bal(ref, startYaw_);
+            chassis_->bal<STController::STControlMode_e::BALANCE>(ref, startYaw_);
         }
         // WBR
         else {

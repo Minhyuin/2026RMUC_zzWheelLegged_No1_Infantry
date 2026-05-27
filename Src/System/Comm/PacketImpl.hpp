@@ -65,6 +65,7 @@ public:
         bool needClimb;
         bool needStretch;
         bool needRush;
+        bool needStool;
         bool bodyReset;
         float deltaYaw;
         bool uiReset;
@@ -82,12 +83,13 @@ public:
             bool needClimb : 1;
             bool needStretch : 1;
             bool needRush : 1;
+            bool needStool : 1;
             int16_t deltaYaw : 16;
             uint8_t chassisExptState : 4;
             uint8_t gimbalRealState : 4;
             bool uiReset : 1;
             bool noChassis : 1;
-            uint16_t reversed : 13;
+            uint16_t reversed : 12;
         } content;
         uint8_t bytes[LEN];
     } data;
@@ -104,6 +106,7 @@ public:
         d.needClimb = _protoData.needClimb;
         d.needStretch = _protoData.needStretch;
         d.needRush = _protoData.needRush;
+        d.needStool = _protoData.needStool;
         d.chassisExptState = _protoData.chassisExptState;
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
@@ -121,6 +124,7 @@ public:
         _protoData.needClimb = _data.content.needClimb;
         _protoData.needStretch = _data.content.needStretch;
         _protoData.needRush = _data.content.needRush;
+        _protoData.needStool = _data.content.needStool;
         _protoData.chassisExptState = _data.content.chassisExptState;
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);

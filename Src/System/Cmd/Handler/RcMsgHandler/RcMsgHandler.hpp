@@ -41,7 +41,8 @@ private:
     ChassisMsg_s cMsg_ = {};
     ArmorLoaderMsg_s alMsg_ = {};
     ArmorBoosterMsg_s abMsg_ = {};
-    uint16_t keepTime_ = 0;
+    uint16_t keepTimeForRocker_ = 0;
+    uint16_t keepTimeForVT13Fn2_ = 0;
 
     bool keyBoardCtrlFlag_ = false;
     bool ctrlFlag_ = false;

@@ -63,6 +63,7 @@ struct ChassisMsg_s : public Msg {
     bool needClimb;
     bool needStretch;
     bool needRush;
+    bool needStool;
     bool uiReset;
     bool noChassis;
 };
@@ -72,6 +73,7 @@ struct GimbalMsg_s : public Msg {
     float wRoll, wPitch, wYaw;
     float wPitchOffset;
     bool needClearPitchOffset;
+    bool needRecord;
     bool buffFlagOffSite;
     bool forceFire;
     bool resetTracker;
@@ -119,6 +121,7 @@ struct ChassisUIMsg_s {
     float lengthR;
     float roll;
     bool needRush;
+    bool needStool;
     bool noChassis;
     float capEnergyRatio;
 };

@@ -6,24 +6,17 @@ using namespace CHASSIS;
 
 STController::STController() = default;
 
-Matrix<1, 1> STController::solve(const Matrix<4, 1> &_errX, float _l, bool _isFloating)
+Matrix<1, 4> STController::kComputeBalance(float _l)
 {
     const float &x1 = _l;
     float x1x1 = x1 * x1;
     float x1x1x1 = x1x1 * x1;
     // NOLINTBEGIN(readability-math-missing-parentheses, readability-identifier-naming)
-    float LQR_K_DATA[1 * 4] = { 83.783298f * x1x1x1 - 21.243629f * x1x1 - 31.23614f * x1 - 76.171167f,
-                                70.116009f * x1 + 336.89572f * x1x1 - 594.33134f * x1x1x1 + 325.85292f,
-                                111.71215f * x1x1x1 - 50.377685f * x1x1 - 23.662423f * x1 - 64.39917f,
-                                150.6202f * x1x1 - 1.7455609f * x1 - 208.34991f * x1x1x1 + 26.753413f };
+    float LQR_K_DATA[1 * 4] = { 55.741196f * x1x1x1 - 22.563974f * x1x1 - 13.20684f * x1 - 17.804148f,
+                                252.34194f * x1 + 793.81345f * x1x1 - 1576.4058f * x1x1x1 + 489.25045f,
+                                221.61918f * x1x1x1 - 93.882349f * x1x1 - 49.260291f * x1 - 67.663104f,
+                                6.6000593f * x1 + 250.37172f * x1x1 - 364.61797f * x1x1x1 + 40.171802f };
     // NOLINTEND(readability-math-missing-parentheses, readability-identifier-naming)
     Matrix<1, 4> k(LQR_K_DATA);
-    Matrix<1, 1> u;
-    (void)_isFloating;
-    // if (!_isFloating)
-    //     u = k * _errX;
-    // else
-    //     u(0, 0) = 0;
-    u = k * _errX;
-    return u;
+    return k;
 }

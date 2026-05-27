@@ -43,6 +43,7 @@ public:
         targetRefLength_ = IDLE_L;
         isJumpReady_ = false;
         needJumpPrev_ = chassis_->msg.needJump;
+        needStoolPrev_ = chassis_->msg.needStool;
         strechPrev_ = chassis_->msg.needStretch;
         chassis_->setLegLengthAngPidPD(idleLegLengthAngPidPD[0], idleLegLengthAngPidPD[1], idleLegLengthAngPidPD[2]);
         chassis_->setLegLengthVelPidPD(idleLegLengthVelPidPD[0], idleLegLengthVelPidPD[1]);
@@ -91,19 +92,46 @@ public:
                              9);
         refPitch_ = std::clamp(deltaDs * PITCH_GAIN, -0.15f, 0.10f);
 
+        if (chassis_->msg.needStool != needStoolPrev_) {
+            if (chassis_->msg.needStool) {
+#if EXTENSION_BUZZER
+                BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 150);
+                BUZZER::buzz->playNote(BUZZER::Tone_e::C6, 300);
+#endif
+            } else {
+                chassis_->resetPhiBalancePid();
+#if EXTENSION_BUZZER
+                BUZZER::buzz->playNote(BUZZER::Tone_e::C6, 150);
+                BUZZER::buzz->playNote(BUZZER::Tone_e::G5, 300);
+#endif
+            }
+        }
+        // ST
+        if (chassis_->msg.needStool) {
+            STController::States_s ref{};
+            refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
+            ref.ds = std::clamp(ds, chassis_->vel() - chassis_->getTranslationBackAcc(),
+                                chassis_->vel() + chassis_->getTranslationFrontAcc());
+            ref.q = OFFSET_Q;
+            chassis_->bal<STController::STControlMode_e::BALANCE>(ref, refYaw_);
+        }
         // WBR
-        WBRController::States_s ref{};
-        refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
-        ref.ds = std::clamp(ds, chassis_->vel() - chassis_->getTranslationBackAcc(),
-                            chassis_->vel() + chassis_->getTranslationFrontAcc());
-        ref.yaw = refYaw_;
-        ref.q = OFFSET_Q + refPitch_;
-        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
+        else {
+            WBRController::States_s ref{};
+            refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(chassis_->yaw() + wz, -PI, PI));
+            ref.ds = std::clamp(ds, chassis_->vel() - chassis_->getTranslationBackAcc(),
+                                chassis_->vel() + chassis_->getTranslationFrontAcc());
+            ref.yaw = refYaw_;
+            ref.q = OFFSET_Q + refPitch_;
+            chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
+        }
 
         chassis_->ctrl();
 
         isJumpReady_ = needJumpPrev_ && !chassis_->msg.needJump;
         needJumpPrev_ = chassis_->msg.needJump;
+
+        needStoolPrev_ = chassis_->msg.needStool;
     }
 
     void exit() final
@@ -148,6 +176,8 @@ private:
 
     bool isJumpReady_ = false;
     bool needJumpPrev_ = false;
+
+    bool needStoolPrev_ = false;
 
     bool strechPrev_ = false;
 };

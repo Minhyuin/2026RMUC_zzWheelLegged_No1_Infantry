@@ -8,7 +8,7 @@
 #endif
 
 static float launchLegLengthAngPidPD[2]{ 15.f, 0.0f };
-static float launchLegLengthVelPidPD[2]{ 40.f, 0.0f };
+static float launchLegLengthVelPidPD[2]{ 30.f, 0.0f };
 
 namespace CHASSIS {
 class LaunchState : public FSMState<FSMState_e> {
@@ -35,6 +35,8 @@ public:
         refPhiR_ = chassis_->phiR();
         chassis_->setLegLengthAngPidPD(launchLegLengthAngPidPD[0], launchLegLengthAngPidPD[1]);
         chassis_->setLegLengthVelPidPD(launchLegLengthVelPidPD[0], launchLegLengthVelPidPD[1]);
+
+        chassis_->resetPhiPid();
 
         // 腿在前面则直接旋转+缩腿，在后面则先缩腿再旋转
         if (refPhiL_ > 0) {
