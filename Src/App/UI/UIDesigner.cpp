@@ -99,12 +99,12 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     visionState.uiType = Type_e::RECTANGEL;
     visionState.operateType = OperateType_e::MODIFY;
     visionState.layer = 2;
-    visionState.color = Color_e::WHITE;
+    visionState.color = Color_e::BLACK;
     visionState.width = 1;
-    visionState.startX = 960 - 300;
-    visionState.startY = 540 - 200;
-    visionState.endX = 960 + 300;
-    visionState.endY = 540 + 200;
+    visionState.startX = 960 - 280 - 5;
+    visionState.startY = 540 - 250 + 15;
+    visionState.endX = 960 + 280 - 5;
+    visionState.endY = 540 + 250 - 25;
 
     auto &pitchAngValue = _info.pitchAngValue.config;
     pitchAngValue = {};
