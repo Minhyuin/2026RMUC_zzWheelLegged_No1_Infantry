@@ -226,8 +226,8 @@ void Bipedal::update(void *_param)
     // if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &msg, 0) == pdTRUE) {
     // };
     UNUSED(_param);
-    msg.noChassis = chassisCtrlRxPacket_.data().noChassis;
-    msg.state = msg.noChassis ? FSMState_e::STOP :
+    msg.noBalance = chassisCtrlRxPacket_.data().noBalance;
+    msg.state = msg.noBalance ? FSMState_e::STOP :
                                 static_cast<FSMState_e>(chassisCtrlRxPacket_.data().chassisExptState);
     msg.vx = chassisCtrlRxPacket_.data().vx;
     msg.vy = chassisCtrlRxPacket_.data().vy;
@@ -330,7 +330,7 @@ void Bipedal::update(void *_param)
         .roll = insData_.roll,
         .needRush = msg.needRush,
         .needStool = msg.needStool,
-        .noChassis = msg.noChassis,
+        .noBalance = msg.noBalance,
 #if EXTENSION_SUPERCAP
         .capEnergyRatio = wheelCap_.getCapData().capEnergyRatio,
 #else

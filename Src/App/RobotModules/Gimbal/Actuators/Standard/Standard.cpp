@@ -160,11 +160,11 @@ void Standard::update(void *_param)
     }
 
     if (xQueueReceive((((MsgBus_s *)_param)->chassisQueue), &cmsg_, 0) == pdTRUE) {
-        if (cmsg_.noChassis) {
+        if (cmsg_.noBalance) {
             cmsg_.state = CHASSIS::FSMState_e::STOP; // debug
         }
         static bool noChassisPrev = false;
-        if (noChassisPrev != cmsg_.noChassis) {
+        if (noChassisPrev != cmsg_.noBalance) {
 #if EXTENSION_BUZZER
             for (uint8_t i = 0; i < 4; i++) {
                 BUZZER::buzz->playNote(BUZZER::Tone_e::F6, 100);
@@ -172,7 +172,7 @@ void Standard::update(void *_param)
             }
 #endif
         }
-        noChassisPrev = cmsg_.noChassis;
+        noChassisPrev = cmsg_.noBalance;
 
         chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(cmsg_.state);
         chassisCtrlTxPacket_.setData().vx = cmsg_.vx;
@@ -185,7 +185,7 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().needRush = cmsg_.needRush;
         chassisCtrlTxPacket_.setData().needStool = cmsg_.needStool;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
-        chassisCtrlTxPacket_.setData().noChassis = cmsg_.noChassis;
+        chassisCtrlTxPacket_.setData().noBalance = cmsg_.noBalance;
     };
     if (cmsg_.state != CHASSIS::FSMState_e::STOP &&
         stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)

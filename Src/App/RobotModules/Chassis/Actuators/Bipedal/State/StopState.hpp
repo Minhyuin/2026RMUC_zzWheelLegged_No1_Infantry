@@ -19,7 +19,7 @@ public:
         chassis_->setFdFeedforward(0, 0);
         freezeFlag_ = false;
         LOG::info("ChassisStop", " enter");
-        
+
 #if EXTENSION_BUZZER
         BUZZER::buzz->playNote(BUZZER::Tone_e::FS5, 50);
         BUZZER::buzz->playNote(BUZZER::Tone_e::C5, 50);
@@ -30,7 +30,19 @@ public:
     {
         if (!freezeFlag_)
             freezeFlag_ = chassis_->isFreeze();
-        chassis_->stop();
+
+        if (!noBalancePrev_ && chassis_->msg.noBalance) {
+            chassis_->enableWheels();
+            noBalancePrev_ = chassis_->msg.noBalance;
+            return;
+        }
+        noBalancePrev_ = chassis_->msg.noBalance;
+
+        if (chassis_->msg.noBalance) {
+            chassis_->noBal(chassis_->msg.vx, chassis_->msg.vy);
+            chassis_->ctrl();
+        } else
+            chassis_->stop();
     }
 
     void exit() final { LOG::info("ChassisStop", " exit"); }
@@ -62,6 +74,8 @@ public:
 private:
     Bipedal *chassis_;
     bool freezeFlag_ = false;
+
+    bool noBalancePrev_;
 };
 
 } // namespace CHASSIS

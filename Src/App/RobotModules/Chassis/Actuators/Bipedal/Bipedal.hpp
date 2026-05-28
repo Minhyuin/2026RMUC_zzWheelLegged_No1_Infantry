@@ -79,15 +79,15 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.769184f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.941683f;
 
-    static constexpr float MAX_VEL_RUSH_FRONT = 2.7f;
+    static constexpr float MAX_VEL_RUSH_FRONT = 2.8f;
     static constexpr float MAX_VEL_RUSH_BACK = 1.3f;
-    static constexpr float MAX_VEL_FRONT = 2.7f;
+    static constexpr float MAX_VEL_FRONT = 2.8f;
     static constexpr float BASE_VEL_FRONT = 1.5f;
     static constexpr float MAX_VEL_BACK = 1.3f;
     static constexpr float BASE_VEL_BACK = 0.5f;
 
     static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
-    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
+    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.3f;
     static constexpr float BASE_TRANSLATION_BACK_ACC = 0.4f;
     static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
     static constexpr float BASE_ROTATION_ACC = 1.5f;
@@ -134,10 +134,18 @@ public:
      * @brief close all outputs
      */
     void stop();
+
     /**
      * @brief enable all outputs
      */
     void enter();
+
+    /**
+     * @brief enable wheel
+     * 
+     */
+    void enableWheels();
+
     /**
      * @brief update Bipedal chassis state
      * 
