@@ -7,8 +7,8 @@
 #include "Buzzer.hpp"
 #endif
 
-static float standLegLengthAngPidPD[3]{ 30.f, 0.5f,1.f };
-static float standLegLengthVelPidPD[2]{ 145.f, 0.0f };
+static float standLegLengthAngPidPD[3]{ 20.f, 0.5f, 1.f };
+static float standLegLengthVelPidPD[2]{ 150.f, 0.0f };
 namespace CHASSIS {
 
 class StandState : public FSMState<FSMState_e> {

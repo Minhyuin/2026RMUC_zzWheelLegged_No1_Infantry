@@ -110,7 +110,7 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.003f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            0.1f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
             -0.5f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
