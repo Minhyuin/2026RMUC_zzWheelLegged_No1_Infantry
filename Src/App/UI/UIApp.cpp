@@ -72,7 +72,7 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
     client_.ready(&dynamicInfo_.chassisRollValue);
 
     // noChassisLine
-    dynamicInfo_.noChassisLine.config.operateType = _msg.noChassis ? OperateType_e::ADD : OperateType_e::DELETE;
+    dynamicInfo_.noChassisLine.config.operateType = _msg.noBalance ? OperateType_e::ADD : OperateType_e::DELETE;
     client_.ready(&dynamicInfo_.noChassisLine);
 }
 

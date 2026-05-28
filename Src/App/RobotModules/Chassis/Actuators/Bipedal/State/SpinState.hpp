@@ -21,10 +21,12 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_BASE = 6.f; // TODO: follow power
     static constexpr float SPIN_SPEED_VAR = 5.f;
     static constexpr float SPIN_L = 0.17f;
+    static constexpr float SPIN_STRETCH_L = 0.25f;
 
     static constexpr float LOW_POWER_SPEED = 8.f;
 
-    static constexpr float MAX_DS = 0.4f;
+    static constexpr float MAX_RUSH_DS = 0.2f;
+    static constexpr float MAX_DS = 0.5f;
     static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 4.f);
 
 public:
@@ -53,14 +55,14 @@ public:
     void run() final
     {
         if (!strechPrev_ && chassis_->msg.needStretch) {
-            targetRefLength_ = Bipedal::STRETCH_L;
+            targetRefLength_ = SPIN_STRETCH_L;
         } else if (strechPrev_ && !chassis_->msg.needStretch) {
             targetRefLength_ = SPIN_L;
         } else
             targetRefLength_ += chassis_->msg.dl * 0.001f;
         strechPrev_ = chassis_->msg.needStretch;
 
-        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00025f);
+        refLength_ = SMOOTH::slopeFollowing(targetRefLength_, refLength_, 0.00015f);
         chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
         refRoll_ += chassis_->msg.droll * 0.001f;
@@ -70,15 +72,19 @@ public:
 
         // calculate wz in spin
         arm_sqrt_f32((chassis_->msg.vx * chassis_->msg.vx) + (chassis_->msg.vy * chassis_->msg.vy), &ds);
-        ds = std::clamp(ds, -MAX_DS, MAX_DS);
-        if (chassis_->msg.needRush)
+        if (chassis_->msg.needRush) {
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.0005f);
-        else
+            ds = std::clamp(ds, -MAX_RUSH_DS, MAX_RUSH_DS);
+        } else {
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
+            ds = std::clamp(ds, -MAX_DS, MAX_DS);
+        }
         if (ds == 0 && chassis_->detectLengthRange(refLength_))
             wz = getVariableSpinVel() * accelFactor_;
         else
             wz = getConstantSpinVel() * accelFactor_;
+        // ds = 0;
+        // wz = getConstantSpinVelForDebug() * accelFactor_;
         if (!chassis_->msg.needRush)
             wz = std::clamp(wz, -LOW_POWER_SPEED, LOW_POWER_SPEED);
         float newRefYaw = refYaw_ + (wz * 0.001f);

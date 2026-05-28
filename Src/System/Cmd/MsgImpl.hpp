@@ -65,7 +65,7 @@ struct ChassisMsg_s : public Msg {
     bool needRush;
     bool needStool;
     bool uiReset;
-    bool noChassis;
+    bool noBalance;
 };
 
 struct GimbalMsg_s : public Msg {
@@ -122,7 +122,7 @@ struct ChassisUIMsg_s {
     float roll;
     bool needRush;
     bool needStool;
-    bool noChassis;
+    bool noBalance;
     float capEnergyRatio;
 };
 

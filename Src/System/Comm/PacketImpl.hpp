@@ -69,7 +69,7 @@ public:
         bool bodyReset;
         float deltaYaw;
         bool uiReset;
-        bool noChassis;
+        bool noBalance;
     };
 #pragma pack(push, 1)
     union Data_u {
@@ -88,7 +88,7 @@ public:
             uint8_t chassisExptState : 4;
             uint8_t gimbalRealState : 4;
             bool uiReset : 1;
-            bool noChassis : 1;
+            bool noBalance : 1;
             uint16_t reversed : 12;
         } content;
         uint8_t bytes[LEN];
@@ -111,7 +111,7 @@ public:
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
         d.uiReset = _protoData.uiReset;
-        d.noChassis = _protoData.noChassis;
+        d.noBalance = _protoData.noBalance;
     }
     static constexpr void decompress(const Data_u &_data, ProtoData_s &_protoData)
     {
@@ -129,7 +129,7 @@ public:
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);
         _protoData.uiReset = _data.content.uiReset;
-        _protoData.noChassis = _data.content.noChassis;
+        _protoData.noBalance = _data.content.noBalance;
     }
 };
 

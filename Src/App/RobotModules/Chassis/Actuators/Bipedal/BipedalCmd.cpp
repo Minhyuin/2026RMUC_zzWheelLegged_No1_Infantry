@@ -5,6 +5,12 @@
 using namespace CHASSIS;
 using namespace PINYMOTOR;
 
+void Bipedal::enableWheels()
+{
+    motors_.WheelL->cmd(MotorCmdType_e::ON);
+    motors_.WheelR->cmd(MotorCmdType_e::ON);
+}
+
 void Bipedal::enableJump()
 {
     legL_.needJumping = true;

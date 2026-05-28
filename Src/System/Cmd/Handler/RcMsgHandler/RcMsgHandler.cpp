@@ -253,7 +253,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                              true);
         lastSwitch_ = static_cast<uint8_t>(rcData->gamepad.sw);
         if (IS_KEY_PRESS(rcData->KBM.key, VT13::G) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::G))
-            cMsg_.noChassis = !cMsg_.noChassis;
+            cMsg_.noBalance = !cMsg_.noBalance;
         if (!ctrlFlag_) {
             gMsg_.state = GIMBAL::FSMState_e::STOP;
             gMsg_.wPitch = gMsg_.wYaw = 0.f;
@@ -264,10 +264,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 keepTimeForRocker_ = 0;
             if (keepTimeForRocker_ > 100) {
                 keepTimeForRocker_ = 0;
-                cMsg_.noChassis = !cMsg_.noChassis;
+                cMsg_.noBalance = !cMsg_.noBalance;
             }
             cMsg_.state = CHASSIS::FSMState_e::STOP;
-            cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;
             cMsg_.needStool = cMsg_.needRush = cMsg_.needStretch = cMsg_.needClimb = false;
             alMsg_.state = ARMORLOADER::FSMState_e::STOP;
             alMsg_.fire = false;

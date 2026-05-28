@@ -15,8 +15,8 @@ bool Bipedal::isTumble() const
     bool result = false;
     result |= fabs(phiGlobalL()) > 0.7f || fabs(phiGlobalR()) > 0.7f || fabs(pitch()) > 0.35f;
     result |= phiL() > 1.f || phiR() > 1.f;
-    result |= pitch() > 0.2f && (phiL() < -0.2f || phiR() < -0.2f);
-    result |= phiL() < -0.4f || phiR() < -0.4f;
+    // result |= pitch() > 0.2f && (phiL() < -0.2f || phiR() < -0.2f);
+    // result |= phiL() < -0.4f || phiR() < -0.4f;
     return result;
 }
 
