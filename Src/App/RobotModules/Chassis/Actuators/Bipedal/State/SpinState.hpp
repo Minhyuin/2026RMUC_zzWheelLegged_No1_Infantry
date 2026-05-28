@@ -75,12 +75,12 @@ public:
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.0005f);
         else
             accelFactor_ = SMOOTH::slopeFollowing(1.f, accelFactor_, 0.001f);
-        // if (ds == 0 && chassis_->detectLengthRange(refLength_))
-        //     wz = getVariableSpinVel() * accelFactor_;
-        // else
-        //     wz = getConstantSpinVel() * accelFactor_;
-        ds = 0;
-        wz = getConstantSpinVelForDebug() * accelFactor_;
+        if (ds == 0 && chassis_->detectLengthRange(refLength_))
+            wz = getVariableSpinVel() * accelFactor_;
+        else
+            wz = getConstantSpinVel() * accelFactor_;
+        // ds = 0;
+        // wz = getConstantSpinVelForDebug() * accelFactor_;
         if (!chassis_->msg.needRush)
             wz = std::clamp(wz, -LOW_POWER_SPEED, LOW_POWER_SPEED);
         float newRefYaw = refYaw_ + (wz * 0.001f);
