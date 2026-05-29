@@ -16,6 +16,7 @@
 #include "./State/StandState.hpp"
 #include "./State/IdleState.hpp"
 #include "./State/TankState.hpp"
+#include "./State/TurnState.hpp"
 #include "./State/SpinState.hpp"
 #include "./State/SpinExitingState.hpp"
 #include "./State/ClimbState.hpp"
@@ -161,6 +162,7 @@ Bipedal::Bipedal() : insSub_(new Subscriber<INS_SYS::INSData_s>(2, &TopicRouter:
     this->stateFactory_.addState(FSMState_e::RESCUE, std::make_unique<RescueState>(this));
     this->stateFactory_.addState(FSMState_e::IDLE, std::make_unique<IdleState>(this));
     this->stateFactory_.addState(FSMState_e::TANK, std::make_unique<TankState>(this));
+    this->stateFactory_.addState(FSMState_e::TURN, std::make_unique<TurnState>(this));
     this->stateFactory_.addState(FSMState_e::SPIN, std::make_unique<SpinState>(this));
     this->stateFactory_.addState(FSMState_e::SPIN_EXITING, std::make_unique<SpinExitingState>(this));
     this->stateFactory_.addState(FSMState_e::CLIMB, std::make_unique<ClimbState>(this));
@@ -238,6 +240,7 @@ void Bipedal::update(void *_param)
     msg.needStretch = chassisCtrlRxPacket_.data().needStretch;
     msg.needRush = chassisCtrlRxPacket_.data().needRush;
     msg.needStool = chassisCtrlRxPacket_.data().needStool;
+    msg.needTurn = chassisCtrlRxPacket_.data().needTurn;
     msg.uiReset = chassisCtrlRxPacket_.data().uiReset;
 
     if (motors_.HipLF->globalState != GlobalState_e::ONLINE || motors_.HipLB->globalState != GlobalState_e::ONLINE ||

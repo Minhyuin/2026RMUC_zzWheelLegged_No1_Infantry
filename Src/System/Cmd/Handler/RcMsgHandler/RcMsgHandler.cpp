@@ -408,7 +408,9 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                     alMsg_.state = ARMORLOADER::FSMState_e::SINGLE;
                     abMsg_.state = ARMORBOOSTER::FSMState_e::ON;
                 }
-                cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
+                // cMsg_.needJump = IS_KEY_PRESS(rcData->KBM.key, VT13::E) && IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
+                cMsg_.needJump = false;
+                cMsg_.needTurn = (IS_KEY_PRESS(rcData->KBM.key, VT13::E));
                 cMsg_.needClimb = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT) && IS_KEY_PRESS(rcData->KBM.key, VT13::F);
                 cMsg_.needRush = IS_KEY_PRESS(rcData->KBM.key, VT13::SHIFT);
                 if ((IS_KEY_PRESS(rcData->KBM.key, VT13::CTRL) && !IS_KEY_PRESS(rcDataPrev.KBM.key, VT13::CTRL))) {

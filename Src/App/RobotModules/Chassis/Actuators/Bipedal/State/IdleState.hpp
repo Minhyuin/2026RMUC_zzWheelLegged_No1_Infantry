@@ -155,6 +155,8 @@ public:
             return FSMState_e::TEST;
         else if (chassis_->msg.needClimb)
             return FSMState_e::CLIMB_PREPARE;
+        else if (chassis_->msg.needTurn)
+            return FSMState_e::TURN;
         else
             return FSMState_e::IDLE;
     }

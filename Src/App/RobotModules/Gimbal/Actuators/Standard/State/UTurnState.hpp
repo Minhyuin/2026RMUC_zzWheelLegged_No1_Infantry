@@ -105,6 +105,7 @@ public:
         gimbal_->ctrlPitch(pids_.pitchAngPid, pids_.pitchVelPid, gimbal_->ins().pitch);
         gimbal_->ctrlYaw(pids_.yawAngPid, pids_.yawVelPid, gimbal_->ins().yaw);
         if (gimbal_->chassisState() == CHASSIS::FSMState_e ::TANK ||
+            gimbal_->chassisState() == CHASSIS::FSMState_e ::SPIN ||
             gimbal_->chassisState() == CHASSIS::FSMState_e ::STOP) {
             return true;
         } else if (waitOvertimeCnt_ >= MAX_WAIT_OVER_TIME_CNT) {

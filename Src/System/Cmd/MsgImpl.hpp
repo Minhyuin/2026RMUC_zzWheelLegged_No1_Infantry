@@ -13,6 +13,7 @@ enum class FSMState_e : uint8_t {
     STAND,
     IDLE,
     TANK,
+    TURN,
     SPIN,
     SPIN_EXITING,
     CLIMB_PREPARE,
@@ -64,6 +65,7 @@ struct ChassisMsg_s : public Msg {
     bool needStretch;
     bool needRush;
     bool needStool;
+    bool needTurn;
     bool uiReset;
     bool noBalance;
 };
