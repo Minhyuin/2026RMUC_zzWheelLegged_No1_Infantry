@@ -78,7 +78,7 @@ public:
         ref.dyaw = chassis_->wz();
         chassis_->bal<WBRController::WBRControlMode_e::SPIN>(ref);
         chassis_->ctrl();
-        return std::fabs(chassis_->wz()) < 8.f;
+        return std::fabs(chassis_->wz()) < 6.f;
     }
 
 private:

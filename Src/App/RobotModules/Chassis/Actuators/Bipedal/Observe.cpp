@@ -15,7 +15,6 @@ bool Bipedal::isTumble() const
     bool result = false;
     result |= fabs(phiGlobalL()) > 0.7f || fabs(phiGlobalR()) > 0.7f || fabs(pitch()) > 0.35f;
     result |= phiL() > 1.f || phiR() > 1.f;
-    result |= pitch() > 0.2f && (phiL() < -0.2f || phiR() < -0.2f);
     result |= phiL() < -0.4f || phiR() < -0.4f;
     return result;
 }
@@ -174,7 +173,7 @@ void Bipedal::updateBody()
 
 void Bipedal::updatePowerLimit()
 {
-    auto powerLimitFactor = (powerLimit_ - 50.f) / (120.f - 50.f);
+    auto powerLimitFactor = (powerLimit_ - 80.f) / (120.f - 80.f);
     static constexpr auto MAX_VEL_ATTENUATION_FACTOR = 0.3f;
     static constexpr auto LENGTH_RANGE = WheelLegged::MAX_L - WheelLegged::MIN_L;
     auto normalizedLength = std::clamp((length() - WheelLegged::MIN_L) / LENGTH_RANGE, 0.f, 1.f);

@@ -79,20 +79,6 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 5.769184f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 3.941683f;
 
-    static constexpr float MAX_VEL_RUSH_FRONT = 2.8f;
-    static constexpr float MAX_VEL_RUSH_BACK = 1.3f;
-    static constexpr float MAX_VEL_FRONT = 2.8f;
-    static constexpr float BASE_VEL_FRONT = 1.5f;
-    static constexpr float MAX_VEL_BACK = 1.3f;
-    static constexpr float BASE_VEL_BACK = 0.5f;
-
-    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
-    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.3f;
-    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.4f;
-    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
-    static constexpr float BASE_ROTATION_ACC = 1.5f;
-    static constexpr float MAX_ROTATION_ACC = 3.f;
-
     static constexpr float MASS_BODY = 23.735f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
@@ -117,6 +103,20 @@ class Bipedal : public Chassis {
     static constexpr float REAL_Q_OFFSET = -0.0116224f; // mecanical offset of the equivalent pendulum angle, unit: rad
 
 public:
+    static constexpr float MAX_VEL_RUSH_FRONT = 3.f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.6f;
+    static constexpr float MAX_VEL_FRONT = 3.f;
+    static constexpr float BASE_VEL_FRONT = 2.2f;
+    static constexpr float MAX_VEL_BACK = 1.5f;
+    static constexpr float BASE_VEL_BACK = 0.9f;
+
+    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.9f;
+    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.3f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.39f;
+    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.5f;
+    static constexpr float BASE_ROTATION_ACC = 2.14f;
+    static constexpr float MAX_ROTATION_ACC = 3.f;
+
     static constexpr float EXPT_Q_OFFSET = 0.05f;
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
@@ -513,7 +513,7 @@ private:
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
     PositionalPid hipAngPidL_{ 10.f, 0.f, 0.f, 0.001f, 0.f, 6.f, 0.f };
-    PositionalPid hipVelPidL_{ 5.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
+    PositionalPid hipVelPidL_{ 7.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
