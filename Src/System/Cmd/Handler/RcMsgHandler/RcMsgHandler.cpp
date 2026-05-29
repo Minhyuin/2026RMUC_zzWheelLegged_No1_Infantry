@@ -113,7 +113,7 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
                 keepTimeForRocker_ = 0;
             if (keepTimeForRocker_ > 100) {
                 keepTimeForRocker_ = 0;
-                cMsg_.noChassis = !cMsg_.noChassis;
+                cMsg_.noBalance = !cMsg_.noBalance;
             }
             cMsg_.state = CHASSIS::FSMState_e::STOP;
             cMsg_.vx = cMsg_.vy = cMsg_.droll = cMsg_.wz = cMsg_.dphi = cMsg_.dl = 0.f;

@@ -136,10 +136,18 @@ public:
      * @brief close all outputs
      */
     void stop();
+
     /**
      * @brief enable all outputs
      */
     void enter();
+
+    /**
+     * @brief enable wheel
+     * 
+     */
+    void enableWheels();
+
     /**
      * @brief update Bipedal chassis state
      * 
