@@ -16,6 +16,9 @@ public:
     void enter() final
     {
         chassis_->stop();
+        if (chassis_->msg.noBalance)
+            chassis_->enableWheels();
+
         chassis_->setFdFeedforward(0, 0);
         freezeFlag_ = false;
         LOG::info("ChassisStop", " enter");
