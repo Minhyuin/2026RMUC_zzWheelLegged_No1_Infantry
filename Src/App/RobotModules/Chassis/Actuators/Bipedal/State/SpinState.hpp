@@ -27,7 +27,9 @@ class SpinState : public FSMState<FSMState_e> {
 
     static constexpr float MAX_RUSH_DS = 0.2f;
     static constexpr float MAX_DS = 0.5f;
-    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 6.f);
+    static constexpr float DIR_OFFSET_ANG_IN_RUSH = (PI / 2.f) - (PI / 4.f);
+    static constexpr float DIR_OFFSET_ANG = (PI / 2.f) - (PI / 10.f);
+
 
 public:
     SpinState(Bipedal *_chassis) : FSMState<FSMState_e>(FSMState_e::SPIN), chassis_(_chassis) {}
@@ -91,7 +93,8 @@ public:
         refYaw_ = chassis_->isFloating() ? chassis_->yaw() : (PINYMOTOR::rangeMap(newRefYaw, -PI, PI));
 
         // calculate ds in spin
-        float dirOffsetAng = wz > 0 ? -DIR_OFFSET_ANG : DIR_OFFSET_ANG;
+        const float constDirOffsetAng = chassis_->msg.needRush ? DIR_OFFSET_ANG_IN_RUSH : DIR_OFFSET_ANG;
+        float dirOffsetAng = wz > 0 ? -constDirOffsetAng : constDirOffsetAng;
         float moveAng = atan2f(-chassis_->msg.vy, chassis_->msg.vx) + dirOffsetAng;
         float deltaAng = PINYMOTOR::getMinorArc(moveAng, chassis_->deltaYaw);
         if (deltaAng < PI / 2.f && deltaAng > -PI / 2.f) {

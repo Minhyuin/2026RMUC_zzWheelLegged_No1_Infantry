@@ -15,8 +15,8 @@
 static float idleFollowVelPidPID[7]{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.05f };
 static float idleFollowVelInVisionPidPID[7]{ 5.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.f, 0.5f };
 static PositionalPid idleFollowVelPid{ 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
-volatile static float idleLegLengthAngPidPD[3]{ 20.f, 0.5f, 1.f };
-volatile static float idleLegLengthVelPidPD[2]{ 120.f, 0.0f };
+volatile static float idleLegLengthAngPidPD[3]{ 15.f, 0.5f, 1.f };
+volatile static float idleLegLengthVelPidPD[2]{ 125.f, 0.0f };
 
 namespace CHASSIS {
 class IdleState : public FSMState<FSMState_e> {

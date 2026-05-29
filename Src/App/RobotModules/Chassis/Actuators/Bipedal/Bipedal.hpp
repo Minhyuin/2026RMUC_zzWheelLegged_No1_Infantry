@@ -512,8 +512,8 @@ private:
     PositionalPid rollAngPid_{ 30.f, 80.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 16.f, 0.f, 0.f, 0.001f, 0.f, 6.f, 0.f };
-    PositionalPid hipVelPidL_{ 11.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 10.f, 0.f, 0.f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipVelPidL_{ 5.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
