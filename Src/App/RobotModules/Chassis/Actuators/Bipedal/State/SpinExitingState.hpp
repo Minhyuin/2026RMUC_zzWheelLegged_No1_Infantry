@@ -5,6 +5,8 @@
 
 #include "MotorCommonMacros.hpp"
 
+#include "Smooth.hpp"
+
 #if EXTENSION_BUZZER
 #include "Buzzer.hpp"
 #endif
@@ -75,10 +77,10 @@ public:
     {
         WBRController::States_s ref{};
         ref.yaw = chassis_->yaw() + chassis_->wz() * 0.001f;
-        ref.dyaw = chassis_->wz();
-        chassis_->bal<WBRController::WBRControlMode_e::SPIN>(ref);
+        ref.dyaw = SMOOTH::slopeFollowing(0.f, chassis_->wz(), 1.f);
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
         chassis_->ctrl();
-        return std::fabs(chassis_->wz()) < 6.f;
+        return std::fabs(chassis_->wz()) < 3.f;
     }
 
 private:
