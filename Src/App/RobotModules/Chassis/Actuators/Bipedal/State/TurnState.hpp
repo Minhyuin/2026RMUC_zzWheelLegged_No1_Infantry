@@ -5,6 +5,8 @@
 
 #include "MotorCommonMacros.hpp"
 
+#include "Smooth.hpp"
+
 #if EXTENSION_BUZZER
 #include "Buzzer.hpp"
 #endif
@@ -62,6 +64,16 @@ public:
             return FSMState_e::IDLE;
         else
             return FSMState_e::TURN;
+    }
+
+    bool change() final
+    {
+        WBRController::States_s ref{};
+        ref.ds = SMOOTH::slopeFollowing(0.f, chassis_->vel(), 1.f);
+        ref.yaw = chassis_->yaw();
+        chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
+        chassis_->ctrl();
+        return std::fabs(chassis_->vel()) < 1.5f;
     }
 
 private:
