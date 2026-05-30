@@ -186,14 +186,16 @@ void Bipedal::updatePowerLimit()
     if (msg.needRush) {
         dsMaxF_ = MAX_VEL_RUSH_FRONT * lengthAttenuationFactor;
         dsMaxB_ = MAX_VEL_RUSH_BACK * lengthAttenuationFactor;
-        translationFrontAcc_ = MAX_TRANSLATION_FRONT_ACC;
-        translationBackAcc_ = MAX_TRANSLATION_BACK_ACC;
+        translationFrontAcc_ = MAX_TRANSLATION_FRONT_ACC * lengthAttenuationFactor;
+        translationBackAcc_ = MAX_TRANSLATION_BACK_ACC * lengthAttenuationFactor;
         rotationAcc_ = MAX_ROTATION_ACC * lengthAttenuationFactor;
     } else {
         dsMaxF_ = (BASE_VEL_FRONT + powerLimitFactor * RANGE_FRONT_VEL) * lengthAttenuationFactor;
         dsMaxB_ = (BASE_VEL_BACK + powerLimitFactor * RANGE_BACK_VEL) * lengthAttenuationFactor;
-        translationFrontAcc_ = BASE_TRANSLATION_FRONT_ACC + powerLimitFactor * RANGE_TRANSLATION_FRONT_ACC;
-        translationBackAcc_ = BASE_TRANSLATION_BACK_ACC + powerLimitFactor * RANGE_TRANSLATION_BACK_ACC;
+        translationFrontAcc_ =
+                BASE_TRANSLATION_FRONT_ACC + powerLimitFactor * RANGE_TRANSLATION_FRONT_ACC * lengthAttenuationFactor;
+        translationBackAcc_ =
+                BASE_TRANSLATION_BACK_ACC + powerLimitFactor * RANGE_TRANSLATION_BACK_ACC * lengthAttenuationFactor;
         rotationAcc_ = (BASE_ROTATION_ACC + powerLimitFactor * RANGE_ROTATION_ACC) * lengthAttenuationFactor;
     }
 }
