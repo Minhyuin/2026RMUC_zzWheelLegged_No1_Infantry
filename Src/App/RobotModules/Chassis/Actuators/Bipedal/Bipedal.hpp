@@ -106,18 +106,18 @@ class Bipedal : public Chassis {
 
 public:
 
-    static constexpr float MAX_VEL_RUSH_FRONT = 2.3f;
+    static constexpr float MAX_VEL_RUSH_FRONT = 2.5f;
     static constexpr float MAX_VEL_RUSH_BACK = 1.3f;
-    static constexpr float MAX_VEL_FRONT = 2.3f;
-    static constexpr float BASE_VEL_FRONT = 1.5f;
+    static constexpr float MAX_VEL_FRONT = 2.5f;
+    static constexpr float BASE_VEL_FRONT = 1.93f;
     static constexpr float MAX_VEL_BACK = 1.3f;
-    static constexpr float BASE_VEL_BACK = 0.5f;
+    static constexpr float BASE_VEL_BACK = 0.84f;
 
-    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
+    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.885f;
     static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
-    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.4f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.48f;
     static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
-    static constexpr float BASE_ROTATION_ACC = 1.5f;
+    static constexpr float BASE_ROTATION_ACC = 2.f;
     static constexpr float MAX_ROTATION_ACC = 3.f;
 
     static constexpr float EXPT_Q_OFFSET = 0.07f;
@@ -515,8 +515,8 @@ private:
     PositionalPid rollAngPid_{ 30.f, 80.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 10.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
-    PositionalPid hipVelPidL_{ 10.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 12.f, 0.f, 0.0f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipVelPidL_{ 6.f, 0.f, 0.f, 0.001f, 0, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
