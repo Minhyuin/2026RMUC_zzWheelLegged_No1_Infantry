@@ -66,6 +66,7 @@ public:
         bool needStretch;
         bool needRush;
         bool needStool;
+        bool needTurn;
         bool bodyReset;
         float deltaYaw;
         bool uiReset;
@@ -84,8 +85,9 @@ public:
             bool needStretch : 1;
             bool needRush : 1;
             bool needStool : 1;
+            bool needTurn : 1;
             int16_t deltaYaw : 16;
-            uint8_t chassisExptState : 4;
+            uint8_t chassisExptState : 4; // [0, 15]
             uint8_t gimbalRealState : 4;
             bool uiReset : 1;
             bool noBalance : 1;
@@ -107,6 +109,7 @@ public:
         d.needStretch = _protoData.needStretch;
         d.needRush = _protoData.needRush;
         d.needStool = _protoData.needStool;
+        d.needTurn = _protoData.needTurn;
         d.chassisExptState = _protoData.chassisExptState;
         d.gimbalRealState = _protoData.gimbalRealState;
         d.deltaYaw = convertToInt16(_protoData.deltaYaw);
@@ -125,6 +128,7 @@ public:
         _protoData.needStretch = _data.content.needStretch;
         _protoData.needRush = _data.content.needRush;
         _protoData.needStool = _data.content.needStool;
+        _protoData.needTurn = _data.content.needTurn;
         _protoData.chassisExptState = _data.content.chassisExptState;
         _protoData.gimbalRealState = _data.content.gimbalRealState;
         _protoData.deltaYaw = convertToFloat(_data.content.deltaYaw);

@@ -184,13 +184,18 @@ void Standard::update(void *_param)
         chassisCtrlTxPacket_.setData().needStretch = cmsg_.needStretch;
         chassisCtrlTxPacket_.setData().needRush = cmsg_.needRush;
         chassisCtrlTxPacket_.setData().needStool = cmsg_.needStool;
+        chassisCtrlTxPacket_.setData().needTurn = cmsg_.needTurn;
         chassisCtrlTxPacket_.setData().uiReset = cmsg_.uiReset;
         chassisCtrlTxPacket_.setData().noBalance = cmsg_.noBalance;
     };
     if (cmsg_.state != CHASSIS::FSMState_e::STOP &&
-        stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN)
-        chassisCtrlTxPacket_.setData().chassisExptState = static_cast<uint8_t>(
-                CHASSIS::FSMState_e::TANK); // when gimbal is in U_TURN, chassis can only be in TANK or STOP
+        stateFactory_.getCurrentState()->getName() == GIMBAL::FSMState_e::U_TURN) {
+        chassisCtrlTxPacket_.setData().chassisExptState =
+                cmsg_.state == CHASSIS::FSMState_e::SPIN ?
+                        static_cast<uint8_t>(CHASSIS::FSMState_e::SPIN) :
+                        static_cast<uint8_t>(
+                                CHASSIS::FSMState_e::TANK); // when gimbal is in U_TURN, chassis can only be in TANK or STOP
+    }
     chassisCtrlTxPacket_.setData().deltaYaw = motors_.yaw->posNorm();
 
     // shooterCtrlMsg

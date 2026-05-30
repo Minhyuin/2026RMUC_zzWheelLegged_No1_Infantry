@@ -79,20 +79,6 @@ class Bipedal : public Chassis {
     static constexpr float RF_HIP_CALIBRATED_ANG = 3.150903f;
     static constexpr float RB_HIP_CALIBRATED_ANG = 0.101128f;
 
-    static constexpr float MAX_VEL_RUSH_FRONT = 2.3f;
-    static constexpr float MAX_VEL_RUSH_BACK = 1.3f;
-    static constexpr float MAX_VEL_FRONT = 2.3f;
-    static constexpr float BASE_VEL_FRONT = 1.5f;
-    static constexpr float MAX_VEL_BACK = 1.3f;
-    static constexpr float BASE_VEL_BACK = 0.5f;
-
-    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
-    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
-    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.4f;
-    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
-    static constexpr float BASE_ROTATION_ACC = 1.5f;
-    static constexpr float MAX_ROTATION_ACC = 3.f;
-
     static constexpr float MASS_BODY = 23.584f;
 
     static constexpr float MAX_ABS_ROLL = 0.3f; // maximum offset of roll angle, unit: rad
@@ -119,6 +105,21 @@ class Bipedal : public Chassis {
 
 
 public:
+
+    static constexpr float MAX_VEL_RUSH_FRONT = 2.3f;
+    static constexpr float MAX_VEL_RUSH_BACK = 1.3f;
+    static constexpr float MAX_VEL_FRONT = 2.3f;
+    static constexpr float BASE_VEL_FRONT = 1.5f;
+    static constexpr float MAX_VEL_BACK = 1.3f;
+    static constexpr float BASE_VEL_BACK = 0.5f;
+
+    static constexpr float BASE_TRANSLATION_FRONT_ACC = 0.65f;
+    static constexpr float MAX_TRANSLATION_FRONT_ACC = 1.2f;
+    static constexpr float BASE_TRANSLATION_BACK_ACC = 0.4f;
+    static constexpr float MAX_TRANSLATION_BACK_ACC = 0.6f;
+    static constexpr float BASE_ROTATION_ACC = 1.5f;
+    static constexpr float MAX_ROTATION_ACC = 3.f;
+
     static constexpr float EXPT_Q_OFFSET = 0.07f;
     static constexpr float EXPT_PHI_OFFSET = 0.025f;
 
