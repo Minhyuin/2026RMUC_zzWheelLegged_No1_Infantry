@@ -2,8 +2,9 @@
 
 #include "./UIClient.hpp"
 #include <cstdint>
+#include <numbers>
 /* need to config */
-static constexpr uint8_t DYNAIMIC_NUM = 15;
+static constexpr uint8_t DYNAIMIC_NUM = 20;
 static constexpr uint8_t STATIC_NUM = 14;
 
 // 超电
@@ -16,7 +17,8 @@ static constexpr uint32_t REAL_AIM_X = 960;
 static constexpr uint32_t REAL_AIM_Y = 540;
 
 // 底盘方向
-static constexpr uint32_t CHASSIS_DIRECTION_RADIUS = 80;
+static constexpr uint32_t CHASSIS_DIRECTION_RADIUS = 100;
+static constexpr uint32_t CHASSIS_DIRECTION_ANGLE_HALF = 10;
 
 // 行车线
 // 抬头到极限角度的参数
@@ -41,6 +43,18 @@ static constexpr uint32_t DOWN_MOVE_RIGHT_POS_START_Y = 510;
 static constexpr uint32_t DOWN_MOVE_RIGHT_POS_END_X = 1920 - 330;
 static constexpr uint32_t DOWN_MOVE_RIGHT_POS_END_Y = 580;
 
+// 腿姿态
+static constexpr uint32_t BODY_RECTANGLE_WIDTH = 80;
+static constexpr uint32_t BODY_RECTANGLE_HEIGHT = 50;
+static constexpr uint32_t BODY_RECTANGLE_CENTER_X = 960 + 700;
+static constexpr uint32_t BODY_RECTANGLE_CENTER_Y = 540 + 200;
+static constexpr uint32_t LENGTH_TO_PIXEL_CONVERT_FACTOR = 300;
+static constexpr uint32_t THIGH_RIGIDBODY_LENGTH = static_cast<uint32_t>(0.21f * LENGTH_TO_PIXEL_CONVERT_FACTOR);
+static constexpr uint32_t CALF_RIGIDBODY_LENGTH = static_cast<uint32_t>(0.25f * LENGTH_TO_PIXEL_CONVERT_FACTOR);
+static constexpr float DEFAULT_THIGH_RAD = 300.f / 180.f * std::numbers::pi_v<float>;
+static constexpr float DEFAULT_CALF_RAD = 60.f / 180.f * std::numbers::pi_v<float>;
+static constexpr float VISUAL_DIFF_RAD = 2.f / 180.f * std::numbers::pi_v<float>;
+
 // 小陀螺指示
 static constexpr uint32_t UI_SPINNING_DEG = 30;
 
@@ -48,11 +62,16 @@ union DynamicUIInfos_u {
     struct {
         // chassis
         UI::Info_s chassisState;
-        UI::Info_s noChassisLine;
+        UI::Info_s noBalanceLine;
         UI::Info_s capEnergyBar;
         UI::Info_s chassisDirection;
         UI::Info_s legLengthValue;
         UI::Info_s chassisRollValue;
+        UI::Info_s leftThighLine;
+        UI::Info_s leftCalfLine;
+        UI::Info_s rightThighLine;
+        UI::Info_s rightCalfLine;
+        UI::Info_s chassisPitchLine;
 
         // gimbal
         UI::Info_s visionState;

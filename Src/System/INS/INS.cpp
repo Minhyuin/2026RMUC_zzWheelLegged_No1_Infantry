@@ -51,9 +51,9 @@ static constexpr AccCaliParams_s ACC_CALI = {
 // default gyroscope calibration
 static constexpr GyroCaliParams_s GYRO_CALI = {
 
-    .gxBias = -1.51436269f,
-    .gyBias = -1.14142311f,
-    .gzBias = -0.591478527f,
+    .gxBias = -1.29074049f,
+    .gyBias = -0.965532422f,
+    .gzBias = -0.441381305f,
     .gxTcoK = 0.f,
     .gxTcoB0 = 0.f,
     .gyTcoK = 0.f,

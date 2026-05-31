@@ -16,7 +16,7 @@ void dynamicConfig(DynamicUIInfos_u &_info)
 {
     auto &chassisState = _info.chassisState.config;
     chassisState = {};
-    chassisState.priority = UI::Priority_e::MID;
+    chassisState.priority = UI::Priority_e::HIGH;
     chassisState.uiType = Type_e::CHAR;
     chassisState.operateType = OperateType_e::MODIFY;
     chassisState.layer = 3;
@@ -27,18 +27,18 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     chassisState.size = 20;
     std::strncpy(chassisState.text, "STOP", sizeof(chassisState.text) - 1);
 
-    auto &noChassisLine = _info.noChassisLine.config;
-    noChassisLine = {};
-    noChassisLine.priority = UI::Priority_e::LOW;
-    noChassisLine.uiType = Type_e::LINE;
-    noChassisLine.operateType = OperateType_e::MODIFY;
-    noChassisLine.layer = 4;
-    noChassisLine.color = Color_e::WHITE;
-    noChassisLine.width = 3;
-    noChassisLine.startX = 50;
-    noChassisLine.startY = 825;
-    noChassisLine.endX = 220;
-    noChassisLine.endY = 825;
+    auto &noBalanceLine = _info.noBalanceLine.config;
+    noBalanceLine = {};
+    noBalanceLine.priority = UI::Priority_e::HIGH;
+    noBalanceLine.uiType = Type_e::LINE;
+    noBalanceLine.operateType = OperateType_e::DELETE;
+    noBalanceLine.layer = 4;
+    noBalanceLine.color = Color_e::WHITE;
+    noBalanceLine.width = 3;
+    noBalanceLine.startX = 50;
+    noBalanceLine.startY = 825;
+    noBalanceLine.endX = 220;
+    noBalanceLine.endY = 825;
 
     auto &capEnergyBar = _info.capEnergyBar.config;
     capEnergyBar = {};
@@ -56,14 +56,17 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     auto &chassisDirection = _info.chassisDirection.config;
     chassisDirection = {};
     chassisDirection.priority = UI::Priority_e::MID;
-    chassisDirection.uiType = Type_e::CIRCLE;
+    chassisDirection.uiType = Type_e::ARC;
     chassisDirection.operateType = OperateType_e::MODIFY;
     chassisDirection.layer = 5;
-    chassisDirection.color = Color_e::RED_BLUE;
-    chassisDirection.width = 5;
-    chassisDirection.startX = 369;
-    chassisDirection.startY = 544;
-    chassisDirection.radius = 8;
+    chassisDirection.color = Color_e::YELLOW;
+    chassisDirection.width = 20;
+    chassisDirection.startX = REAL_AIM_X;
+    chassisDirection.startY = REAL_AIM_Y;
+    chassisDirection.endX = CHASSIS_DIRECTION_RADIUS;
+    chassisDirection.endY = CHASSIS_DIRECTION_RADIUS;
+    chassisDirection.startAngle = 345;
+    chassisDirection.endAngle = 15;
 
     auto &legLengthValue = _info.legLengthValue.config;
     legLengthValue = {};
@@ -92,6 +95,75 @@ void dynamicConfig(DynamicUIInfos_u &_info)
     chassisRollValue.floatNum = 0.f;
     chassisRollValue.decimal = 3;
     chassisRollValue.size = 15;
+
+    auto &leftThighLine = _info.leftThighLine.config;
+    leftThighLine = {};
+    leftThighLine.priority = UI::Priority_e::LOW;
+    leftThighLine.uiType = Type_e::LINE;
+    leftThighLine.operateType = OperateType_e::MODIFY;
+    leftThighLine.layer = 0;
+    leftThighLine.color = Color_e::GREEN;
+    leftThighLine.width = 3;
+    leftThighLine.startX = BODY_RECTANGLE_CENTER_X;
+    leftThighLine.startY = BODY_RECTANGLE_CENTER_Y;
+    leftThighLine.endX =
+            -static_cast<uint32_t>(THIGH_RIGIDBODY_LENGTH * cosf(DEFAULT_THIGH_RAD)) + leftThighLine.startX;
+    leftThighLine.endY =
+            -static_cast<uint32_t>(THIGH_RIGIDBODY_LENGTH * sinf(DEFAULT_THIGH_RAD)) + leftThighLine.startY;
+
+    auto &leftCalfLine = _info.leftCalfLine.config;
+    leftCalfLine = {};
+    leftCalfLine.priority = UI::Priority_e::LOW;
+    leftCalfLine.uiType = Type_e::LINE;
+    leftCalfLine.operateType = OperateType_e::MODIFY;
+    leftCalfLine.layer = 0;
+    leftCalfLine.color = Color_e::GREEN;
+    leftCalfLine.width = 3;
+    leftCalfLine.startX = leftThighLine.endX;
+    leftCalfLine.startY = leftThighLine.endY;
+    leftCalfLine.endX = -static_cast<uint32_t>(CALF_RIGIDBODY_LENGTH * cosf(DEFAULT_CALF_RAD)) + leftCalfLine.startX;
+    leftCalfLine.endY = -static_cast<uint32_t>(CALF_RIGIDBODY_LENGTH * sinf(DEFAULT_CALF_RAD)) + leftCalfLine.startY;
+
+    auto &rightThighLine = _info.rightThighLine.config;
+    rightThighLine = {};
+    rightThighLine.priority = UI::Priority_e::LOW;
+    rightThighLine.uiType = Type_e::LINE;
+    rightThighLine.operateType = OperateType_e::MODIFY;
+    rightThighLine.layer = 0;
+    rightThighLine.color = Color_e::CYAN_BLUE;
+    rightThighLine.width = 3;
+    rightThighLine.startX = BODY_RECTANGLE_CENTER_X;
+    rightThighLine.startY = BODY_RECTANGLE_CENTER_Y;
+    rightThighLine.endX =
+            -static_cast<uint32_t>(THIGH_RIGIDBODY_LENGTH * cosf(DEFAULT_THIGH_RAD)) + leftThighLine.startX;
+    rightThighLine.endY =
+            -static_cast<uint32_t>(THIGH_RIGIDBODY_LENGTH * sinf(DEFAULT_THIGH_RAD)) + leftThighLine.startY;
+
+    auto &rightCalfLine = _info.rightCalfLine.config;
+    rightCalfLine = {};
+    rightCalfLine.priority = UI::Priority_e::LOW;
+    rightCalfLine.uiType = Type_e::LINE;
+    rightCalfLine.operateType = OperateType_e::MODIFY;
+    rightCalfLine.layer = 0;
+    rightCalfLine.color = Color_e::CYAN_BLUE;
+    rightCalfLine.width = 3;
+    rightCalfLine.startX = leftThighLine.endX;
+    rightCalfLine.startY = leftThighLine.endY;
+    rightCalfLine.endX = -static_cast<uint32_t>(CALF_RIGIDBODY_LENGTH * cosf(DEFAULT_CALF_RAD)) + leftCalfLine.startX;
+    rightCalfLine.endY = -static_cast<uint32_t>(CALF_RIGIDBODY_LENGTH * sinf(DEFAULT_CALF_RAD)) + leftCalfLine.startY;
+
+    auto &chassisPitchLine = _info.chassisPitchLine.config;
+    chassisPitchLine = {};
+    chassisPitchLine.priority = UI::Priority_e::LOW;
+    chassisPitchLine.uiType = Type_e::LINE;
+    chassisPitchLine.operateType = OperateType_e::MODIFY;
+    chassisPitchLine.layer = 1;
+    chassisPitchLine.color = Color_e::ORANGE;
+    chassisPitchLine.width = 50;
+    chassisPitchLine.startX = BODY_RECTANGLE_CENTER_X - BODY_RECTANGLE_WIDTH / 2;
+    chassisPitchLine.startY = BODY_RECTANGLE_CENTER_Y;
+    chassisPitchLine.endX = BODY_RECTANGLE_CENTER_X + BODY_RECTANGLE_WIDTH / 2;
+    chassisPitchLine.endY = BODY_RECTANGLE_CENTER_Y;
 
     auto &visionState = _info.visionState.config;
     visionState = {};
@@ -149,7 +221,7 @@ void dynamicConfig(DynamicUIInfos_u &_info)
 
     auto &gimbalState = _info.gimbalState.config;
     gimbalState = {};
-    gimbalState.priority = UI::Priority_e::MID;
+    gimbalState.priority = UI::Priority_e::HIGH;
     gimbalState.uiType = Type_e::CHAR;
     gimbalState.operateType = OperateType_e::MODIFY;
     gimbalState.layer = 3;
@@ -175,7 +247,7 @@ void dynamicConfig(DynamicUIInfos_u &_info)
 
     auto &armorLoaderState = _info.armorLoaderState.config;
     armorLoaderState = {};
-    armorLoaderState.priority = UI::Priority_e::MID;
+    armorLoaderState.priority = UI::Priority_e::HIGH;
     armorLoaderState.uiType = Type_e::CHAR;
     armorLoaderState.operateType = OperateType_e::MODIFY;
     armorLoaderState.layer = 3;

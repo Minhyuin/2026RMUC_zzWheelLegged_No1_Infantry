@@ -11,9 +11,6 @@
 #include "Buzzer.hpp"
 #endif
 
-static volatile float launchPitchStep = 0.6f * 0.001f;
-static volatile float launchYawStep = 0.5f * 0.001f;
-
 static PositionalPid launchPitchAngPID(50.f, 20.f, 0.1f, 0.001f, 1.0f, 5.f, 0.f);
 static PositionalPid launchPitchVelPID(1.f, 1.f, 0.f, 0.001f, 7.f, 7.f, 0.f);
 static PositionalPid launchYawAngPID(50.f, 100.f, 0.3f, 0.001f, 2.f, 6.f, 0.f);
@@ -80,23 +77,9 @@ public:
 
     void run() final
     {
-        // determine if the target position (0) has been reached
-        switch (launchStrategy_) {
-        case Gimbal::LaunchStrategy_e::NORMAL: {
-            // no need to change cmd angle
-            cmdMotorPitchAng_ = targetPitch_;
-            cmdMotorYawAng_ = targetYaw_;
-        }
-        case Gimbal::LaunchStrategy_e::ANTI_CLOCKWISE: {
-            cmdMotorYawAng_ += launchYawStep;
-            break;
-        }
-        case Gimbal::LaunchStrategy_e::CLOCKWISE: {
-            cmdMotorYawAng_ -= launchYawStep;
-            break;
-        }
-        }
-        launchFinish_[0] = true;//todo:
+        cmdMotorPitchAng_ = targetPitch_;
+        cmdMotorYawAng_ = targetYaw_;
+
         if (std::fabs(PINYMOTOR::getMinorArc(targetPitch_, gimbal_->pitch()->posNorm())) < PITCH_LAUNCH_ANG_DEADBAND ||
             launchFinish_[0])
             launchFinish_[0] = true;

@@ -159,4 +159,20 @@ void Dial::ctrl(PID *_posPID, PID *_velPID, float _ang)
 
 bool Dial::isBlock() const { return blockCnt >= BLOCK_CNT_MAX; }
 
-float Dial::targetRate() const { return MAX_BULLETS_RATE * shooterCtrlRxPacket_.data().shootFreqRatio; }
+float Dial::targetRate() const
+{
+#if EXTENSION_REFEREE
+    float baseRate = 0;
+    if (barrelHeat_ > static_cast<float>(referee->receiver.getRefereeData().gameRobotStatus.shooterHeatLimit - 40)) {
+        baseRate = MIN_BULLETS_RATE;
+    } else if (barrelHeat_ >
+               static_cast<float>(referee->receiver.getRefereeData().gameRobotStatus.shooterHeatLimit) * 0.5f) {
+        baseRate = MID_BULLETS_RATE;
+    } else {
+        baseRate = MAX_BULLETS_RATE;
+    }
+    return baseRate * shooterCtrlRxPacket_.data().shootFreqRatio;
+#else
+    return MAX_BULLETS_RATE * shooterCtrlRxPacket_.data().shootFreqRatio;
+#endif
+}
