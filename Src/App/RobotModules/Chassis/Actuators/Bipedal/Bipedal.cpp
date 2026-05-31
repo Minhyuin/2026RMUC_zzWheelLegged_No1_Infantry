@@ -295,7 +295,7 @@ void Bipedal::update(void *_param)
 #if EXTENSION_REFEREE
     const auto &refereeData = referee->receiver.getRefereeData();
     auto isAlive = refereeData.gameRobotStatus.currentHP > 0;
-    powerLimit_ = std::clamp(static_cast<float>(refereeData.gameRobotStatus.chassisPowerLimit), 35.f, 120.f);
+    powerLimit_ = std::clamp(static_cast<float>(refereeData.gameRobotStatus.chassisPowerLimit) - 10.f, 35.f, 120.f);
     wheelCap_.setChargeEnergySlack(refereeData.powerHeatData.chassisPowerBuffer);
     if (isAlive)
         wheelCap_.enable();
