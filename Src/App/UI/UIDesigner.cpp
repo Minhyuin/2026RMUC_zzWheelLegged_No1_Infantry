@@ -162,7 +162,7 @@ void dynamicConfig(DynamicUIInfos_u &_info)
 
     auto &fricSwitch = _info.fricSwitch.config;
     fricSwitch = {};
-    fricSwitch.priority = UI::Priority_e::MID;
+    fricSwitch.priority = UI::Priority_e::HIGH;
     fricSwitch.uiType = Type_e::LINE;
     fricSwitch.operateType = OperateType_e::MODIFY;
     fricSwitch.layer = 3;
