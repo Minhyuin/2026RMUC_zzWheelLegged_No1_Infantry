@@ -69,7 +69,7 @@ public:
     static constexpr float YAW_MOTOR_FREQ = 1000.f;
 
     static constexpr float IMU_PITCH_START_ANG_MECH = -0.54f;
-    static constexpr float IMU_PITCH_END_ANG_MECH = 0.11f;
+    static constexpr float IMU_PITCH_END_ANG_MECH = 0.08f;
 
     static constexpr float YAW_INERTIA = 0.0344086f;
     static constexpr float YAW_FRICTION = 0.0433152f;
