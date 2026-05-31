@@ -122,6 +122,11 @@ struct ChassisUIMsg_s {
     float lengthL;
     float lengthR;
     float roll;
+    float thighPhiL;
+    float calfPhiL;
+    float thighPhiR;
+    float calfPhiR;
+    float chassisPitch;
     bool needRush;
     bool needStool;
     bool noBalance;

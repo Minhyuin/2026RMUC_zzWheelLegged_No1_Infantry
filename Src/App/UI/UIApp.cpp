@@ -7,7 +7,10 @@
 #include "magic_enum/magic_enum.hpp"
 #include "dsp/fast_math_functions.h"
 
+#include "MotorCommonMacros.hpp"
+
 using namespace UI;
+using namespace PINYMOTOR;
 
 extern UART_HandleTypeDef UI_UART;
 
@@ -57,10 +60,15 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
     client_.ready(&dynamicInfo_.capEnergyBar);
 
     // chassisDirection
-    dynamicInfo_.chassisDirection.config.startX =
-            static_cast<int32_t>(CHASSIS_DIRECTION_RADIUS * arm_sin_f32(_msg.deltaYaw)) + REAL_AIM_X;
-    dynamicInfo_.chassisDirection.config.startY =
-            static_cast<int32_t>(CHASSIS_DIRECTION_RADIUS * arm_cos_f32(_msg.deltaYaw)) + REAL_AIM_Y;
+    float directionPointDec = rad2deg(_msg.deltaYaw);
+    dynamicInfo_.chassisDirection.config.startAngle =
+            static_cast<uint32_t>(rangeMap(directionPointDec - CHASSIS_DIRECTION_ANGLE_HALF, 0.f, 360.f));
+    dynamicInfo_.chassisDirection.config.endAngle =
+            static_cast<uint32_t>(rangeMap(directionPointDec + CHASSIS_DIRECTION_ANGLE_HALF, 0.f, 360.f));
+    if (_msg.state == CHASSIS::FSMState_e::SPIN)
+        dynamicInfo_.chassisDirection.config.color = Color_e::YELLOW;
+    else
+        dynamicInfo_.chassisDirection.config.color = Color_e::GREEN;
     client_.ready(&dynamicInfo_.chassisDirection);
 
     // legLengthValue
@@ -71,9 +79,64 @@ void APP::updateChassis(const ChassisUIMsg_s &_msg)
     dynamicInfo_.chassisRollValue.config.floatNum = _msg.roll;
     client_.ready(&dynamicInfo_.chassisRollValue);
 
-    // noChassisLine
-    dynamicInfo_.noChassisLine.config.operateType = _msg.noBalance ? OperateType_e::ADD : OperateType_e::DELETE;
-    client_.ready(&dynamicInfo_.noChassisLine);
+    // leftThighLine
+    dynamicInfo_.leftThighLine.config.endX =
+            -static_cast<int32_t>(THIGH_RIGIDBODY_LENGTH * arm_cos_f32(_msg.thighPhiL)) +
+            dynamicInfo_.leftThighLine.config.startX;
+    dynamicInfo_.leftThighLine.config.endY =
+            -static_cast<int32_t>(THIGH_RIGIDBODY_LENGTH * arm_sin_f32(_msg.thighPhiL)) +
+            dynamicInfo_.leftThighLine.config.startY;
+    client_.ready(&dynamicInfo_.leftThighLine);
+
+    // leftCalfLine
+    dynamicInfo_.leftCalfLine.config.startX = dynamicInfo_.leftThighLine.config.endX;
+    dynamicInfo_.leftCalfLine.config.startY = dynamicInfo_.leftThighLine.config.endY;
+    dynamicInfo_.leftCalfLine.config.endX = -static_cast<int32_t>(CALF_RIGIDBODY_LENGTH * arm_cos_f32(_msg.calfPhiL)) +
+                                            dynamicInfo_.leftCalfLine.config.startX;
+    dynamicInfo_.leftCalfLine.config.endY = -static_cast<int32_t>(CALF_RIGIDBODY_LENGTH * arm_sin_f32(_msg.calfPhiL)) +
+                                            dynamicInfo_.leftCalfLine.config.startY;
+    client_.ready(&dynamicInfo_.leftCalfLine);
+
+    // rightThighLine
+    dynamicInfo_.rightThighLine.config.endX =
+            -static_cast<int32_t>(THIGH_RIGIDBODY_LENGTH * arm_cos_f32(_msg.thighPhiR)) +
+            dynamicInfo_.rightThighLine.config.startX;
+    dynamicInfo_.rightThighLine.config.endY =
+            -static_cast<int32_t>(THIGH_RIGIDBODY_LENGTH * arm_sin_f32(_msg.thighPhiR)) +
+            dynamicInfo_.rightThighLine.config.startY;
+    client_.ready(&dynamicInfo_.rightThighLine);
+
+    // rightCalfLine
+    dynamicInfo_.rightCalfLine.config.startX = dynamicInfo_.rightThighLine.config.endX;
+    dynamicInfo_.rightCalfLine.config.startY = dynamicInfo_.rightThighLine.config.endY;
+    dynamicInfo_.rightCalfLine.config.endX = -static_cast<int32_t>(CALF_RIGIDBODY_LENGTH * arm_cos_f32(_msg.calfPhiR)) +
+                                             dynamicInfo_.rightCalfLine.config.startX;
+    dynamicInfo_.rightCalfLine.config.endY = -static_cast<int32_t>(CALF_RIGIDBODY_LENGTH * arm_sin_f32(_msg.calfPhiR)) +
+                                             dynamicInfo_.rightCalfLine.config.startY;
+    client_.ready(&dynamicInfo_.rightCalfLine);
+
+    // chassisPitchLine
+    dynamicInfo_.chassisPitchLine.config.startX =
+            BODY_RECTANGLE_CENTER_X -
+            static_cast<uint32_t>(BODY_RECTANGLE_WIDTH * arm_cos_f32(_msg.chassisPitch) / 2.f);
+    dynamicInfo_.chassisPitchLine.config.startY =
+            BODY_RECTANGLE_CENTER_Y -
+            static_cast<uint32_t>(BODY_RECTANGLE_WIDTH * arm_sin_f32(_msg.chassisPitch) / 2.f);
+    dynamicInfo_.chassisPitchLine.config.endX =
+            BODY_RECTANGLE_CENTER_X +
+            static_cast<uint32_t>(BODY_RECTANGLE_WIDTH * arm_cos_f32(_msg.chassisPitch) / 2.f);
+    dynamicInfo_.chassisPitchLine.config.endY =
+            BODY_RECTANGLE_CENTER_Y +
+            static_cast<uint32_t>(BODY_RECTANGLE_WIDTH * arm_sin_f32(_msg.chassisPitch) / 2.f);
+    client_.ready(&dynamicInfo_.chassisPitchLine);
+
+    // noBalanceLine
+    static bool noBalanceLinePrev = false;
+    if (noBalanceLinePrev != _msg.noBalance) {
+        dynamicInfo_.noBalanceLine.config.operateType = _msg.noBalance ? OperateType_e::ADD : OperateType_e::DELETE;
+        noBalanceLinePrev = _msg.noBalance;
+    }
+    client_.ready(&dynamicInfo_.noBalanceLine);
 }
 
 void APP::updateGimbal(const GimbalUIMsg_s &_msg)
