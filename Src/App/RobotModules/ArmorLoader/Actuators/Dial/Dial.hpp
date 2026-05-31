@@ -44,9 +44,11 @@ public:
     static constexpr float BLOCK_SPEED_MIN = 0.3f; // rad/s
     static constexpr uint16_t BLOCK_CNT_MAX = 500.f;
 
-    static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 40.f;
+    static constexpr float BARREL_HEAT_THRESHOLD_OFFSET = 15.f;
 
     static constexpr float MAX_BULLETS_RATE = 15.f; // bullets per second
+    static constexpr float MID_BULLETS_RATE = 10.f;
+    static constexpr float MIN_BULLETS_RATE = 3.f;
 
     FSMState_e lastState = FSMState_e::STOP;
 
