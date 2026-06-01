@@ -27,6 +27,9 @@ public:
     {
         chassis_->enter();
 
+        refLength_ = chassis_->length();
+        refYaw_ = chassis_->yaw();
+
         const auto y = chassis_->deltaYaw;
         const auto w = chassis_->wz();
 
@@ -44,6 +47,8 @@ public:
 
     void run() final
     {
+        refLength_ = SMOOTH::slopeFollowing(Bipedal::DEFAULT_L, refLength_, 0.00025f);
+        chassis_->setLength(refLength_);
         chassis_->setFdFeedforward();
 
         const auto wz = wzAngPid_->calc(PINYMOTOR::getMinorArc(chassis_->deltaYaw, targetDeltaYaw_), 0);
@@ -58,6 +63,7 @@ public:
 
     void exit() final
     {
+        refreshLength_ = false;
         wzAngPid_->reset();
         LOG::info("ChassisSpinExiting", " exit");
     }
@@ -75,6 +81,13 @@ public:
 
     bool change() final
     {
+        if (!refreshLength_) {
+            refLength_ = chassis_->length();
+            refreshLength_ = true;
+        }
+        refLength_ = SMOOTH::slopeFollowing(Bipedal::DEFAULT_L, refLength_, 0.00025f);
+        chassis_->setLength(refLength_);
+        chassis_->setFdFeedforward();
         WBRController::States_s ref{};
         ref.yaw = chassis_->yaw() + chassis_->wz() * 0.001f;
         ref.dyaw = SMOOTH::slopeFollowing(0.f, chassis_->wz(), 1.f);
@@ -87,6 +100,9 @@ private:
     Bipedal *chassis_;
 
     PID *wzAngPid_;
+
+    bool refreshLength_ = false;
+    float refLength_;
 
     float refYaw_ = 0.f;
     float targetDeltaYaw_ = 0.f;

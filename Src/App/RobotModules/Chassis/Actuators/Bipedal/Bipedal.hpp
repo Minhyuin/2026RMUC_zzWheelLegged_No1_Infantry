@@ -120,8 +120,9 @@ public:
     static constexpr float EXPT_Q_OFFSET = 0.05f;
     static constexpr float EXPT_PHI_OFFSET = 0.05f;
 
-    static constexpr float DEFAULT_L = 0.19f; // the length for all feedforward param
-    static constexpr float STRETCH_L = 0.26f; // the length when stretching
+    static constexpr float DEFAULT_L = WheelLegged::MIN_L; // the length for all feedforward param
+    static constexpr float STRETCH_L = 0.24f;              // the length when stretching
+    static constexpr float STRETCH_RUSH_L = 0.19f;
 
     Bipedal();
 
@@ -512,8 +513,8 @@ private:
     PositionalPid rollAngPid_{ 30.f, 80.f, 0.1f, 0.001f, 3.f, 30.f, 0.f };
     PositionalPid rollVelPid_{ 0.012f, 0.f, 0.f, 0.001f, 0.f, 0.05f, 0.f };
 
-    PositionalPid hipAngPidL_{ 10.f, 0.f, 0.f, 0.001f, 0.f, 6.f, 0.f };
-    PositionalPid hipVelPidL_{ 7.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
+    PositionalPid hipAngPidL_{ 12.f, 0.f, 0.f, 0.001f, 0.f, 6.f, 0.f };
+    PositionalPid hipVelPidL_{ 10.f, 1.f, 0.f, 0.001f, 5, 40.f, 0.f };
 
     PositionalPid hipAngPidR_{ hipAngPidL_ };
     PositionalPid hipVelPidR_{ hipVelPidL_ };
@@ -569,7 +570,7 @@ private:
     /**
      * @brief judge body is in the low displacement state
      */
-    void detectStop();
+    void detectStop(float _dsCmd);
 
     float phiGlobalL_ = 0.f;
     float phiGlobalR_ = 0.f;

@@ -136,6 +136,7 @@ public:
 
     bool change() final
     {
+        chassis_->setFdFeedforward();
         WBRController::States_s ref{};
         ref.ds = SMOOTH::slopeFollowing(0.f, chassis_->vel(), 1.f);
         ref.yaw = chassis_->yaw();
