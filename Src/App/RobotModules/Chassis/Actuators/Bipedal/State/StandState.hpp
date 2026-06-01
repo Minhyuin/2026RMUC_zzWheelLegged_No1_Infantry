@@ -26,8 +26,8 @@ class StandState : public FSMState<FSMState_e> {
     static constexpr float TARGET_PITCH_FORWARD = 0.1f;
     static constexpr float TARGET_PITCH_BACKWARD = 0.f;
 
-    static constexpr float S_FEEDFORWARD_FORWARD = -0.6f;
-    static constexpr float S_FEEDFORWARD_BACKWARD = -1.f;
+    static constexpr float S_FEEDFORWARD_FORWARD = -0.5f;
+    static constexpr float S_FEEDFORWARD_BACKWARD = -0.45f;
     static constexpr uint16_t S_FEEDBACK_LOCK_TIME = 1000; // ms
 
 public:

@@ -365,9 +365,6 @@ void Bipedal::update(void *_param)
     chassisStateTxPacket_.setData().weightlessness = isFloating();
     chassisStateTxPacket_.setData().wz = wz();
 
-    // stop detect
-    detectStop();
-
     // update state
     this->stateFactory_.update();
 }

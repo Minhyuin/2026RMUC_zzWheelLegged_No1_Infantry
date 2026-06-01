@@ -23,7 +23,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_BASE = 6.f; // TODO: follow power
     static constexpr float SPIN_SPEED_VAR = 5.f;
     static constexpr float SPIN_L = 0.17f;
-    static constexpr float SPIN_STRETCH_L = 0.23f;
+    static constexpr float SPIN_STRETCH_L = 0.25f;
 
     static constexpr float LENGTH_ANGLE_FREQENCY = 1.5f * PI;
 
@@ -136,6 +136,7 @@ public:
 
     bool change() final
     {
+        chassis_->setFdFeedforward();
         WBRController::States_s ref{};
         ref.ds = SMOOTH::slopeFollowing(0.f, chassis_->vel(), 1.f);
         ref.yaw = chassis_->yaw();

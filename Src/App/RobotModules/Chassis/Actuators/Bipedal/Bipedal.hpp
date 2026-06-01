@@ -96,9 +96,9 @@ class Bipedal : public Chassis {
     static constexpr float S_FEEDFORWARD_LEG_VD_GAIN = 0.003f;
 
     static constexpr float S_FEEDFORWARD_BACKWARD =
-            -0.35f; // feedfoward gain for s when the direction of movement is towards the knee joint
+            -0.4f; // feedfoward gain for s when the direction of movement is towards the knee joint
     static constexpr float S_FEEDFORWARD_FORWARD =
-            -0.5f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
+            -0.6f; // feedfoward gain for s when the direction of movement is opposite to the knee joint
 
     static constexpr float REAL_Q_OFFSET =
             0.0120110381f; // mecanical offset of the equivalent pendulum angle, unit: rad
@@ -123,8 +123,9 @@ public:
     static constexpr float EXPT_Q_OFFSET = 0.07f;
     static constexpr float EXPT_PHI_OFFSET = 0.025f;
 
-    static constexpr float DEFAULT_L = 0.19f; // the length for all feedforward param
-    static constexpr float STRETCH_L = 0.26f; // the length when stretching
+    static constexpr float DEFAULT_L = WheelLegged::MIN_L; // the length for all feedforward param
+    static constexpr float STRETCH_L = 0.24f;              // the length when stretching
+    static constexpr float STRETCH_RUSH_L = 0.19f;
 
     Bipedal();
 
@@ -572,7 +573,7 @@ private:
     /**
      * @brief judge body is in the low displacement state
      */
-    void detectStop();
+    void detectStop(float _dsCmd);
 
     float phiGlobalL_ = 0.f;
     float phiGlobalR_ = 0.f;

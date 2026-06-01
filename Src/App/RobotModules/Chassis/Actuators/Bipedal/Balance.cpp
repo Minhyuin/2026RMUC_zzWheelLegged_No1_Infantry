@@ -7,6 +7,7 @@ using namespace PINYMOTOR;
 
 template <WBRController::WBRControlMode_e M> void Bipedal::bal(const WBRController::States_s &_ref)
 {
+    detectStop(_ref.ds);
     WBRController ::States_s errData;
     errData.s = _ref.s - s_;
     errData.ds = std::clamp(_ref.ds, -dsMaxB_, dsMaxF_) - ds_;
@@ -43,6 +44,7 @@ void Bipedal::bal(const WLController::States_s &_ref, float _yaw) { bal(_ref, _r
 
 void Bipedal::bal(const WLController::States_s &_refL, const WLController::States_s &_refR, float _yaw)
 {
+    detectStop((_refL.ds + _refR.ds) / 2.f);
     WLController::States_s errDataL;
     errDataL.phi = getMinorArc(_refL.phi + EXPT_PHI_OFFSET, phiGlobalL());
     errDataL.dphi = _refL.dphi - (legL_.state().dphi0 + insData_.body.gy);
@@ -70,6 +72,7 @@ void Bipedal::bal(const WLController::States_s &_refL, const WLController::State
 
 template <STController::STControlMode_e M> void Bipedal::bal(const STController::States_s &_ref, float _yaw)
 {
+    detectStop(_ref.ds);
     STController::States_s errData;
     errData.s = _ref.s - s_;
     errData.q = -getMinorArc(_ref.q + EXPT_Q_OFFSET, insData_.pitch);

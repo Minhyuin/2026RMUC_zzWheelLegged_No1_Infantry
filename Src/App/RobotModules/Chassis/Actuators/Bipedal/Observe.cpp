@@ -13,9 +13,14 @@ bool Bipedal::isTumble() const
 {
     // TODO: maybe this is a weighted linear regression
     bool result = false;
-    result |= fabs(phiGlobalL()) > 0.7f || fabs(phiGlobalR()) > 0.7f || fabs(pitch()) > 0.35f;
-    result |= phiL() > 1.f || phiR() > 1.f;
-    result |= phiL() < -0.4f || phiR() < -0.4f;
+    if (!isFloating()) {
+        result |= phiL() > 1.f || phiR() > 1.f;
+        result |= phiL() < -0.4f || phiR() < -0.4f;
+    } else {
+        result |= pitch() > PI / 2.f || pitch() < -PI / 2.f;
+        result |= phiL() > PI / 2.f - 0.1f || phiR() > PI / 2.f - 0.1f;
+        result |= phiL() < -PI / 2.f + 0.1f || phiR() < -PI / 2.f + 0.1f;
+    }
     return result;
 }
 
@@ -53,7 +58,7 @@ bool Bipedal::detectNeedStop(float _expVel)
 {
     static constexpr float STOP_CMD_THRESHOLD = 0.1f;
     static constexpr float STOP_VEL_FRONT_THRESHOLD = 0.6f;
-    static constexpr float STOP_VEL_BACK_THRESHOLD = -0.7f;
+    static constexpr float STOP_VEL_BACK_THRESHOLD = -1.f;
     if (std::fabs(_expVel) < STOP_CMD_THRESHOLD && STOP_VEL_BACK_THRESHOLD < ds_ && ds_ < STOP_VEL_FRONT_THRESHOLD) {
         return true;
     } else {
@@ -63,7 +68,7 @@ bool Bipedal::detectNeedStop(float _expVel)
     }
 }
 
-void Bipedal::detectStop()
+void Bipedal::detectStop(float _dsCmd)
 {
     if (lockSCount_ > 0)
         lockSCount_--;
@@ -71,7 +76,7 @@ void Bipedal::detectStop()
     static float prevDs = 0.f;
     static bool prevDsValid = false;
     if (lockSCount_ == 0) {
-        if (detectNeedStop(this->msg.vx)) {
+        if (detectNeedStop(_dsCmd)) {
             if (!prevDsValid) {
                 prevDs = ds_;
                 prevDsValid = true;

@@ -117,16 +117,17 @@ void Bipedal::setLengthL(float _l) { legL_.setL(_l); }
 
 void Bipedal::setLengthR(float _l) { legR_.setL(_l); }
 
+static constexpr float INERATIAL_FD_FEEDFORWARD_GAIN = 3.5f;
 void Bipedal::setFdFeedforward()
 {
     // F_gravity = 1/2 * M * g * cos(phi)
     // F_inertial = 1/2 * M * (L / 2 / R_l * dyaw * ds)
     float gravityF = 0.5f * MASS_BODY * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalL());
     float inertialF = 0.5f * MASS_BODY * (0.5f * lengthL() / W_DISTANCE_HALF * insData_.body.gz * ds_);
-    float fdL = gravityF - inertialF;
+    float fdL = gravityF - (inertialF * INERATIAL_FD_FEEDFORWARD_GAIN);
     gravityF = 0.5f * MASS_BODY * WheelLegged::GRAVITY * arm_cos_f32(phiGlobalR());
     inertialF = 0.5f * MASS_BODY * (0.5f * lengthR() / W_DISTANCE_HALF * insData_.body.gz * ds_);
-    float fdR = gravityF + inertialF;
+    float fdR = gravityF + (inertialF * INERATIAL_FD_FEEDFORWARD_GAIN);
     setFdFeedforward(fdL, fdR);
 }
 

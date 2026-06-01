@@ -12,7 +12,7 @@
 #include "Buzzer.hpp"
 #endif
 
-static float idleFollowVelPidPID[7]{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.05f };
+static float idleFollowVelPidPID[7]{ 7.0f, 1.f, 0.1f, 0.001f, 0.05f, 2.f, 0.01f };
 static float idleFollowVelInVisionPidPID[7]{ 5.0f, 1.f, 0.1f, 0.001f, 0.05f, 1.f, 0.5f };
 static PositionalPid idleFollowVelPid{ 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
 volatile static float idleLegLengthAngPidPD[3]{ 20.f, 0.5f, 1.f };
@@ -61,7 +61,7 @@ public:
     void run() final
     {
         if (!strechPrev_ && chassis_->msg.needStretch) {
-            targetRefLength_ = Bipedal::STRETCH_L;
+            targetRefLength_ = chassis_->msg.needRush ? Bipedal::STRETCH_RUSH_L : Bipedal::STRETCH_L;
         } else if (strechPrev_ && !chassis_->msg.needStretch) {
             targetRefLength_ = IDLE_L;
             refRoll_ = 0.f;
@@ -123,6 +123,7 @@ public:
                                 chassis_->vel() + chassis_->getTranslationFrontAcc());
             ref.yaw = refYaw_;
             ref.q = OFFSET_Q + refPitch_;
+            ref.phir = ref.phil = chassis_->msg.needStretch && !chassis_->msg.needRush ? -ref.ds * 0.05f : 0.f;
             chassis_->bal<WBRController::WBRControlMode_e::BALANCE>(ref);
         }
 
