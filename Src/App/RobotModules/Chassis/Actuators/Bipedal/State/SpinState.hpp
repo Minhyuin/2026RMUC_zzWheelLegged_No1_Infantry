@@ -23,7 +23,7 @@ class SpinState : public FSMState<FSMState_e> {
     static constexpr float SPIN_SPEED_BASE = 6.f; // TODO: follow power
     static constexpr float SPIN_SPEED_VAR = 5.f;
     static constexpr float SPIN_L = 0.17f;
-    static constexpr float SPIN_STRETCH_L = 0.23f;
+    static constexpr float SPIN_STRETCH_L = 0.25f;
 
     static constexpr float LENGTH_ANGLE_FREQENCY = 1.5f * PI;
 
@@ -85,7 +85,7 @@ public:
         // if (ds == 0 && chassis_->detectLengthRange(refLength_))
         //     wz = getVariableSpinVel() * accelFactor_;
         // else
-        wz = getConstantSpinVel() * accelFactor_;
+            wz = getConstantSpinVel() * accelFactor_;
         // ds = 0;
         // wz = getConstantSpinVelForDebug() * accelFactor_;
         // if (!chassis_->msg.needRush)
