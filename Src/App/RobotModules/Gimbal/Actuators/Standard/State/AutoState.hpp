@@ -24,9 +24,9 @@ static PositionalPid autoYawAngPID{ 0, 0, 0, 0, 0, 0, 0 };
 static PositionalPid autoYawVelPID(0, 0, 0, 0, 0, 0, 0);
 static PositionalPid autoYawVelFeedbackPID(0, 0, 0, 0, 0, 0, 0);
 
-static float autoYawArmorAngPidPID[7]{ 900.f, 1000.f, 4.f, 0.001f, 6.f, 15.f, 0.f };
-static float autoYawArmorVelPidPID[7]{ 5.f, 2.f, 0.03f, 0.001f, 5.f, 100.f, 0.f };
-static float autoYawVelFeedbackPidPID[7]{ 50.0f, 5.f, 0.5f, 0.001f, 10.f, 30.f, 0.f };
+static float autoYawArmorAngPidPID[7]{ 900.f, 1000.f, 3.f, 0.001f, 6.f, 15.f, 0.f };
+static float autoYawArmorVelPidPID[7]{ 5.f, 2.f, 0.04f, 0.001f, 5.f, 100.f, 0.f };
+static float autoYawVelFeedbackPidPID[7]{ 70.0f, 5.f, 0.5f, 0.001f, 10.f, 30.f, 0.f };
 
 static float autoYawBuffAngPidPID[7]{ 300.f, 1000.f, 4.f, 0.001f, 8.f, 13.f, 0.f };
 static float autoYawBuffVelPidPID[7]{ 6.f, 1.f, 0.01f, 0.001f, 5.f, 100.f, 0.f };
