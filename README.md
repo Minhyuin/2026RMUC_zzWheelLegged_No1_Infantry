@@ -1,4 +1,7 @@
+![robot](.assets/robot.jpg)
+
 # PinyCore
+
 <p align="center">
     <a href="http://commitizen.github.io/cz-cli/"><img
             src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg"
