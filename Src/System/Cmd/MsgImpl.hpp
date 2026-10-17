@@ -100,10 +100,6 @@ struct RefereeMsg_s : public Msg {
     bool isPlay;
 };
 
-struct TOFMsg_s : public Msg {
-    float dist;
-};
-
 //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ other msg ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 struct INSEularMsg_s : public Msg {
     float roll, pitch, yaw;

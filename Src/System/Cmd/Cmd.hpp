@@ -15,10 +15,6 @@
 #include "RefereeHandler.hpp"
 #endif
 
-#if EXTENSION_TOF
-#include "TOFMsgHandler.hpp"
-#endif
-
 class Cmd : public Task<Cmd, 256> {
 public:
     Cmd();
@@ -47,10 +43,5 @@ private:
 
 #if EXTENSION_REFEREE
     RefereeHandler refereeHandler_;
-#endif
-
-#if EXTENSION_TOF
-    TOFMsgHandler<TFMINI_S> tofLeftHandler_;
-    TOFMsgHandler<TFMINI_S> tofRightHandler_;
 #endif
 };
